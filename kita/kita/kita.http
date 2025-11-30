@@ -1,0 +1,115 @@
+@kita_HostAddress = http://localhost:5064
+@contentType = application/json
+@authToken = {{login.response.body.data.token}}
+
+### 1. Register User
+# @name register
+POST {{kita_HostAddress}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "userName": "testuser",
+  "email": "test@example.com",
+  "password": "Password123!"
+}
+
+### 2. Login User
+# @name login
+POST {{kita_HostAddress}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "Password123!"
+}
+
+### 3. Create Server
+# @name createServer
+POST {{kita_HostAddress}}/api/server
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "My Awesome Server",
+  "iconUrl": "https://example.com/icon.png"
+}
+
+### 4. Get User Servers
+GET {{kita_HostAddress}}/api/server
+Authorization: Bearer {{authToken}}
+
+### 5. Create Channel (Text)
+# @name createTextChannel
+POST {{kita_HostAddress}}/api/channel
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "general",
+  "type": 0,
+  "serverId": "{{createServer.response.body.data.id}}"
+}
+
+### 6. Create Channel (Voice)
+POST {{kita_HostAddress}}/api/channel
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Voice Lounge",
+  "type": 1,
+  "serverId": "{{createServer.response.body.data.id}}"
+}
+
+### 7. Send Message
+POST {{kita_HostAddress}}/api/message
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "content": "Hello everyone!",
+  "channelId": "{{createTextChannel.response.body.data.id}}"
+}
+
+### 8. Get Channel Messages
+GET {{kita_HostAddress}}/api/message/channel/{{createTextChannel.response.body.data.id}}
+Authorization: Bearer {{authToken}}
+
+### 9. Create Song
+# @name createSong
+POST {{kita_HostAddress}}/api/music/songs
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Never Gonna Give You Up",
+  "artist": "Rick Astley",
+  "album": "Whenever You Need Somebody",
+  "duration": 213,
+  "streamUrl": "https://example.com/rickroll.mp3",
+  "coverUrl": "https://example.com/rick.jpg"
+}
+
+### 10. Get All Songs
+GET {{kita_HostAddress}}/api/music/songs
+Authorization: Bearer {{authToken}}
+
+### 11. Create Playlist
+# @name createPlaylist
+POST {{kita_HostAddress}}/api/music/playlists
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "My Favorites",
+  "description": "Best songs ever",
+  "isPublic": true
+}
+
+### 12. Add Song to Playlist
+POST {{kita_HostAddress}}/api/music/playlists/{{createPlaylist.response.body.data.id}}/songs/{{createSong.response.body.data.id}}
+Authorization: Bearer {{authToken}}
+
+### 13. Get User Playlists
+GET {{kita_HostAddress}}/api/music/playlists
+Authorization: Bearer {{authToken}}

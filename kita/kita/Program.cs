@@ -1,0 +1,132 @@
+using Microsoft.EntityFrameworkCore;
+using Kita.Infrastructure.Data;
+using Kita.Infrastructure.Repositories;
+using Kita.Service.Interfaces;
+using Kita.Service.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.FileProviders;
+using System.Text;
+using Kita.Hubs;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
+// Add Database Context
+builder.Services.AddDbContext<KitaDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add Repositories
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+// Add Services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IServerService, ServerService>();
+builder.Services.AddScoped<IChannelService, ChannelService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IMusicService, MusicService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IServerInviteService, ServerInviteService>();
+builder.Services.AddScoped<IPlaylistService, PlaylistService>();
+
+// Add SignalR
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true; // CHỈ development
+});
+// Add Authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+    };
+    
+    // Enable JWT authentication for SignalR
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+                
+            }
+            else if (context.Request.Headers.ContainsKey("Authorization"))
+            {
+                var authHeader = context.Request.Headers["Authorization"].ToString();
+                if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                }
+            }
+            
+            return Task.CompletedTask;
+        }
+    };
+
+});
+
+builder.Services.AddAuthorization();
+
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://localhost:5174")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Required for SignalR
+    });
+});
+
+var app = builder.Build();
+
+// Configure static files
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(@"A:/Code project/Kitaproject/kita/Assets/Images"),
+    RequestPath = "/assets/images"
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(@"A:/Code project/Kitaproject/kita/Assets/Music"),
+    RequestPath = "/assets/music"
+});
+
+app.UseHttpsRedirection();
+
+// Use CORS
+app.UseCors("AllowFrontend");
+
+app.UseMiddleware<Kita.Middleware.GlobalExceptionHandler>();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+// Map SignalR Hub
+app.MapHub<ChatHub>("/hubs/chat");
+
+app.Run();
