@@ -17,6 +17,58 @@ KitaUI/
 └── Ui/             # React + TypeScript frontend
 ```
 
+### 🚧 Microservice Migration (In Progress)
+
+The project is currently transitioning from a monolithic architecture to a microservices-based architecture for better scalability and maintainability.
+
+**Planned Microservices:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     API Gateway                         │
+│                  (Ocelot / YARP)                       │
+└─────────────────────────────────────────────────────────┘
+                          │
+        ┌─────────────────┼─────────────────┐
+        │                 │                 │
+┌───────▼────────┐ ┌──────▼──────┐ ┌───────▼────────┐
+│  Auth Service  │ │ Chat Service│ │ Music Service  │
+│   (Port 5001)  │ │ (Port 5002) │ │  (Port 5003)   │
+└────────────────┘ └─────────────┘ └────────────────┘
+        │                 │                 │
+        └─────────────────┼─────────────────┘
+                          │
+                ┌─────────▼─────────┐
+                │   Message Queue   │
+                │  (RabbitMQ/Kafka) │
+                └───────────────────┘
+```
+
+**Service Breakdown:**
+
+1. **Auth Service**
+   - User authentication and authorization
+   - JWT token management
+   - User profile management
+   - Role and permission handling
+
+2. **Chat Service**
+   - Server and channel management
+   - Real-time messaging via SignalR
+   - Message persistence
+   - Server invitations
+
+3. **Music Service**
+   - Song and playlist management
+   - File upload and streaming
+   - Music metadata handling
+   - Audio quality processing
+
+**Inter-Service Communication:**
+- **Synchronous**: REST APIs for direct service-to-service calls
+- **Asynchronous**: Message queue for event-driven communication
+- **Real-time**: SignalR for WebSocket connections
+
 ## ✨ Features
 
 ### 🎵 Music Management
@@ -52,6 +104,49 @@ KitaUI/
 - **Real-time**: SignalR
 - **Authentication**: JWT Bearer Tokens
 - **File Server**: Nginx
+
+### Additional Technical Requirements
+
+#### Message Queue & Event Streaming
+- **RabbitMQ** or **Apache Kafka** - For asynchronous inter-service communication
+- **MassTransit** - .NET service bus abstraction layer
+- Use cases: Event-driven architecture, background jobs, notifications
+
+#### Caching Layer
+- **Redis** - Distributed caching and session management
+- **In-Memory Cache** - For frequently accessed data
+- Use cases: JWT token blacklist, user sessions, frequently accessed playlists
+
+#### API Gateway
+- **Ocelot** or **YARP (Yet Another Reverse Proxy)** - API Gateway for microservices
+- Features: Routing, load balancing, authentication, rate limiting
+
+#### Containerization & Orchestration
+- **Docker** - Container platform for all services
+- **Docker Compose** - Multi-container orchestration for development
+- **Kubernetes** (Future) - Production-grade container orchestration
+
+#### Monitoring & Logging
+- **Serilog** - Structured logging framework
+- **Seq** or **ELK Stack** - Log aggregation and analysis
+- **Prometheus** + **Grafana** - Metrics and monitoring
+- **Health Checks** - ASP.NET Core health check endpoints
+
+#### Service Discovery
+- **Consul** or **Eureka** - Service registry and discovery
+- Required for dynamic service location in microservices
+
+#### Resilience & Fault Tolerance
+- **Polly** - Resilience and transient-fault-handling library
+- Patterns: Retry, Circuit Breaker, Timeout, Bulkhead Isolation
+
+#### Cloud Storage (Future)
+- **AWS S3** / **Azure Blob Storage** / **MinIO** - Object storage for music files
+- Replace local file storage for production scalability
+
+#### CI/CD Pipeline
+- **GitHub Actions** or **GitLab CI** - Automated build and deployment
+- **SonarQube** - Code quality and security analysis
 
 ### Frontend
 - **Framework**: React 19.2
