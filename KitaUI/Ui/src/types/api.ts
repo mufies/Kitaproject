@@ -46,8 +46,12 @@ export interface CreateSongDto {
     artist: string;
     album?: string;
     duration?: number;
-    songUrl?: string;
+    streamUrl?: string;
     coverUrl?: string;
+    status?: string; // SongStatus enum: Active, Inactive, etc.
+    type?: string; // SongType enum: Single, Album, etc.
+    genres?: string[]; // MusicGenre enum array
+    audioQuality?: string; // AudioQuality enum: Normal, High, Lossless
 }
 
 export interface SongDto {
@@ -56,23 +60,28 @@ export interface SongDto {
     artist: string;
     album?: string;
     duration?: number;
-    songUrl: string;
+    streamUrl: string;
     coverUrl?: string;
-    createdAt: string;
+    status?: string;
+    type?: string;
+    genres?: string[];
+    audioQuality?: string;
 }
 
 export interface CreatePlaylistDto {
     name: string;
     description?: string;
+    isPublic?: boolean;
 }
 
 export interface PlaylistDto {
     id: string;
     name: string;
     description?: string;
-    userId: string;
+    ownerId: string;
+    coverUrl?: string;
+    isPublic?: boolean;
     songs: SongDto[];
-    createdAt: string;
 }
 
 // Server DTOs

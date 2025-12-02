@@ -14,13 +14,13 @@ namespace Kita.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        private readonly IRepository<Channel> _channelRepository;
-        private readonly IRepository<ServerMember> _serverMemberRepository;
+        private readonly IBaseRepository<Channel> _channelRepository;
+        private readonly IBaseRepository<ServerMember> _serverMemberRepository;
         private readonly IMessageService _messageService;
 
         public ChatHub(
-            IRepository<Channel> channelRepository,
-            IRepository<ServerMember> serverMemberRepository,
+            IBaseRepository<Channel> channelRepository,
+            IBaseRepository<ServerMember> serverMemberRepository,
             IMessageService messageService)
         {
             _channelRepository = channelRepository;

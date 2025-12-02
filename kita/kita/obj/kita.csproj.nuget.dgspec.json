@@ -207,6 +207,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[8.0.0, )"
@@ -298,6 +302,10 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "Google.Apis.YouTube.v3": {
+              "target": "Package",
+              "version": "[1.70.0.3847, )"
+            },
             "Microsoft.Extensions.Configuration.Abstractions": {
               "target": "Package",
               "version": "[10.0.0, )"
@@ -305,6 +313,10 @@
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
               "version": "[8.15.0, )"
+            },
+            "YoutubeExplode": {
+              "target": "Package",
+              "version": "[6.5.6, )"
             }
           },
           "imports": [

@@ -17,17 +17,19 @@ namespace Kita.Service.Services
 {
     public class MusicService : IMusicService
     {
-        private readonly IRepository<Song> _songRepository;
-        private readonly IRepository<Playlist> _playlistRepository;
-        private readonly IRepository<PlaylistSong> _playlistSongRepository;
+        private readonly ISongRepository _songRepository;
+        private readonly IBaseRepository<Playlist> _playlistRepository;
+        private readonly IPlaylistSongRepository _playlistSongRepository;
         private readonly IConfiguration _configuration;
+        private readonly IYouTubeService _youtubeService;
 
-        public MusicService(IRepository<Song> songRepository, IRepository<Playlist> playlistRepository, IRepository<PlaylistSong> playlistSongRepository, IConfiguration configuration)
+        public MusicService(ISongRepository songRepository, IBaseRepository<Playlist> playlistRepository, IPlaylistSongRepository playlistSongRepository, IConfiguration configuration, IYouTubeService youtubeService)
         {
             _songRepository = songRepository;
             _playlistRepository = playlistRepository;
             _playlistSongRepository = playlistSongRepository;
             _configuration = configuration;
+            _youtubeService = youtubeService;
         }
 
         public async Task<ApiResponse<SongDto>> CreateSongAsync(CreateSongDto createSongDto)
@@ -245,6 +247,32 @@ namespace Kita.Service.Services
             await _songRepository.SaveChangesAsync();
             return new ApiResponse<SongDto>(songDto);
         }
+
+        public async Task<ApiResponse<SongDto>> GetSongByNameAndArtistAsync(string name, string artist)
+        {
+            var song = await _songRepository.GetByNameAndArtistAsync(name, artist);
+            if (song == null)
+            {
+                await _youtubeService.GetVideoUrlsBaseOnNameAndArtist(name, artist);
+            }
+            var songDto = new SongDto
+            {
+                Id = song.Id,
+                Title = song.Title,
+                Artist = song.Artist,
+                Album = song.Album,
+                Duration = song.Duration,
+                StreamUrl = song.StreamUrl,
+                CoverUrl = song.CoverUrl,
+                Status = song.Status,
+                Type = song.Type,
+                Genres = song.Genres,
+                AudioQuality = song.AudioQuality
+            };
+            return new ApiResponse<SongDto>(songDto);
+        }
+
+        
 
 
         

@@ -32,3 +32,4 @@ A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.dll
 A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\refint\Service.dll
 A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.pdb
 A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\ref\Service.dll
+A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.sourcelink.json

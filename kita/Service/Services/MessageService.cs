@@ -13,10 +13,10 @@ namespace Kita.Service.Services
 {
     public class MessageService : IMessageService
     {
-        private readonly IRepository<Message> _messageRepository;
-        private readonly IRepository<User> _userRepository;
+        private readonly IBaseRepository<Message> _messageRepository;
+        private readonly IBaseRepository<User> _userRepository;
 
-        public MessageService(IRepository<Message> messageRepository, IRepository<User> userRepository)
+        public MessageService(IBaseRepository<Message> messageRepository, IBaseRepository<User> userRepository)
         {
             _messageRepository = messageRepository;
             _userRepository = userRepository;

@@ -1,10 +1,12 @@
 using Kita.Service.DTOs.Music;
 using Kita.Service.Common;
+using Microsoft.AspNetCore.Http;
+
 namespace Kita.Service.Interfaces
 {
     public interface IPlaylistService
     {
-        Task<ApiResponse<PlaylistDto>> CreatePlaylistAsync(CreatePlaylistDto createPlaylistDto, Guid ownerId);
+        Task<ApiResponse<PlaylistDto>> CreatePlaylistAsync(CreatePlaylistDto createPlaylistDto, Guid ownerId, IFormFile coverFile);
         Task<ApiResponse<PlaylistDto>> AddSongToPlaylistAsync(Guid playlistId, Guid songId);
         Task<ApiResponse<List<PlaylistDto>>> GetUserPlaylistsAsync(Guid userId);
         Task<ApiResponse<PlaylistDto>> RemoveSongFromPlaylistAsync(Guid playlistId, Guid songId);
@@ -19,9 +21,6 @@ namespace Kita.Service.Interfaces
         Task<ApiResponse<List<PlaylistDto>>> GetPlaylistsByIsPrivateAsync(bool isPrivate);
         Task<ApiResponse<List<SongDto>>> GetSongInPlaylist(Guid playlistId);
         Task<ApiResponse<List<PlaylistDto>>> GetPlaylistsByUserIdAndSongIdAsync(Guid userId, Guid songId);
-        
-
-        
-
+        Task<ApiResponse<ImportPlaylistResponseDto>> ImportPlaylistAsync(ImportPlaylistRequestDto request, Guid userId);
     }
 }

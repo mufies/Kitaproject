@@ -12,10 +12,10 @@ namespace Kita.Service.Services
 {
     public class ServerService : IServerService
     {
-        private readonly IRepository<Server> _serverRepository;
-        private readonly IRepository<ServerMember> _serverMemberRepository;
+        private readonly IBaseRepository<Server> _serverRepository;
+        private readonly IBaseRepository<ServerMember> _serverMemberRepository;
 
-        public ServerService(IRepository<Server> serverRepository, IRepository<ServerMember> serverMemberRepository)
+        public ServerService(IBaseRepository<Server> serverRepository, IBaseRepository<ServerMember> serverMemberRepository)
         {
             _serverRepository = serverRepository;
             _serverMemberRepository = serverMemberRepository;

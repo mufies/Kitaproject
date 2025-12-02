@@ -12,14 +12,14 @@ namespace Kita.Service.Services
 {
     public class ServerInviteService : IServerInviteService
     {
-        private readonly IRepository<ServerInvite> _inviteRepository;
-        private readonly IRepository<Kita.Domain.Entities.Server.Server> _serverRepository;
-        private readonly IRepository<ServerMember> _serverMemberRepository;
+        private readonly IBaseRepository<ServerInvite> _inviteRepository;
+        private readonly IBaseRepository<Kita.Domain.Entities.Server.Server> _serverRepository;
+        private readonly IBaseRepository<ServerMember> _serverMemberRepository;
 
         public ServerInviteService(
-            IRepository<ServerInvite> inviteRepository,
-            IRepository<Kita.Domain.Entities.Server.Server> serverRepository,
-            IRepository<ServerMember> serverMemberRepository)
+            IBaseRepository<ServerInvite> inviteRepository,
+            IBaseRepository<Kita.Domain.Entities.Server.Server> serverRepository,
+            IBaseRepository<ServerMember> serverMemberRepository)
         {
             _inviteRepository = inviteRepository;
             _serverRepository = serverRepository;

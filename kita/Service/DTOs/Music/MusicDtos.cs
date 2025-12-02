@@ -42,6 +42,7 @@ namespace Kita.Service.DTOs.Music
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public string? CoverUrl { get; set; }
         public bool IsPublic { get; set; }
         public Guid OwnerId { get; set; }
         public List<SongDto> Songs { get; set; } = new List<SongDto>();
@@ -52,5 +53,31 @@ namespace Kita.Service.DTOs.Music
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public bool IsPublic { get; set; }
+    }
+
+    public class ImportPlaylistRequestDto
+    {
+        public string PlaylistUrl { get; set; } = string.Empty;
+    }
+
+    public class ImportPlaylistResponseDto
+    {
+        public Guid PlaylistId { get; set; }
+        public string PlaylistName { get; set; } = string.Empty;
+        public int TotalTracks { get; set; }
+        public int Downloaded { get; set; }
+        public int Skipped { get; set; }
+        public int Failed { get; set; }
+        public List<ImportedSongDto> ImportedSongs { get; set; } = new List<ImportedSongDto>();
+        public string Message { get; set; } = string.Empty;
+    }
+
+    public class ImportedSongDto
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Artist { get; set; } = string.Empty;
+        public bool WasDownloaded { get; set; }
+        public bool AlreadyExisted { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

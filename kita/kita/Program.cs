@@ -3,12 +3,15 @@ using Kita.Infrastructure.Data;
 using Kita.Infrastructure.Repositories;
 using Kita.Service.Interfaces;
 using Kita.Service.Services;
+using Kita.Service.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.FileProviders;
 using System.Text;
 using Kita.Hubs;
+using DotNetEnv;
 
+Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,7 +24,12 @@ builder.Services.AddDbContext<KitaDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Repositories
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+// Base repository for entities without specific repositories
+builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
+// Entity-specific repositories
+builder.Services.AddScoped<ISongRepository, SongRepository>();
+builder.Services.AddScoped<IPlaylistSongRepository, PlaylistSongRepository>();
 
 // Add Services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -32,6 +40,13 @@ builder.Services.AddScoped<IMusicService, MusicService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IServerInviteService, ServerInviteService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
+builder.Services.AddScoped<IYouTubeService, YouTubeService>();
+
+// Configure Spotify Options
+builder.Services.Configure<SpotifyOptions>(builder.Configuration.GetSection("Spotify"));
+
+// Add HttpClient for Spotify Service
+builder.Services.AddHttpClient<ISpotifyService, SpotifyService>();
 
 // Add SignalR
 builder.Services.AddSignalR(options =>
@@ -99,6 +114,8 @@ builder.Services.AddCors(options =>
               .AllowCredentials(); // Required for SignalR
     });
 });
+
+
 
 var app = builder.Build();
 

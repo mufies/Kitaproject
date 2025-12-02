@@ -3,34 +3,70 @@ using Kita.Infrastructure.Repositories;
 using Kita.Service.Common;
 using Kita.Service.DTOs.Music;
 using Kita.Service.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Domain.Enums;
 
 namespace Kita.Service.Services
 {
     public class PlaylistService : IPlaylistService
     {
-        private readonly IRepository<Playlist> _playlistRepository;
-        private readonly IRepository<Song> _songRepository;
-        private readonly IRepository<PlaylistSong> _playlistSongRepository;
+        private readonly IBaseRepository<Playlist> _playlistRepository;
+        private readonly ISongRepository _songRepository;
+        private readonly IPlaylistSongRepository _playlistSongRepository;
+        private readonly IConfiguration _configuration;
+        private readonly IYouTubeService _youTubeService;
+        private readonly ISpotifyService _spotifyService;
 
         public PlaylistService(
-            IRepository<Playlist> playlistRepository, 
-            IRepository<Song> songRepository, 
-            IRepository<PlaylistSong> playlistSongRepository)
+            IBaseRepository<Playlist> playlistRepository, 
+            ISongRepository _songRepository, 
+            IPlaylistSongRepository playlistSongRepository,
+            IConfiguration configuration,
+            IYouTubeService youTubeService,
+            ISpotifyService spotifyService)
         {
             _playlistRepository = playlistRepository;
-            _songRepository = songRepository;
+            this._songRepository = _songRepository;
             _playlistSongRepository = playlistSongRepository;
+            _configuration = configuration;
+            _youTubeService = youTubeService;
+            _spotifyService = spotifyService;
         }
 
         // Create Playlist
-        public async Task<ApiResponse<PlaylistDto>> CreatePlaylistAsync(CreatePlaylistDto createPlaylistDto, Guid ownerId)
+        public async Task<ApiResponse<PlaylistDto>> CreatePlaylistAsync(CreatePlaylistDto createPlaylistDto, Guid ownerId, IFormFile coverFile)
         {
+            // Lấy config
+            var storagePath = _configuration["FileStorage:BasePath"];
+            var baseUrl = _configuration["FileStorage:BaseUrl"];
+
+            // Đảm bảo thư mục Images tồn tại
+            var imagesFolder = Path.Combine(storagePath!, "Images");
+
+            // Tạo tên file random + giữ lại extension
+            var extension = Path.GetExtension(coverFile.FileName);
+            var fileName = Path.GetRandomFileName() + extension;
+
+            // Đường dẫn vật lý để lưu file
+            var filePath = Path.Combine(imagesFolder, fileName);
+
+            // Lưu file
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await coverFile.CopyToAsync(stream);
+            }
+
+            // URL trả về cho client
+            var coverUrl = $"{baseUrl}/Images/{fileName}";
+
             var playlist = new Playlist
             {
                 Name = createPlaylistDto.Name,
                 Description = createPlaylistDto.Description,
                 IsPublic = createPlaylistDto.IsPublic,
-                OwnerId = ownerId
+                OwnerId = ownerId,
+                CoverUrl = coverUrl
             };
 
             await _playlistRepository.AddAsync(playlist);
@@ -43,6 +79,7 @@ namespace Kita.Service.Services
                 Description = playlist.Description,
                 IsPublic = playlist.IsPublic,
                 OwnerId = playlist.OwnerId,
+                CoverUrl = playlist.CoverUrl,
                 Songs = new List<SongDto>()
             }, "Playlist created successfully.");
         }
@@ -94,7 +131,8 @@ namespace Kita.Service.Services
             
             if (songToRemove == null) return ApiResponse<PlaylistDto>.Fail("Song not found in playlist.");
 
-            await _playlistSongRepository.DeleteAsync(songToRemove.Id);
+            
+            await _playlistSongRepository.DeleteByCompositeKeyAsync(playlistId, songId);
             await _playlistSongRepository.SaveChangesAsync();
 
             return new ApiResponse<PlaylistDto>(new PlaylistDto
@@ -201,7 +239,8 @@ namespace Kita.Service.Services
                 Name = p.Name,
                 Description = p.Description,
                 IsPublic = p.IsPublic,
-                OwnerId = p.OwnerId
+                OwnerId = p.OwnerId,
+                CoverUrl = p.CoverUrl
             }).ToList();
 
             return new ApiResponse<List<PlaylistDto>>(playlistDtos);
@@ -217,7 +256,8 @@ namespace Kita.Service.Services
                 Name = p.Name,
                 Description = p.Description,
                 IsPublic = p.IsPublic,
-                OwnerId = p.OwnerId
+                OwnerId = p.OwnerId,
+                CoverUrl = p.CoverUrl
             }).ToList();
 
             return new ApiResponse<List<PlaylistDto>>(playlistDtos);
@@ -351,6 +391,273 @@ namespace Kita.Service.Services
             }).ToList();
 
             return new ApiResponse<List<PlaylistDto>>(playlistDtos);
+        }
+
+        // Import Playlist from YouTube or Spotify
+        public async Task<ApiResponse<ImportPlaylistResponseDto>> ImportPlaylistAsync(ImportPlaylistRequestDto request, Guid userId)
+        {
+            var response = new ImportPlaylistResponseDto();
+            var importedSongs = new List<ImportedSongDto>();
+
+            try
+            {
+                // Parse URL to determine source
+                var isYouTube = request.PlaylistUrl.Contains("youtube.com") || request.PlaylistUrl.Contains("youtu.be");
+                var isSpotify = request.PlaylistUrl.Contains("spotify.com");
+
+                if (!isYouTube && !isSpotify)
+                {
+                    return ApiResponse<ImportPlaylistResponseDto>.Fail("Invalid playlist URL. Only YouTube and Spotify playlists are supported.", code: 400);
+                }
+
+                string playlistName = "Imported Playlist";
+                string? playlistDescription = null;
+                string? coverUrl = null;
+                List<(string title, string artist)> tracks = new();
+
+                // Fetch playlist data based on source
+                if (isYouTube)
+                {
+                    // Extract playlist ID from URL
+                    var playlistId = ExtractYouTubePlaylistId(request.PlaylistUrl);
+                    if (string.IsNullOrEmpty(playlistId))
+                    {
+                        return ApiResponse<ImportPlaylistResponseDto>.Fail("Invalid YouTube playlist URL.", code: 400);
+                    }
+
+                    var playlistResult = await _youTubeService.GetPlaylistVideosAsync(playlistId);
+                    if (!playlistResult.Success || playlistResult.Data == null)
+                    {
+                        return ApiResponse<ImportPlaylistResponseDto>.Fail($"Failed to fetch YouTube playlist: {playlistResult.Message}", code: 500);
+                    }
+
+                    playlistName = $"YouTube Playlist {playlistId}";
+                    playlistDescription = "Imported from YouTube";
+                    
+                    foreach (var video in playlistResult.Data)
+                    {
+                        // Use ChannelName as artist, fallback to parsing title if not available
+                        var artist = !string.IsNullOrWhiteSpace(video.ChannelName) 
+                            ? video.ChannelName 
+                            : ParseYouTubeTitleToArtistAndTitle(video.Title).artist;
+                        var title = video.Title;
+                        
+                        tracks.Add((title, artist));
+                    }
+
+                    if (playlistResult.Data.Any())
+                    {
+                        coverUrl = playlistResult.Data.First().ThumbnailUrl;
+                    }
+                }
+                else if (isSpotify)
+                {
+                    // Extract playlist ID from Spotify URL
+                    var playlistId = ExtractSpotifyPlaylistId(request.PlaylistUrl);
+                    if (string.IsNullOrEmpty(playlistId))
+                    {
+                        return ApiResponse<ImportPlaylistResponseDto>.Fail("Invalid Spotify playlist URL.", code: 400);
+                    }
+
+                    var spotifyTracks = await _spotifyService.GetPlaylistTracksAsync(playlistId);
+                    if (spotifyTracks == null || !spotifyTracks.Any())
+                    {
+                        return ApiResponse<ImportPlaylistResponseDto>.Fail("Failed to fetch Spotify playlist or playlist is empty.", code: 500);
+                    }
+
+                    playlistName = $"Spotify Playlist {playlistId}";
+                    playlistDescription = "Imported from Spotify";
+
+                    foreach (var track in spotifyTracks)
+                    {
+                        tracks.Add((track.Name, track.Artist));
+                    }
+                }
+
+                // Create playlist
+                var playlist = new Playlist
+                {
+                    Name = playlistName,
+                    Description = playlistDescription,
+                    IsPublic = false,
+                    OwnerId = userId,
+                    CoverUrl = coverUrl
+                };
+
+                await _playlistRepository.AddAsync(playlist);
+                await _playlistRepository.SaveChangesAsync();
+
+                response.PlaylistId = playlist.Id;
+                response.PlaylistName = playlist.Name;
+                response.TotalTracks = tracks.Count;
+
+                // Process each track
+                int orderIndex = 0;
+                foreach (var (title, artist) in tracks)
+                {
+                    var importedSong = new ImportedSongDto
+                    {
+                        Title = title,
+                        Artist = artist
+                    };
+
+                    try
+                    {
+                        // Check if song exists in DB
+                        var existingSong = await _songRepository.GetByNameAndArtistAsync(title, artist);
+
+                        if (existingSong != null)
+                        {
+                            // Song exists, just add to playlist
+                            importedSong.AlreadyExisted = true;
+                            importedSong.WasDownloaded = false;
+
+                            var playlistSong = new PlaylistSong
+                            {
+                                PlaylistId = playlist.Id,
+                                SongId = existingSong.Id,
+                                OrderIndex = orderIndex++
+                            };
+
+                            await _playlistSongRepository.AddAsync(playlistSong);
+                            response.Skipped++;
+                        }
+                        else
+                        {
+                            // Song doesn't exist, search YouTube and download
+                            var videoInfo = await _youTubeService.GetVideoUrlsBaseOnNameAndArtist(title, artist);
+
+                            if (videoInfo == null)
+                            {
+                                importedSong.ErrorMessage = "Video not found on YouTube";
+                                response.Failed++;
+                                importedSongs.Add(importedSong);
+                                continue;
+                            }
+
+                            // Download video as MP3
+                            var downloadResult = await _youTubeService.DownloadVideoAsync(videoInfo.VideoUrl);
+
+                            if (!downloadResult.Success || downloadResult.Data == null)
+                            {
+                                importedSong.ErrorMessage = $"Download failed: {downloadResult.Message}";
+                                response.Failed++;
+                                importedSongs.Add(importedSong);
+                                continue;
+                            }
+
+                            // Create Song entity
+                            var storagePath = _configuration["FileStorage:BasePath"];
+                            var baseUrl = _configuration["FileStorage:BaseUrl"];
+                            var musicFolder = Path.Combine(storagePath!, "Music");
+                            var fileName = downloadResult.Data.FileName;
+                            var streamUrl = $"{baseUrl}/Music/{fileName}";
+
+                            var newSong = new Song
+                            {
+                                Title = title,
+                                Artist = artist,
+                                Duration = 0, // Could be extracted from video if needed
+                                StreamUrl = streamUrl,
+                                CoverUrl = videoInfo.ThumbnailUrl,
+                                Status = SongStatus.Active,
+                                Type = SongType.Single,
+                                AudioQuality = AudioQuality.Normal
+                            };
+
+                            await _songRepository.AddAsync(newSong);
+                            await _songRepository.SaveChangesAsync();
+
+                            // Add to playlist
+                            var playlistSong = new PlaylistSong
+                            {
+                                PlaylistId = playlist.Id,
+                                SongId = newSong.Id,
+                                OrderIndex = orderIndex++
+                            };
+
+                            await _playlistSongRepository.AddAsync(playlistSong);
+
+                            importedSong.WasDownloaded = true;
+                            importedSong.AlreadyExisted = false;
+                            response.Downloaded++;
+                        }
+
+                        await _playlistSongRepository.SaveChangesAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        importedSong.ErrorMessage = ex.Message;
+                        response.Failed++;
+                    }
+
+                    importedSongs.Add(importedSong);
+                }
+
+                response.ImportedSongs = importedSongs;
+                response.Message = $"Playlist imported successfully. Downloaded: {response.Downloaded}, Skipped: {response.Skipped}, Failed: {response.Failed}";
+
+                return new ApiResponse<ImportPlaylistResponseDto>(response, response.Message);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<ImportPlaylistResponseDto>.Fail($"An error occurred during import: {ex.Message}", code: 500);
+            }
+        }
+
+        private string? ExtractYouTubePlaylistId(string url)
+        {
+            try
+            {
+                var uri = new Uri(url);
+                var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+                return query["list"];
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private string? ExtractSpotifyPlaylistId(string url)
+        {
+            try
+            {
+                // Format: https://open.spotify.com/playlist/{id}
+                var uri = new Uri(url);
+                var segments = uri.Segments;
+                return segments.Length > 2 ? segments[^1].TrimEnd('/') : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private (string artist, string title) ParseYouTubeTitleToArtistAndTitle(string videoTitle)
+        {
+            // Common patterns: "Artist - Title", "Artist: Title", "Title by Artist"
+            if (videoTitle.Contains(" - "))
+            {
+                var parts = videoTitle.Split(new string[] { " - " }, 2, StringSplitOptions.None);
+                return (parts[0].Trim(), parts[1].Trim());
+            }
+            else if (videoTitle.Contains(": "))
+            {
+                var parts = videoTitle.Split(new string[] { ": " }, 2, StringSplitOptions.None);
+                return (parts[0].Trim(), parts[1].Trim());
+            }
+            else if (videoTitle.ToLower().Contains(" by "))
+            {
+                var parts = videoTitle.Split(new string[] { " by ", " By ", " BY " }, StringSplitOptions.None);
+                if (parts.Length >= 2)
+                {
+                    return (parts[1].Trim(), parts[0].Trim());
+                }
+            }
+
+            // Default: use video title as both artist and title
+            return ("Unknown Artist", videoTitle);
         }
     }
 }

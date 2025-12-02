@@ -20,3 +20,4 @@ A:\Code project\Kitaproject\kita\Domain\obj\Debug\net8.0\Domain.dll
 A:\Code project\Kitaproject\kita\Domain\obj\Debug\net8.0\refint\Domain.dll
 A:\Code project\Kitaproject\kita\Domain\obj\Debug\net8.0\Domain.pdb
 A:\Code project\Kitaproject\kita\Domain\obj\Debug\net8.0\ref\Domain.dll
+A:\Code project\Kitaproject\kita\Domain\obj\Debug\net8.0\Domain.sourcelink.json

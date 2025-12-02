@@ -32,3 +32,4 @@ A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\refint\Infrastr
 A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
 A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.genruntimeconfig.cache
 A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll
+A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.sourcelink.json

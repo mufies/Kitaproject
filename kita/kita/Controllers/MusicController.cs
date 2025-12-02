@@ -13,12 +13,10 @@ namespace Kita.Controllers
     public class MusicController : BaseApiController
     {
         private readonly IMusicService _musicService;
-        private readonly IPlaylistService _playlistService;
 
-        public MusicController(IMusicService musicService, IPlaylistService playlistService)
+        public MusicController(IMusicService musicService)
         {
             _musicService = musicService;
-            _playlistService = playlistService;
         }
 
         [HttpPost("songs")]
@@ -42,26 +40,24 @@ namespace Kita.Controllers
             return HandleResult(result);
         }
 
-        [HttpPost("playlists")]
-        public async Task<IActionResult> CreatePlaylist(CreatePlaylistDto createPlaylistDto)
+        [HttpGet("songs/{id}")]
+        public async Task<IActionResult> GetSongById(Guid id)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var result = await _playlistService.CreatePlaylistAsync(createPlaylistDto, userId);
+            var result = await _musicService.GetSongByIdAsync(id);
             return HandleResult(result);
         }
 
-        [HttpPost("playlists/{playlistId}/songs/{songId}")]
-        public async Task<IActionResult> AddSongToPlaylist(Guid playlistId, Guid songId)
+        [HttpPut("songs/{id}")]
+        public async Task<IActionResult> UpdateSong(Guid id, SongDto updateSongDto)
         {
-            var result = await _playlistService.AddSongToPlaylistAsync(playlistId, songId);
+            var result = await _musicService.UpdateSongAsync(id, updateSongDto);
             return HandleResult(result);
         }
 
-        [HttpGet("playlists")]
-        public async Task<IActionResult> GetUserPlaylists()
+        [HttpPatch("songs/{id}/status")]
+        public async Task<IActionResult> ChangeSongStatus(Guid id, [FromBody] string status)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var result = await _playlistService.GetUserPlaylistsAsync(userId);
+            var result = await _musicService.ChangeSongStatusAsync(id, status);
             return HandleResult(result);
         }
     }

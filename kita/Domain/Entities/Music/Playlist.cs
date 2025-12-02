@@ -7,6 +7,7 @@ namespace Kita.Domain.Entities.Music
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public string? CoverUrl { get; set; }
         public bool IsPublic { get; set; }
 
         public Guid OwnerId { get; set; }

@@ -15,6 +15,7 @@ namespace Kita.Service.Interfaces
         Task<ApiResponse<SongDto>> GetSongByIdAsync(Guid songId);
         Task<ApiResponse<SongDto>> UpdateSongAsync(Guid songId, SongDto updateSongDto);
         Task<ApiResponse<SongDto>> ChangeSongStatusAsync(Guid songId,string status);
+        Task<ApiResponse<SongDto>> GetSongByNameAndArtistAsync(string name, string artist);
 
 
     }

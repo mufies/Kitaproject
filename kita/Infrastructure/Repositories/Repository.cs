@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Kita.Domain.Entities;
@@ -9,12 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Kita.Infrastructure.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : BaseEntity
+    public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
     {
         protected readonly KitaDbContext _context;
         protected readonly DbSet<T> _dbSet;
 
-        public Repository(KitaDbContext context)
+        public BaseRepository(KitaDbContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();

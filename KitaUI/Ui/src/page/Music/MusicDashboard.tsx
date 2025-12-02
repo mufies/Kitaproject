@@ -64,9 +64,12 @@ export const MusicDashboard: React.FC = () => {
         }
     };
 
-    const handleCreatePlaylist = async (name: string, description: string) => {
+    const handleCreatePlaylist = async (name: string, description: string, coverFile?: File) => {
         try {
-            const response = await createPlaylist({ name, description: description || undefined });
+            const response = await createPlaylist(
+                { name, description: description || undefined },
+                coverFile
+            );
             if (response.success) {
                 setPlaylists([...playlists, response.data]);
                 setShowCreatePlaylist(false);
@@ -228,7 +231,9 @@ export const MusicDashboard: React.FC = () => {
                                         onClick={() => handlePlaylistClick(playlist.id)}
                                     >
                                         <div className="relative w-full aspect-square rounded bg-[#282828] mb-4 overflow-hidden group">
-                                            {playlist.songs && playlist.songs.length > 0 ? (
+                                            {playlist.coverUrl ? (
+                                                <img src={playlist.coverUrl} alt={playlist.name} className="w-full h-full object-cover" />
+                                            ) : playlist.songs && playlist.songs.length > 0 ? (
                                                 <div className="grid grid-cols-2 grid-rows-2 w-full h-full gap-0.5">
                                                     {playlist.songs.slice(0, 4).map((song, idx) => (
                                                         song.coverUrl ? (

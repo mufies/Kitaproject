@@ -17,10 +17,10 @@ namespace Kita.Service.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IRepository<User> _userRepository;
+        private readonly IBaseRepository<User> _userRepository;
         private readonly IConfiguration _configuration;
 
-        public AuthService(IRepository<User> userRepository, IConfiguration configuration)
+        public AuthService(IBaseRepository<User> userRepository, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _configuration = configuration;

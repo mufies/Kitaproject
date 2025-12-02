@@ -12,9 +12,9 @@ namespace Kita.Service.Services
 {
     public class ChannelService : IChannelService
     {
-        private readonly IRepository<Channel> _channelRepository;
+        private readonly IBaseRepository<Channel> _channelRepository;
 
-        public ChannelService(IRepository<Channel> channelRepository)
+        public ChannelService(IBaseRepository<Channel> channelRepository)
         {
             _channelRepository = channelRepository;
         }
