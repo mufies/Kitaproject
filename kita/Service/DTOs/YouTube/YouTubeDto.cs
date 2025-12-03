@@ -2,6 +2,12 @@ using System;
 
 namespace Kita.Service.DTOs.YouTube
 {
+
+    public class YoutubePlaylistVideoDto{
+        public string playlistName;
+        public List<YouTubeVideoDto> videos;
+    }
+
     public class YouTubeVideoDto
     {
         public string VideoId { get; set; } = string.Empty;

@@ -60,5 +60,13 @@ namespace Kita.Controllers
             var result = await _musicService.ChangeSongStatusAsync(id, status);
             return HandleResult(result);
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("songs/all")]
+        public async Task<IActionResult> DeleteAllSongs()
+        {
+            var result = await _musicService.DeleteAllSongsAsync();
+            return HandleResult(result);
+        }
     }
 }

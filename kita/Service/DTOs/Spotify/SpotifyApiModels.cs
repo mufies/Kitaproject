@@ -16,10 +16,14 @@ namespace Kita.Service.DTOs.Spotify
         [JsonPropertyName("expires_in")]
         public int ExpiresIn { get; set; }
     }
+    
+    public class SpotifyPlaylist
+    {
+        public string Name { get; set; } = string.Empty;
+        public string CoverUrl { get; set; } = string.Empty;
+        public List<SimpleTrack> Tracks { get; set; } = new();
+    }
 
-    /// <summary>
-    /// Response model for Spotify playlist tracks endpoint
-    /// </summary>
     public class SpotifyPlaylistTracksResponse
     {
         [JsonPropertyName("items")]
@@ -49,4 +53,5 @@ namespace Kita.Service.DTOs.Spotify
         [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
     }
+    
 }

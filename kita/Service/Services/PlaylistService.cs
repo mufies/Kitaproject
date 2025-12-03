@@ -431,12 +431,11 @@ namespace Kita.Service.Services
                         return ApiResponse<ImportPlaylistResponseDto>.Fail($"Failed to fetch YouTube playlist: {playlistResult.Message}", code: 500);
                     }
 
-                    playlistName = $"YouTube Playlist {playlistId}";
+                    playlistName = playlistResult.Data.playlistName;
                     playlistDescription = "Imported from YouTube";
                     
-                    foreach (var video in playlistResult.Data)
+                    foreach (var video in playlistResult.Data.videos)
                     {
-                        // Use ChannelName as artist, fallback to parsing title if not available
                         var artist = !string.IsNullOrWhiteSpace(video.ChannelName) 
                             ? video.ChannelName 
                             : ParseYouTubeTitleToArtistAndTitle(video.Title).artist;
@@ -445,41 +444,41 @@ namespace Kita.Service.Services
                         tracks.Add((title, artist));
                     }
 
-                    if (playlistResult.Data.Any())
+                    if (playlistResult.Data.videos.Any())
                     {
-                        coverUrl = playlistResult.Data.First().ThumbnailUrl;
+                        coverUrl = playlistResult.Data.videos.First().ThumbnailUrl;
                     }
                 }
                 else if (isSpotify)
                 {
-                    // Extract playlist ID from Spotify URL
                     var playlistId = ExtractSpotifyPlaylistId(request.PlaylistUrl);
                     if (string.IsNullOrEmpty(playlistId))
                     {
                         return ApiResponse<ImportPlaylistResponseDto>.Fail("Invalid Spotify playlist URL.", code: 400);
                     }
 
-                    var spotifyTracks = await _spotifyService.GetPlaylistTracksAsync(playlistId);
-                    if (spotifyTracks == null || !spotifyTracks.Any())
+                    var spotifyPlaylist = await _spotifyService.GetPlaylistInfoAsync(playlistId);
+                    if (spotifyPlaylist == null || spotifyPlaylist.Tracks == null || !spotifyPlaylist.Tracks.Any())
                     {
                         return ApiResponse<ImportPlaylistResponseDto>.Fail("Failed to fetch Spotify playlist or playlist is empty.", code: 500);
                     }
 
-                    playlistName = $"Spotify Playlist {playlistId}";
+                    playlistName = spotifyPlaylist.Name;
                     playlistDescription = "Imported from Spotify";
 
-                    foreach (var track in spotifyTracks)
+                    foreach (var track in spotifyPlaylist.Tracks)
                     {
                         tracks.Add((track.Name, track.Artist));
                     }
+                    coverUrl = spotifyPlaylist.CoverUrl;
                 }
 
-                // Create playlist
+
                 var playlist = new Playlist
                 {
                     Name = playlistName,
                     Description = playlistDescription,
-                    IsPublic = false,
+                    IsPublic = true,
                     OwnerId = userId,
                     CoverUrl = coverUrl
                 };
@@ -491,7 +490,6 @@ namespace Kita.Service.Services
                 response.PlaylistName = playlist.Name;
                 response.TotalTracks = tracks.Count;
 
-                // Process each track
                 int orderIndex = 0;
                 foreach (var (title, artist) in tracks)
                 {
@@ -623,7 +621,6 @@ namespace Kita.Service.Services
         {
             try
             {
-                // Format: https://open.spotify.com/playlist/{id}
                 var uri = new Uri(url);
                 var segments = uri.Segments;
                 return segments.Length > 2 ? segments[^1].TrimEnd('/') : null;
@@ -636,7 +633,6 @@ namespace Kita.Service.Services
 
         private (string artist, string title) ParseYouTubeTitleToArtistAndTitle(string videoTitle)
         {
-            // Common patterns: "Artist - Title", "Artist: Title", "Title by Artist"
             if (videoTitle.Contains(" - "))
             {
                 var parts = videoTitle.Split(new string[] { " - " }, 2, StringSplitOptions.None);
@@ -656,7 +652,6 @@ namespace Kita.Service.Services
                 }
             }
 
-            // Default: use video title as both artist and title
             return ("Unknown Artist", videoTitle);
         }
     }

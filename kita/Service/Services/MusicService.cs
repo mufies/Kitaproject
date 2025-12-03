@@ -272,10 +272,20 @@ namespace Kita.Service.Services
             return new ApiResponse<SongDto>(songDto);
         }
 
-        
-
-
-        
+        public async Task<ApiResponse<string>> DeleteAllSongsAsync()
+        {
+            var songs = await _songRepository.GetAllAsync();
+            var count = songs.Count();
+            
+            foreach (var song in songs)
+            {
+                await _songRepository.DeleteAsync(song.Id);
+            }
+            
+            await _songRepository.SaveChangesAsync();
+            
+            return new ApiResponse<string>($"Successfully deleted {count} songs from the database.");
+        }
 
     }
 }

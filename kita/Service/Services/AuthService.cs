@@ -50,7 +50,6 @@ namespace Kita.Service.Services
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
 
-            // Generate token
             var token = GenerateJwtToken(user);
 
             return new ApiResponse<AuthResponseDto>(new AuthResponseDto

@@ -53,14 +53,12 @@ namespace Kita.Service.Services
                             tracks.Add(new SimpleTrack
                             {
                                 Name = item.Track.Name,
-                                // Get first artist name, or empty string if no artists
                                 Artist = item.Track.Artists.FirstOrDefault()?.Name ?? string.Empty
                             });
                         }
                     }
                 }
                 
-                // Move to next page (if exists)
                 nextUrl = playlistResponse?.Next;
             }
             
@@ -112,6 +110,61 @@ namespace Kita.Service.Services
             {
                 _tokenLock.Release();
             }
+        }
+
+        public async Task<SpotifyPlaylist> GetPlaylistInfoAsync(string playlistId)
+        {
+            if (string.IsNullOrEmpty(playlistId))
+            {
+                throw new ArgumentException("Invalid Spotify playlist ID");
+            }
+
+            var token = await GetAccessTokenAsync();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.spotify.com/v1/playlists/{playlistId}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            using var document = JsonDocument.Parse(content);
+            var root = document.RootElement;
+            
+            if (!root.TryGetProperty("name", out var nameElement))
+            {
+                throw new InvalidOperationException("Failed to retrieve playlist name from Spotify");
+            }
+            
+            string playlistName = nameElement.GetString() ?? string.Empty;
+            string coverUrl = string.Empty;
+            if (root.TryGetProperty("images", out var imagesElement) && 
+                imagesElement.ValueKind == JsonValueKind.Array && 
+                imagesElement.GetArrayLength() > 0)
+            {
+                var firstImage = imagesElement[0];
+                if (firstImage.TryGetProperty("url", out var urlElement))
+                {
+                    coverUrl = urlElement.GetString() ?? string.Empty;
+                }
+            }
+
+            Console.WriteLine($"Playlist name: {playlistName}");
+            Console.WriteLine($"Playlist cover URL: {coverUrl}");
+
+            if (string.IsNullOrEmpty(playlistName))
+            {
+                throw new InvalidOperationException("Failed to retrieve playlist name from Spotify");
+            }
+
+            
+            return new SpotifyPlaylist
+            {
+                Name = playlistName,
+                CoverUrl = coverUrl,
+                Tracks = await GetPlaylistTracksAsync(playlistId)
+            };
         }
     }
 }

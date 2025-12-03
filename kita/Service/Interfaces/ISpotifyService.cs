@@ -4,10 +4,9 @@ using System.Collections.Generic;
 
 namespace Kita.Service.Interfaces
 {
-
     public interface ISpotifyService
     {
-
         Task<List<SimpleTrack>> GetPlaylistTracksAsync(string playlistId);
+        Task<SpotifyPlaylist> GetPlaylistInfoAsync(string playlistId);
     }
 }

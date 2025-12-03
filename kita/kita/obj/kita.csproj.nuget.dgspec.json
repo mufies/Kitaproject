@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "a:\\Code project\\Kitaproject\\kita\\kita\\kita.csproj": {}
+    "A:\\Code project\\Kitaproject\\kita\\kita\\kita.csproj": {}
   },
   "projects": {
-    "a:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj": {
+    "A:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "a:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj",
+        "projectUniqueName": "A:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "a:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj",
+        "projectPath": "A:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\mufi\\.nuget\\packages\\",
-        "outputPath": "a:\\Code project\\Kitaproject\\kita\\Domain\\obj\\",
+        "outputPath": "A:\\Code project\\Kitaproject\\kita\\Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -43,8 +43,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -65,18 +64,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.405/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "a:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj": {
+    "A:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "a:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj",
+        "projectUniqueName": "A:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj",
         "projectName": "Infrastructure",
-        "projectPath": "a:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj",
+        "projectPath": "A:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj",
         "packagesPath": "C:\\Users\\mufi\\.nuget\\packages\\",
-        "outputPath": "a:\\Code project\\Kitaproject\\kita\\Infrastructure\\obj\\",
+        "outputPath": "A:\\Code project\\Kitaproject\\kita\\Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -97,8 +96,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "a:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj": {
-                "projectPath": "a:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj"
+              "A:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj": {
+                "projectPath": "A:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj"
               }
             }
           }
@@ -112,8 +111,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -150,18 +148,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.405/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "a:\\Code project\\Kitaproject\\kita\\kita\\kita.csproj": {
+    "A:\\Code project\\Kitaproject\\kita\\kita\\kita.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "a:\\Code project\\Kitaproject\\kita\\kita\\kita.csproj",
+        "projectUniqueName": "A:\\Code project\\Kitaproject\\kita\\kita\\kita.csproj",
         "projectName": "kita",
-        "projectPath": "a:\\Code project\\Kitaproject\\kita\\kita\\kita.csproj",
+        "projectPath": "A:\\Code project\\Kitaproject\\kita\\kita\\kita.csproj",
         "packagesPath": "C:\\Users\\mufi\\.nuget\\packages\\",
-        "outputPath": "a:\\Code project\\Kitaproject\\kita\\kita\\obj\\",
+        "outputPath": "A:\\Code project\\Kitaproject\\kita\\kita\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -182,11 +180,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "a:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "a:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj"
+              "A:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "A:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj"
               },
-              "a:\\Code project\\Kitaproject\\kita\\Service\\Service.csproj": {
-                "projectPath": "a:\\Code project\\Kitaproject\\kita\\Service\\Service.csproj"
+              "A:\\Code project\\Kitaproject\\kita\\Service\\Service.csproj": {
+                "projectPath": "A:\\Code project\\Kitaproject\\kita\\Service\\Service.csproj"
               }
             }
           }
@@ -200,8 +198,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -241,18 +238,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.405/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "a:\\Code project\\Kitaproject\\kita\\Service\\Service.csproj": {
+    "A:\\Code project\\Kitaproject\\kita\\Service\\Service.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "a:\\Code project\\Kitaproject\\kita\\Service\\Service.csproj",
+        "projectUniqueName": "A:\\Code project\\Kitaproject\\kita\\Service\\Service.csproj",
         "projectName": "Service",
-        "projectPath": "a:\\Code project\\Kitaproject\\kita\\Service\\Service.csproj",
+        "projectPath": "A:\\Code project\\Kitaproject\\kita\\Service\\Service.csproj",
         "packagesPath": "C:\\Users\\mufi\\.nuget\\packages\\",
-        "outputPath": "a:\\Code project\\Kitaproject\\kita\\Service\\obj\\",
+        "outputPath": "A:\\Code project\\Kitaproject\\kita\\Service\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -273,11 +270,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "a:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj": {
-                "projectPath": "a:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj"
+              "A:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj": {
+                "projectPath": "A:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj"
               },
-              "a:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "a:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj"
+              "A:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "A:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj"
               }
             }
           }
@@ -291,8 +288,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -338,7 +334,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.405/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

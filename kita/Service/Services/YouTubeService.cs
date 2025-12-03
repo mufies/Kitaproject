@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Google.Apis.Services;
-using Google.Apis.YouTube.v3;
 using Kita.Service.Common;
 using Kita.Service.DTOs.Music;
 using Kita.Service.DTOs.YouTube;
@@ -11,79 +9,61 @@ using Kita.Service.Interfaces;
 using Microsoft.Extensions.Configuration;
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
+using YoutubeExplode.Playlists;
+using YoutubeExplode.Search;
 
 namespace Kita.Service.Services
 {
     public class YouTubeService : IYouTubeService
     {
-        private readonly string _apiKey;
-        private readonly string _applicationName;
         private readonly YoutubeClient _youtubeClient;
 
         public YouTubeService(IConfiguration configuration)
         {
-            _apiKey = configuration["YouTube:ApiKey"] ?? throw new InvalidOperationException("YouTube API Key is not configured.");
-            _applicationName = configuration["YouTube:ApplicationName"] ?? "KitaProject";
             _youtubeClient = new YoutubeClient();
         }
 
-        public async Task<ApiResponse<List<YouTubeVideoDto>>> GetPlaylistVideosAsync(string playlistId)
+        public async Task<ApiResponse<YoutubePlaylistVideoDto>> GetPlaylistVideosAsync(string playlistId)
         {
             if (string.IsNullOrWhiteSpace(playlistId))
             {
-                return ApiResponse<List<YouTubeVideoDto>>.Fail("Playlist ID is required.", code: 400);
+                return ApiResponse<YoutubePlaylistVideoDto>.Fail("Playlist ID is required.", code: 400);
             }
 
             try
             {
-                var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
-                {
-                    ApiKey = _apiKey,
-                    ApplicationName = _applicationName
-                });
-
                 var videos = new List<YouTubeVideoDto>();
-                string? nextPageToken = null;
-
-                do
+                var playlistInfo = await _youtubeClient.Playlists.GetAsync(playlistId);
+                var playlistName = playlistInfo.Title;
+                await foreach (var video in _youtubeClient.Playlists.GetVideosAsync(playlistId))
                 {
-                    var playlistItemsRequest = youtubeService.PlaylistItems.List("snippet,contentDetails");
-                    playlistItemsRequest.PlaylistId = playlistId;
-                    playlistItemsRequest.MaxResults = 50; 
-                    playlistItemsRequest.PageToken = nextPageToken;
-
-                    var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync();
-
-                    foreach (var playlistItem in playlistItemsResponse.Items)
+                    var videoDto = new YouTubeVideoDto
                     {
-                        var videoDto = new YouTubeVideoDto
-                        {
-                            VideoId = playlistItem.ContentDetails.VideoId,
-                            Title = playlistItem.Snippet.Title,
-                            Description = playlistItem.Snippet.Description,
-                            ThumbnailUrl = playlistItem.Snippet.Thumbnails?.Default__?.Url 
-                                ?? playlistItem.Snippet.Thumbnails?.Medium?.Url 
-                                ?? playlistItem.Snippet.Thumbnails?.High?.Url,
-                            ChannelName = playlistItem.Snippet.ChannelTitle,
-                            PublishedAt = playlistItem.Snippet.PublishedAtDateTimeOffset?.DateTime
-                        };
+                        VideoId = video.Id,
+                        Title = video.Title,
+                        Description = null,
+                        ThumbnailUrl = video.Thumbnails.OrderByDescending(t => t.Resolution.Area).FirstOrDefault()?.Url,
+                        ChannelName = video.Author.ChannelTitle,
+                        PublishedAt = null
+                    };
 
-                        videos.Add(videoDto);
-                    }
+                    videos.Add(videoDto);
+                }
+                var playlistDto = new YoutubePlaylistVideoDto
+                {
+                    playlistName = playlistName,
+                    videos = videos
+                };
 
-                    nextPageToken = playlistItemsResponse.NextPageToken;
-
-                } while (!string.IsNullOrEmpty(nextPageToken));
-
-                return new ApiResponse<List<YouTubeVideoDto>>(videos, $"Successfully retrieved {videos.Count} videos from playlist.");
+                return new ApiResponse<YoutubePlaylistVideoDto>(playlistDto, $"Successfully retrieved {videos.Count} videos from playlist {playlistName}.");
             }
-            catch (Google.GoogleApiException ex)
+            catch (ArgumentException ex)
             {
-                return ApiResponse<List<YouTubeVideoDto>>.Fail($"YouTube API error: {ex.Message}", code: ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound ? 404 : 500);
+                return ApiResponse<YoutubePlaylistVideoDto>.Fail($"Invalid playlist ID: {ex.Message}", code: 400);
             }
             catch (Exception ex)
             {
-                return ApiResponse<List<YouTubeVideoDto>>.Fail($"An error occurred: {ex.Message}", code: 500);
+                return ApiResponse<YoutubePlaylistVideoDto>.Fail($"An error occurred: {ex.Message}", code: 500);
             }
         }
 
@@ -215,48 +195,34 @@ namespace Kita.Service.Services
 
             try
             {
-                var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
-                {
-                    ApiKey = _apiKey,
-                    ApplicationName = _applicationName
-                });
-
-                // Create search query combining artist and song name
                 var searchQuery = $"{artist} {name}";
                 
-                var searchRequest = youtubeService.Search.List("snippet");
-                searchRequest.Q = searchQuery;
-                searchRequest.Type = "video";
-                searchRequest.MaxResults = 1; 
-                searchRequest.VideoCategoryId = "10"; 
-                searchRequest.Order = Google.Apis.YouTube.v3.SearchResource.ListRequest.OrderEnum.Relevance;
-
-                var searchResponse = await searchRequest.ExecuteAsync();
+                YoutubeExplode.Search.VideoSearchResult? firstResult = null;
+                await foreach (var result in _youtubeClient.Search.GetVideosAsync(searchQuery))
+                {
+                    firstResult = result;
+                    break; // Only get the first result
+                }
                 
-                if (searchResponse.Items == null || searchResponse.Items.Count == 0)
+                if (firstResult == null)
                 {
                     return null;
                 }
 
-                var firstResult = searchResponse.Items[0];
+                // Get full video details to access author information
+                var video = await _youtubeClient.Videos.GetAsync(firstResult.Id);
                 
                 var videoDto = new YouTubeVideoDto
                 {
-                    VideoId = firstResult.Id.VideoId,
-                    Title = firstResult.Snippet.Title,
-                    Description = firstResult.Snippet.Description,
-                    ThumbnailUrl = firstResult.Snippet.Thumbnails?.High?.Url 
-                        ?? firstResult.Snippet.Thumbnails?.Medium?.Url 
-                        ?? firstResult.Snippet.Thumbnails?.Maxres?.Url,
-                    ChannelName = firstResult.Snippet.ChannelTitle,
-                    PublishedAt = firstResult.Snippet.PublishedAtDateTimeOffset?.DateTime
+                    VideoId = video.Id,
+                    Title = video.Title,
+                    Description = video.Description,
+                    ThumbnailUrl = video.Thumbnails.OrderByDescending(t => t.Resolution.Area).FirstOrDefault()?.Url,
+                    ChannelName = video.Author.ChannelTitle,
+                    PublishedAt = video.UploadDate.DateTime
                 };
 
                 return videoDto;
-            }
-            catch (Google.GoogleApiException)
-            {
-                return null;
             }
             catch (Exception)
             {
