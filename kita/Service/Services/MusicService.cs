@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Domain.Enums;
 using Kita.Domain.Enums;
+using Service.DTOs.Music;
 
 namespace Kita.Service.Services
 {
@@ -286,6 +287,144 @@ namespace Kita.Service.Services
             
             return new ApiResponse<string>($"Successfully deleted {count} songs from the database.");
         }
+
+        public async Task<ApiResponse<List<SongDto>>> FilterSongByName(string name)
+        {
+            var songs = await _songRepository.FilterSongByName(name);
+            var songDtos = songs.Select(s => new SongDto
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Artist = s.Artist,
+                Album = s.Album,
+                Duration = s.Duration,
+                StreamUrl = s.StreamUrl,
+                CoverUrl = s.CoverUrl,
+                Status = s.Status,
+                Type = s.Type,
+                Genres = s.Genres,
+                AudioQuality = s.AudioQuality
+            }).ToList();
+            return new ApiResponse<List<SongDto>>(songDtos);
+        }
+        public async Task<ApiResponse<List<SongDto>>> FilterSongByArtist(string artist)
+        {
+            var songs = await _songRepository.FilterSongByArtist(artist);
+            var songDtos = songs.Select(s => new SongDto
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Artist = s.Artist,
+                Album = s.Album,
+                Duration = s.Duration,
+                StreamUrl = s.StreamUrl,
+                CoverUrl = s.CoverUrl,
+                Status = s.Status,
+                Type = s.Type,
+                Genres = s.Genres,
+                AudioQuality = s.AudioQuality
+            }).ToList();
+            return new ApiResponse<List<SongDto>>(songDtos);
+        }
+        public async Task<ApiResponse<List<SongDto>>> FilterSongByAlbum(string album)
+        {
+            var songs = await _songRepository.FilterSongByAlbum(album);
+            var songDtos = songs.Select(s => new SongDto
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Artist = s.Artist,
+                Album = s.Album,
+                Duration = s.Duration,
+                StreamUrl = s.StreamUrl,
+                CoverUrl = s.CoverUrl,
+                Status = s.Status,
+                Type = s.Type,
+                Genres = s.Genres,
+                AudioQuality = s.AudioQuality
+            }).ToList();
+            return new ApiResponse<List<SongDto>>(songDtos);
+        }
+        public async Task<ApiResponse<List<SongDto>>> FilterSongByGenre(string genre)
+        {
+            var songs = await _songRepository.FilterSongByGenre(genre);
+            var songDtos = songs.Select(s => new SongDto
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Artist = s.Artist,
+                Album = s.Album,
+                Duration = s.Duration,
+                StreamUrl = s.StreamUrl,
+                CoverUrl = s.CoverUrl,
+                Status = s.Status,
+                Type = s.Type,
+                Genres = s.Genres,
+                AudioQuality = s.AudioQuality
+            }).ToList();
+            return new ApiResponse<List<SongDto>>(songDtos);
+        }
+        public async Task<ApiResponse<List<SongDto>>> FilterSongByAudioQuality(string audioQuality)
+        {
+            var songs = await _songRepository.FilterSongByAudioQuality(audioQuality);
+            var songDtos = songs.Select(s => new SongDto
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Artist = s.Artist,
+                Album = s.Album,
+                Duration = s.Duration,
+                StreamUrl = s.StreamUrl,
+                CoverUrl = s.CoverUrl,
+                Status = s.Status,
+                Type = s.Type,
+                Genres = s.Genres,
+                AudioQuality = s.AudioQuality
+            }).ToList();
+            return new ApiResponse<List<SongDto>>(songDtos);
+        }
+        
+
+        public async Task<ApiResponse<List<SongDto>>> GetSongByUserId(Guid userId)
+        {
+            var songs = await _songRepository.GetSongsByUserIdAsync(userId);
+            var songDtos = songs.Select(s => new SongDto
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Artist = s.Artist,
+                Album = s.Album,
+                Duration = s.Duration,
+                StreamUrl = s.StreamUrl,
+                CoverUrl = s.CoverUrl,
+                Status = s.Status,
+                Type = s.Type,
+                Genres = s.Genres,
+                AudioQuality = s.AudioQuality
+            }).ToList();
+            return new ApiResponse<List<SongDto>>(songDtos);
+        }
+
+        public async Task<ApiResponse<List<SongDto>>> GetSongByPlaylistId(Guid playlistId)
+        {
+            var songs = await _songRepository.GetSongsByPlaylistIdAsync(playlistId);
+            var songDtos = songs.Select(s => new SongDto
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Artist = s.Artist,
+                Album = s.Album,
+                Duration = s.Duration,
+                StreamUrl = s.StreamUrl,
+                CoverUrl = s.CoverUrl,
+                Status = s.Status,
+                Type = s.Type,
+                Genres = s.Genres,
+                AudioQuality = s.AudioQuality
+            }).ToList();
+            return new ApiResponse<List<SongDto>>(songDtos);
+        }
+
 
     }
 }

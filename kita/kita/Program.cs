@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Kita.Infrastructure.Data;
 using Kita.Infrastructure.Repositories;
+using Infrastructure.Repositories;
 using Kita.Service.Interfaces;
 using Kita.Service.Services;
 using Kita.Service.Configuration;
@@ -30,6 +31,8 @@ builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 // Entity-specific repositories
 builder.Services.AddScoped<ISongRepository, SongRepository>();
 builder.Services.AddScoped<IPlaylistSongRepository, PlaylistSongRepository>();
+builder.Services.AddScoped<ISongStaticsRepository, SongStaticsRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 // Add Services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -41,6 +44,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IServerInviteService, ServerInviteService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 builder.Services.AddScoped<IYouTubeService, YouTubeService>();
+builder.Services.AddScoped<ISongStaticsService, SongStaticsService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 // Configure Spotify Options
 builder.Services.Configure<SpotifyOptions>(builder.Configuration.GetSection("Spotify"));

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "uT/S7TWh8Iw=",
+  "dgSpecHash": "8Rk+uCQ+L6U=",
   "success": true,
-  "projectFilePath": "A:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj",
+  "projectFilePath": "a:\\Code project\\Kitaproject\\kita\\Infrastructure\\Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mufi\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\mufi\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\6.0.0\\microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",

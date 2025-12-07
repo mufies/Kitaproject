@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Kita.Service.Common;
 using Kita.Service.DTOs.Music;
 using Microsoft.AspNetCore.Http;
+using Service.DTOs.Music;
 
 namespace Kita.Service.Interfaces
 {
@@ -17,6 +18,16 @@ namespace Kita.Service.Interfaces
         Task<ApiResponse<SongDto>> ChangeSongStatusAsync(Guid songId,string status);
         Task<ApiResponse<SongDto>> GetSongByNameAndArtistAsync(string name, string artist);
         Task<ApiResponse<string>> DeleteAllSongsAsync();
+        Task<ApiResponse<List<SongDto>>> FilterSongByName(string name);
+        Task<ApiResponse<List<SongDto>>> FilterSongByArtist(string artist);
+        Task<ApiResponse<List<SongDto>>> FilterSongByAlbum(string album);
+        Task<ApiResponse<List<SongDto>>> FilterSongByGenre(string genre);
+        Task<ApiResponse<List<SongDto>>> FilterSongByAudioQuality(string audioQuality);
+        // Task<ApiResponse<List<SongDto>>> FilterSongByStatus(string status);
+
+        Task<ApiResponse<List<SongDto>>> GetSongByUserId(Guid userId);
+        Task<ApiResponse<List<SongDto>>> GetSongByPlaylistId(Guid playlistId);
+        
 
     }
 }

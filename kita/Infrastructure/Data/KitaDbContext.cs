@@ -1,6 +1,7 @@
 using Kita.Domain.Entities;
 using Kita.Domain.Entities.Music;
 using Kita.Domain.Entities.Server;
+using Domain.Entities.Music;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kita.Infrastructure.Data
@@ -15,6 +16,10 @@ namespace Kita.Infrastructure.Data
         public DbSet<Song> Songs { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
         public DbSet<PlaylistSong> PlaylistSongs { get; set; }
+        public DbSet<ListenHistory> ListenHistories { get; set; }
+        public DbSet<ListenWrapped> ListenWrappeds { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<SongStatics> SongStatics { get; set; }
         public DbSet<Kita.Domain.Entities.Server.Server> Servers { get; set; }
         public DbSet<ServerMember> ServerMembers { get; set; }
         public DbSet<Channel> Channels { get; set; }
@@ -100,6 +105,68 @@ namespace Kita.Infrastructure.Data
             modelBuilder.Entity<ServerInvite>()
                 .HasIndex(si => si.Code)
                 .IsUnique();
+
+            // ListenHistory -> Song
+            modelBuilder.Entity<ListenHistory>()
+                .HasOne(lh => lh.Song)
+                .WithMany()
+                .HasForeignKey(lh => lh.SongId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ListenHistory -> User
+            modelBuilder.Entity<ListenHistory>()
+                .HasOne(lh => lh.User)
+                .WithMany()
+                .HasForeignKey(lh => lh.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ListenWrapped -> Song
+            modelBuilder.Entity<ListenWrapped>()
+                .HasOne(lw => lw.Song)
+                .WithMany()
+                .HasForeignKey(lw => lw.SongId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ListenWrapped -> User
+            modelBuilder.Entity<ListenWrapped>()
+                .HasOne(lw => lw.User)
+                .WithMany()
+                .HasForeignKey(lw => lw.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Comment -> Song
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.Song)
+                .WithMany()
+                .HasForeignKey(c => c.SongId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Comment -> User
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // SongStatics -> Song (One-to-One)
+            modelBuilder.Entity<SongStatics>()
+                .HasOne(ss => ss.Song)
+                .WithOne(s => s.SongStatics)
+                .HasForeignKey<SongStatics>(ss => ss.SongId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Song -> User
+            modelBuilder.Entity<Song>()
+                .HasOne(s => s.User)
+                .WithMany()
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // SongStatics -> Comments (One-to-Many)
+            modelBuilder.Entity<SongStatics>()
+                .HasMany(ss => ss.Comments)
+                .WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Seed Admin User
             modelBuilder.Entity<User>().HasData(new User

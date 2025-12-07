@@ -22,6 +22,151 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Domain.Entities.Music.Comment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SongId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SongStaticsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SongId");
+
+                    b.HasIndex("SongStaticsId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Music.ListenHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("MsPlayed")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SongId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SongId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ListenHistories");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Music.ListenWrapped", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ListenDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("MsPlayed")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PlayCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SongId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SongId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ListenWrappeds");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Music.SongStatics", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DislikeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FavoriteCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PlayCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ShareCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SongId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SongId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SongStatics");
+                });
+
             modelBuilder.Entity("Kita.Domain.Entities.Music.Playlist", b =>
                 {
                     b.Property<Guid>("Id")
@@ -133,7 +278,12 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Songs");
                 });
@@ -389,14 +539,95 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 11, 30, 8, 22, 29, 200, DateTimeKind.Utc).AddTicks(9940),
+                            CreatedAt = new DateTime(2025, 12, 5, 3, 37, 23, 958, DateTimeKind.Utc).AddTicks(5529),
                             Email = "admin@kita.com",
                             PasswordHash = "$2a$11$5glWJIvKFoXWFwYIKJVB5ONySehuC4cMyghaPfEdybGcBazIDZsmy",
                             Role = "Admin",
                             Subscription = 0,
-                            UpdatedAt = new DateTime(2025, 11, 30, 8, 22, 29, 200, DateTimeKind.Utc).AddTicks(9941),
+                            UpdatedAt = new DateTime(2025, 12, 5, 3, 37, 23, 958, DateTimeKind.Utc).AddTicks(5529),
                             UserName = "Admin"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.Music.Comment", b =>
+                {
+                    b.HasOne("Kita.Domain.Entities.Music.Song", "Song")
+                        .WithMany()
+                        .HasForeignKey("SongId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Music.SongStatics", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("SongStaticsId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Kita.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Song");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Music.ListenHistory", b =>
+                {
+                    b.HasOne("Kita.Domain.Entities.Music.Song", "Song")
+                        .WithMany()
+                        .HasForeignKey("SongId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Kita.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Song");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Music.ListenWrapped", b =>
+                {
+                    b.HasOne("Kita.Domain.Entities.Music.Song", "Song")
+                        .WithMany()
+                        .HasForeignKey("SongId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Kita.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Song");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Music.SongStatics", b =>
+                {
+                    b.HasOne("Kita.Domain.Entities.Music.Song", "Song")
+                        .WithOne("SongStatics")
+                        .HasForeignKey("Domain.Entities.Music.SongStatics", "SongId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Kita.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Song");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Kita.Domain.Entities.Music.Playlist", b =>
@@ -427,6 +658,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("Playlist");
 
                     b.Navigation("Song");
+                });
+
+            modelBuilder.Entity("Kita.Domain.Entities.Music.Song", b =>
+                {
+                    b.HasOne("Kita.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Kita.Domain.Entities.Server.Channel", b =>
@@ -525,9 +767,19 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Music.SongStatics", b =>
+                {
+                    b.Navigation("Comments");
+                });
+
             modelBuilder.Entity("Kita.Domain.Entities.Music.Playlist", b =>
                 {
                     b.Navigation("PlaylistSongs");
+                });
+
+            modelBuilder.Entity("Kita.Domain.Entities.Music.Song", b =>
+                {
+                    b.Navigation("SongStatics");
                 });
 
             modelBuilder.Entity("Kita.Domain.Entities.Server.Channel", b =>

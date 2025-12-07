@@ -8,5 +8,6 @@ namespace Kita.Service.Interfaces
     {
         Task<ApiResponse<UserDto>> GetUserProfileAsync(Guid userId);
         Task<ApiResponse<string>> UploadAvatarAsync(Guid userId, IFormFile file);
+        
     }
 }

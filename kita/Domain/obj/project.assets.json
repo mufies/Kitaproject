@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "A:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj",
+      "projectUniqueName": "a:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj",
       "projectName": "Domain",
-      "projectPath": "A:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj",
+      "projectPath": "a:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj",
       "packagesPath": "C:\\Users\\mufi\\.nuget\\packages\\",
-      "outputPath": "A:\\Code project\\Kitaproject\\kita\\Domain\\obj\\",
+      "outputPath": "a:\\Code project\\Kitaproject\\kita\\Domain\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,7 +50,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -71,7 +72,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.405/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

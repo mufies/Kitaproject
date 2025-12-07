@@ -1,4 +1,5 @@
 using System;
+using Domain.Entities.Music;
 using Domain.Enums;
 using Kita.Domain.Enums;
 
@@ -16,5 +17,10 @@ namespace Kita.Domain.Entities.Music
         public SongType Type { get; set; } = SongType.Single;
         public AudioQuality AudioQuality { get; set; } = AudioQuality.Normal;
         public SongStatus Status { get; set; } = SongStatus.Active;
+        public Guid UserId { get; set; }
+        public virtual User User { get; set; } = null!;   
+        public virtual SongStatics? SongStatics { get; set; }
+        
+             
     }
 }

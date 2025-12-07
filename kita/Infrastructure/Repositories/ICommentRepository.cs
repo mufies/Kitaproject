@@ -1,0 +1,12 @@
+using Domain.Entities.Music;
+using Kita.Infrastructure.Repositories;
+
+namespace Infrastructure.Repositories
+{
+    public interface ICommentRepository : IBaseRepository<Comment>
+    {
+        Task<Comment> CreateCommentAsync(Comment comment);
+        Task<Comment> UpdateCommentAsync(Guid commentId, Comment comment);
+        Task<Comment> DeleteCommentAsync(Guid commentId);
+    }
+}

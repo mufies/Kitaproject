@@ -68,5 +68,40 @@ namespace Kita.Controllers
             var result = await _musicService.DeleteAllSongsAsync();
             return HandleResult(result);
         }
+
+        [HttpGet("songs/filterByName/{name}")]
+        public async Task<IActionResult> FilterSongByName(string name)
+        {
+            var result = await _musicService.FilterSongByName(name);
+            return HandleResult(result);
+        }
+        
+        [HttpGet("songs/filterByArtist/{artist}")]
+        public async Task<IActionResult> FilterSongByArtist(string artist)
+        {
+            var result = await _musicService.FilterSongByArtist(artist);
+            return HandleResult(result);
+        }
+
+        [HttpGet("songs/filterByAlbum/{album}")]
+        public async Task<IActionResult> FilterSongByAlbum(string album)
+        {
+            var result = await _musicService.FilterSongByAlbum(album);
+            return HandleResult(result);
+        }
+
+        [HttpGet("songs/filterByGenre/{genre}")]
+        public async Task<IActionResult> FilterSongByGenre(string genre)
+        {
+            var result = await _musicService.FilterSongByGenre(genre);
+            return HandleResult(result);
+        }
+
+        [HttpGet("songs/filterByAudioQuality/{audioQuality}")]
+        public async Task<IActionResult> FilterSongByAudioQuality(string audioQuality)
+        {
+            var result = await _musicService.FilterSongByAudioQuality(audioQuality);
+            return HandleResult(result);
+        }
     }
 }
