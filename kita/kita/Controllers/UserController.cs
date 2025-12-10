@@ -2,6 +2,7 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Kita.Service.DTOs;
+using Kita.Service.DTOs.Request;
 using Kita.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -32,6 +33,21 @@ namespace Kita.Controllers
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var result = await _userService.UploadAvatarAsync(userId, uploadDto.File);
+            return HandleResult(result);
+        }
+
+        [HttpPut("username")]
+        public async Task<IActionResult> UpdateUsername([FromBody] UpdateUsernameDto updateDto)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _userService.UpdateUsernameAsync(userId, updateDto.NewUsername);
+            return HandleResult(result);
+        }
+        [HttpPut("password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequestDto dto)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _userService.UpdatePasswordAsync(userId, dto.OldPassword, dto.NewPassword);
             return HandleResult(result);
         }
     }

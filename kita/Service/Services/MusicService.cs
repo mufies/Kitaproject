@@ -425,6 +425,34 @@ namespace Kita.Service.Services
             return new ApiResponse<List<SongDto>>(songDtos);
         }
 
+        public async Task<ApiResponse<List<SongDto>>> SearchSongsAsync(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return ApiResponse<List<SongDto>>.Fail("Search query cannot be empty.");
+            }
+            
+            var songs = await _songRepository.SearchSongsFullTextAsync(query);
+            
+            var songDtos = songs.Select(s => new SongDto
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Artist = s.Artist,
+                Album = s.Album,
+                Duration = s.Duration,
+                StreamUrl = s.StreamUrl,
+                CoverUrl = s.CoverUrl,
+                Status = s.Status,
+                Type = s.Type,
+                Genres = s.Genres,
+                AudioQuality = s.AudioQuality
+            }).ToList();
+            
+            return new ApiResponse<List<SongDto>>(songDtos);
+        }
+
+        
 
     }
 }

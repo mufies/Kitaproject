@@ -1,20 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { SongDto, PlaylistDto } from '../../types/api';
 import { getAllSongs, getUserPlaylists, createPlaylist } from '../../utils/musicAPI';
+import { searchSongs } from '../../services/musicService';
 import { MusicPlayer } from '../../components/MusicPlayer';
 import CreatePlaylistModal from '../../components/CreatePlaylistModal';
 import { UploadSongModal } from '../../components/UploadSongModal';
 import { ImportPlaylistModal } from '../../components/ImportPlaylistModal';
 import { SongInteractionBar } from '../../components/SongInteractionBar';
+import SearchBar from '../../components/SearchBar';
 
 export const MusicDashboard: React.FC = () => {
     const navigate = useNavigate();
     const [songs, setSongs] = useState<SongDto[]>([]);
+    const [allSongs, setAllSongs] = useState<SongDto[]>([]); // Store all songs for fallback
     const [playlists, setPlaylists] = useState<PlaylistDto[]>([]);
     const [currentSong, setCurrentSong] = useState<SongDto | null>(null);
     const [currentSongIndex, setCurrentSongIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
     const [showUploadSong, setShowUploadSong] = useState(false);
     const [showImportPlaylist, setShowImportPlaylist] = useState(false);
@@ -34,6 +39,7 @@ export const MusicDashboard: React.FC = () => {
 
             if (songsResponse.success) {
                 setSongs(songsResponse.data);
+                setAllSongs(songsResponse.data); // Store all songs
             }
 
             if (playlistsResponse.success) {
@@ -45,6 +51,29 @@ export const MusicDashboard: React.FC = () => {
             setIsLoading(false);
         }
     };
+
+    // Handle search with debouncing (debounce is in SearchBar component)
+    const handleSearch = useCallback(async (query: string) => {
+        setSearchQuery(query);
+
+        // If query is empty, show all songs
+        if (!query.trim()) {
+            setSongs(allSongs);
+            setIsSearching(false);
+            return;
+        }
+
+        try {
+            setIsSearching(true);
+            const results = await searchSongs(query);
+            setSongs(results);
+        } catch (error) {
+            console.error('Error searching songs:', error);
+            setSongs([]);
+        } finally {
+            setIsSearching(false);
+        }
+    }, [allSongs]);
 
     const handlePlaySong = (song: SongDto, index: number) => {
         setCurrentSong(song);
@@ -124,6 +153,25 @@ export const MusicDashboard: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Search Bar - Only show in Songs tab */}
+            {activeTab === 'songs' && (
+                <div className="mb-8 flex justify-center">
+                    <SearchBar
+                        onSearch={handleSearch}
+                        placeholder="Search songs by title or artist..."
+                        debounceMs={300}
+                        isLoading={isSearching}
+                    />
+                </div>
+            )}
+
+            {/* Results count */}
+            {activeTab === 'songs' && searchQuery && (
+                <div className="mb-4 text-sm text-gray-400">
+                    Found {songs.length} result{songs.length !== 1 ? 's' : ''} for "{searchQuery}"
+                </div>
+            )}
 
             <div className="flex gap-4 mb-6 border-b border-[#282828]">
                 <button

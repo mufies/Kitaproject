@@ -9,5 +9,13 @@ namespace Kita.Service.DTOs
         public string Email { get; set; } = string.Empty;
         public string? AvatarUrl { get; set; }
         public string Role { get; set; } = string.Empty;
+        public string Subscription { get; set; } = string.Empty;
+
+    }
+
+    public class UpdatePasswordDto
+    {
+        public string OldPassword { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
     }
 }

@@ -78,6 +78,52 @@ namespace Kita.Infrastructure.Repositories
                 .Select(ps => ps.Song)
                 .ToListAsync();
         }
+
+        public async Task<List<Song>> SearchSongsFullTextAsync(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return new List<Song>();
+            
+            // Sanitize input
+            var sanitized = query.Trim().Replace("'", "''");
+            
+            // Strategy 1: Full-text search with tsvector (handles word order, exact words)
+            var results = await _dbSet
+                .FromSqlRaw(@"
+                    SELECT * FROM ""Songs"" 
+                    WHERE ""SearchVector"" @@ websearch_to_tsquery('english', {0})
+                    ORDER BY ts_rank(""SearchVector"", websearch_to_tsquery('english', {0})) DESC
+                    LIMIT 50
+                ", sanitized)
+                .ToListAsync();
+            
+            // Strategy 2: If no results, try partial match with ILIKE (handles partial words)
+            if (!results.Any())
+            {
+                results = await _dbSet
+                    .FromSqlRaw(@"
+                        SELECT * FROM ""Songs""
+                        WHERE ""Title"" ILIKE {0} OR ""Artist"" ILIKE {0}
+                        LIMIT 30
+                    ", $"%{sanitized}%")
+                    .ToListAsync();
+            }
+            
+            // Strategy 3: If still no results, fallback to trigram similarity (handles heavy typos)
+            if (!results.Any())
+            {
+                results = await _dbSet
+                    .FromSqlRaw(@"
+                        SELECT * FROM ""Songs""
+                        WHERE similarity(""Title"" || ' ' || ""Artist"", {0}) > 0.15
+                        ORDER BY similarity(""Title"" || ' ' || ""Artist"", {0}) DESC
+                        LIMIT 20
+                    ", sanitized)
+                    .ToListAsync();
+            }
+            
+            return results;
+        }
         
     }
 }

@@ -2,30 +2,29 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Kita.Domain.Entities;
-using Kita.Infrastructure.Data;
+using Kita.Infrastructure.Repositories;
 using Kita.Service.Common;
 using Kita.Service.DTOs;
 using Kita.Service.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Kita.Service.Services
 {
     public class UserService : IUserService
     {
-        private readonly KitaDbContext _context;
+        private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
 
-        public UserService(KitaDbContext context, IConfiguration configuration)
+        public UserService(IUserRepository userRepository, IConfiguration configuration)
         {
-            _context = context;
+            _userRepository = userRepository;
             _configuration = configuration;
         }
 
         public async Task<ApiResponse<UserDto>> GetUserProfileAsync(Guid userId)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)
             {
                 return ApiResponse<UserDto>.Fail("User not found.", code: 404);
@@ -45,7 +44,7 @@ namespace Kita.Service.Services
 
         public async Task<ApiResponse<string>> UploadAvatarAsync(Guid userId, IFormFile file)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)
             {
                 return ApiResponse<string>.Fail("User not found.", code: 404);
@@ -64,7 +63,7 @@ namespace Kita.Service.Services
                  return ApiResponse<string>.Fail("File storage configuration is missing.", code: 500);
             }
 
-            var avatarsPath = Path.Combine(storagePath, "Images");
+            var avatarsPath = Path.Combine(storagePath, "avatars");
             if (!Directory.Exists(avatarsPath))
             {
                 Directory.CreateDirectory(avatarsPath);
@@ -80,26 +79,26 @@ namespace Kita.Service.Services
             }
 
             // Update user avatar URL
-            var avatarUrl = $"{baseUrl}/images/{fileName}";
+            var avatarUrl = $"{baseUrl}/avatars/{fileName}";
             user.AvatarUrl = avatarUrl;
             
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
 
             return new ApiResponse<string>(avatarUrl, "Avatar uploaded successfully.");
         }
 
         public async Task<ApiResponse<UserDto>> UpdateToArtist(Guid userId)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)
             {
                 return ApiResponse<UserDto>.Fail("User not found.", code: 404);
             }
 
             user.Role = "Artist";
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
 
             return new ApiResponse<UserDto>(new UserDto
             {
@@ -109,6 +108,105 @@ namespace Kita.Service.Services
                 AvatarUrl = user.AvatarUrl,
                 Role = user.Role
             }, "User updated to artist.");
+        }
+
+        public async Task<ApiResponse<UserDto>> UpdateUsernameAsync(Guid userId, string newUsername)
+        {
+            // Validate input
+            if (string.IsNullOrWhiteSpace(newUsername))
+            {
+                return ApiResponse<UserDto>.Fail("Username cannot be empty.", code: 400);
+            }
+
+            newUsername = newUsername.Trim();
+
+            if (newUsername.Length < 3 || newUsername.Length > 30)
+            {
+                return ApiResponse<UserDto>.Fail("Username must be between 3 and 30 characters.", code: 400);
+            }
+
+            // Get user
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return ApiResponse<UserDto>.Fail("User not found.", code: 404);
+            }
+
+            // Check if username is already taken
+            if (await _userRepository.UsernameExistsAsync(newUsername))
+            {
+                return ApiResponse<UserDto>.Fail("Username already exists.", code: 409);
+            }
+
+            // Update username
+            user.UserName = newUsername;
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            return new ApiResponse<UserDto>(new UserDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                AvatarUrl = user.AvatarUrl,
+                Role = user.Role
+            }, "Username updated successfully.");
+        }
+
+        // public async Task<ApiResponse<UserDto>> UpdateSubscriptionAsync(Guid userId, string subscription)
+        // {
+        //     // Get user
+        //     var user = await _userRepository.GetByIdAsync(userId);
+        //     if (user == null)
+        //     {
+        //         return ApiResponse<UserDto>.Fail("User not found.", code: 404);
+        //     }
+
+        //     // Update subscription
+        //     user.Subscription = subscription;
+        //     await _userRepository.UpdateAsync(user);
+        //     await _userRepository.SaveChangesAsync();
+
+        //     return new ApiResponse<UserDto>(new UserDto
+        //     {
+        //         Id = user.Id,
+        //         UserName = user.UserName,
+        //         Email = user.Email,
+        //         AvatarUrl = user.AvatarUrl,
+        //         Role = user.Role,
+        //         Subscription = user.Subscription
+        //     }, "Subscription updated successfully.");
+        // }
+
+        public async Task<ApiResponse<UserDto>> UpdatePasswordAsync(Guid userId, string oldPassword, string newPassword)
+        {
+            // Get user
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return ApiResponse<UserDto>.Fail("User not found.", code: 404);
+            }
+
+            // Update password
+            if(BCrypt.Net.BCrypt.Verify(oldPassword, user.PasswordHash))
+            {
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            }
+            else
+            {
+                return ApiResponse<UserDto>.Fail("Old password is incorrect.", code: 400);
+            }
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            return new ApiResponse<UserDto>(new UserDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                AvatarUrl = user.AvatarUrl,
+                Role = user.Role,
+            }, "Password updated successfully.");
         }
     }
 }

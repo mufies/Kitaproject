@@ -33,3 +33,4 @@ A:/Code project/Kitaproject/kita/Domain/obj/Debug/net8.0/ref/Domain.dll
 /home/mufies/Code/Kitaproject/kita/Domain/obj/Debug/net8.0/refint/Domain.dll
 /home/mufies/Code/Kitaproject/kita/Domain/obj/Debug/net8.0/Domain.pdb
 /home/mufies/Code/Kitaproject/kita/Domain/obj/Debug/net8.0/ref/Domain.dll
+/home/mufies/Code/Kitaproject/kita/Domain/obj/Debug/net8.0/Domain.csproj.AssemblyReference.cache

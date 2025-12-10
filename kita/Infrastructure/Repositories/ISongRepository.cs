@@ -22,5 +22,8 @@ namespace Kita.Infrastructure.Repositories
         Task<List<Song>> GetSongsByUserIdAsync(Guid userId);
         Task<List<Song>> GetSongsByPlaylistIdAsync(Guid playlistId);
         
+        // Full-text search
+        Task<List<Song>> SearchSongsFullTextAsync(string query);
+        
     }
 }

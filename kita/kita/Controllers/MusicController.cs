@@ -103,5 +103,12 @@ namespace Kita.Controllers
             var result = await _musicService.FilterSongByAudioQuality(audioQuality);
             return HandleResult(result);
         }
+
+        [HttpGet("songs/search")]
+        public async Task<IActionResult> SearchSongs([FromQuery] string q)
+        {
+            var result = await _musicService.SearchSongsAsync(q);
+            return HandleResult(result);
+        }
     }
 }

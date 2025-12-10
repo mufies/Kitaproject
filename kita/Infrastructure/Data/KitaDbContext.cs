@@ -162,6 +162,18 @@ namespace Kita.Infrastructure.Data
                 .HasForeignKey(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Song SearchVector configuration for full-text search
+            modelBuilder.Entity<Song>()
+                .Property(s => s.SearchVector)
+                .HasColumnType("tsvector")
+                .HasComputedColumnSql(
+                    "to_tsvector('english', coalesce(\"Title\", '') || ' ' || coalesce(\"Artist\", ''))", 
+                    stored: true);
+
+            modelBuilder.Entity<Song>()
+                .HasIndex(s => s.SearchVector)
+                .HasMethod("GIN");
+
             // SongStatics -> Comments (One-to-Many)
             modelBuilder.Entity<SongStatics>()
                 .HasMany(ss => ss.Comments)

@@ -2,6 +2,7 @@ using System;
 using Domain.Entities.Music;
 using Domain.Enums;
 using Kita.Domain.Enums;
+using NpgsqlTypes;
 
 namespace Kita.Domain.Entities.Music
 {
@@ -21,6 +22,8 @@ namespace Kita.Domain.Entities.Music
         public virtual User? User { get; set; }   
         public virtual SongStatics? SongStatics { get; set; }
         
+        // Full-text search vector (computed column in database)
+        public NpgsqlTsVector? SearchVector { get; set; }
              
     }
 }

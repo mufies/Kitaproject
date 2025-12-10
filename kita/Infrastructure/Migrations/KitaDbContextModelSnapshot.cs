@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using NpgsqlTypes;
 
 #nullable disable
 
@@ -274,6 +275,11 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("integer[]");
 
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"Title\", '') || ' ' || coalesce(\"Artist\", ''))", true);
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -295,6 +301,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SearchVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
 
                     b.HasIndex("UserId");
 
@@ -552,12 +562,12 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 12, 10, 3, 6, 31, 459, DateTimeKind.Utc).AddTicks(8746),
+                            CreatedAt = new DateTime(2025, 12, 10, 8, 47, 4, 372, DateTimeKind.Utc).AddTicks(2062),
                             Email = "admin@kita.com",
                             PasswordHash = "$2a$11$5glWJIvKFoXWFwYIKJVB5ONySehuC4cMyghaPfEdybGcBazIDZsmy",
                             Role = "Admin",
                             Subscription = 0,
-                            UpdatedAt = new DateTime(2025, 12, 10, 3, 6, 31, 459, DateTimeKind.Utc).AddTicks(8747),
+                            UpdatedAt = new DateTime(2025, 12, 10, 8, 47, 4, 372, DateTimeKind.Utc).AddTicks(2063),
                             UserName = "Admin"
                         });
                 });

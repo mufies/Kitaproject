@@ -28,6 +28,8 @@ namespace Kita.Service.Interfaces
         Task<ApiResponse<List<SongDto>>> GetSongByUserId(Guid userId);
         Task<ApiResponse<List<SongDto>>> GetSongByPlaylistId(Guid playlistId);
         
+        // Full-text search
+        Task<ApiResponse<List<SongDto>>> SearchSongsAsync(string query);
 
     }
 }

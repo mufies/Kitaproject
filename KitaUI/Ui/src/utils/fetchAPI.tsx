@@ -127,6 +127,26 @@ export const fetchUploadAvatar = async (file: File) => {
     }
 };
 
+export const fetchUpdateUsername = async (newUsername: string) => {
+    try {
+        const { data } = await axiosInstance.put('/user/username', { newUsername });
+        return data;
+    } catch (error) {
+        console.error("Error updating username:", error);
+        throw error;
+    }
+};
+
+export const fetchUpdatePassword = async (oldPassword: string, newPassword: string) => {
+    try {
+        const { data } = await axiosInstance.put('/user/password', { oldPassword, newPassword });
+        return data;
+    } catch (error) {
+        console.error("Error updating password:", error);
+        throw error;
+    }
+};
+
 // ==================== LEGACY FUNCTIONS (for compatibility) ====================
 
 export const fetchForgotPass = async (email: string) => {
