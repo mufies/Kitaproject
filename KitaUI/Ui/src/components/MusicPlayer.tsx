@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { SongDto } from '../types/api';
+import { SongInteractionBar } from './SongInteractionBar';
+import { incrementPlayCount } from '../utils/songStaticsAPI';
 
 interface MusicPlayerProps {
     currentSong: SongDto | null;
@@ -24,7 +26,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
     useEffect(() => {
         if (audioRef.current && currentSong) {
-            audioRef.current.src = currentSong.songUrl;
+            audioRef.current.src = currentSong.streamUrl;
             audioRef.current.load();
             if (isPlaying) {
                 audioRef.current.play();
@@ -38,12 +40,20 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
         }
     }, [volume, isMuted]);
 
-    const togglePlayPause = () => {
+    const togglePlayPause = async () => {
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
             } else {
                 audioRef.current.play();
+                // Increment play count when starting to play
+                if (currentSong) {
+                    try {
+                        await incrementPlayCount(currentSong.id);
+                    } catch (error) {
+                        console.error('Failed to increment play count:', error);
+                    }
+                }
             }
             setIsPlaying(!isPlaying);
         }
@@ -132,11 +142,7 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
                     <h4 className="text-sm font-normal text-white mb-1 whitespace-nowrap overflow-hidden text-ellipsis">{currentSong.title}</h4>
                     <p className="text-[11px] text-[#b3b3b3] whitespace-nowrap overflow-hidden text-ellipsis">{currentSong.artist}</p>
                 </div>
-                <button className="p-2 text-[#b3b3b3] hover:text-[#1db954] transition-colors">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                </button>
+                <SongInteractionBar songId={currentSong.id} showStats={false} size="sm" />
             </div>
 
             {/* Player Controls */}

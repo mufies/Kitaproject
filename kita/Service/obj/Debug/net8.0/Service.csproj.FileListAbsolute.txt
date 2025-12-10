@@ -1,35 +1,53 @@
-A:\Code project\Kita\Service\bin\Debug\net8.0\Service.deps.json
-A:\Code project\Kita\Service\bin\Debug\net8.0\Service.dll
-A:\Code project\Kita\Service\bin\Debug\net8.0\Service.pdb
-A:\Code project\Kita\Service\bin\Debug\net8.0\Domain.dll
-A:\Code project\Kita\Service\bin\Debug\net8.0\Infrastructure.dll
-A:\Code project\Kita\Service\bin\Debug\net8.0\Domain.pdb
-A:\Code project\Kita\Service\bin\Debug\net8.0\Infrastructure.pdb
-A:\Code project\Kita\Service\obj\Debug\net8.0\Service.csproj.AssemblyReference.cache
-A:\Code project\Kita\Service\obj\Debug\net8.0\Service.GeneratedMSBuildEditorConfig.editorconfig
-A:\Code project\Kita\Service\obj\Debug\net8.0\Service.AssemblyInfoInputs.cache
-A:\Code project\Kita\Service\obj\Debug\net8.0\Service.AssemblyInfo.cs
-A:\Code project\Kita\Service\obj\Debug\net8.0\Service.csproj.CoreCompileInputs.cache
-A:\Code project\Kita\Service\obj\Debug\net8.0\Service.csproj.Up2Date
-A:\Code project\Kita\Service\obj\Debug\net8.0\Service.dll
-A:\Code project\Kita\Service\obj\Debug\net8.0\refint\Service.dll
-A:\Code project\Kita\Service\obj\Debug\net8.0\Service.pdb
-A:\Code project\Kita\Service\obj\Debug\net8.0\ref\Service.dll
-A:\Code project\Kitaproject\kita\Service\bin\Debug\net8.0\Service.deps.json
-A:\Code project\Kitaproject\kita\Service\bin\Debug\net8.0\Service.dll
-A:\Code project\Kitaproject\kita\Service\bin\Debug\net8.0\Service.pdb
-A:\Code project\Kitaproject\kita\Service\bin\Debug\net8.0\Domain.dll
-A:\Code project\Kitaproject\kita\Service\bin\Debug\net8.0\Infrastructure.dll
-A:\Code project\Kitaproject\kita\Service\bin\Debug\net8.0\Domain.pdb
-A:\Code project\Kitaproject\kita\Service\bin\Debug\net8.0\Infrastructure.pdb
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.csproj.AssemblyReference.cache
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.GeneratedMSBuildEditorConfig.editorconfig
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.AssemblyInfoInputs.cache
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.AssemblyInfo.cs
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.csproj.CoreCompileInputs.cache
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.sourcelink.json
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.csproj.Up2Date
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.dll
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\refint\Service.dll
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\Service.pdb
-A:\Code project\Kitaproject\kita\Service\obj\Debug\net8.0\ref\Service.dll
+A:/Code project/Kita/Service/bin/Debug/net8.0/Service.deps.json
+A:/Code project/Kita/Service/bin/Debug/net8.0/Service.dll
+A:/Code project/Kita/Service/bin/Debug/net8.0/Service.pdb
+A:/Code project/Kita/Service/bin/Debug/net8.0/Domain.dll
+A:/Code project/Kita/Service/bin/Debug/net8.0/Infrastructure.dll
+A:/Code project/Kita/Service/bin/Debug/net8.0/Domain.pdb
+A:/Code project/Kita/Service/bin/Debug/net8.0/Infrastructure.pdb
+A:/Code project/Kita/Service/obj/Debug/net8.0/Service.csproj.AssemblyReference.cache
+A:/Code project/Kita/Service/obj/Debug/net8.0/Service.GeneratedMSBuildEditorConfig.editorconfig
+A:/Code project/Kita/Service/obj/Debug/net8.0/Service.AssemblyInfoInputs.cache
+A:/Code project/Kita/Service/obj/Debug/net8.0/Service.AssemblyInfo.cs
+A:/Code project/Kita/Service/obj/Debug/net8.0/Service.csproj.CoreCompileInputs.cache
+A:/Code project/Kita/Service/obj/Debug/net8.0/Service.csproj.Up2Date
+A:/Code project/Kita/Service/obj/Debug/net8.0/Service.dll
+A:/Code project/Kita/Service/obj/Debug/net8.0/refint/Service.dll
+A:/Code project/Kita/Service/obj/Debug/net8.0/Service.pdb
+A:/Code project/Kita/Service/obj/Debug/net8.0/ref/Service.dll
+A:/Code project/Kitaproject/kita/Service/bin/Debug/net8.0/Service.deps.json
+A:/Code project/Kitaproject/kita/Service/bin/Debug/net8.0/Service.dll
+A:/Code project/Kitaproject/kita/Service/bin/Debug/net8.0/Service.pdb
+A:/Code project/Kitaproject/kita/Service/bin/Debug/net8.0/Domain.dll
+A:/Code project/Kitaproject/kita/Service/bin/Debug/net8.0/Infrastructure.dll
+A:/Code project/Kitaproject/kita/Service/bin/Debug/net8.0/Domain.pdb
+A:/Code project/Kitaproject/kita/Service/bin/Debug/net8.0/Infrastructure.pdb
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/Service.csproj.AssemblyReference.cache
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/Service.GeneratedMSBuildEditorConfig.editorconfig
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/Service.AssemblyInfoInputs.cache
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/Service.AssemblyInfo.cs
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/Service.csproj.CoreCompileInputs.cache
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/Service.sourcelink.json
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/Service.csproj.Up2Date
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/Service.dll
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/refint/Service.dll
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/Service.pdb
+A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/ref/Service.dll
+/home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Service.deps.json
+/home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Service.dll
+/home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Service.pdb
+/home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Domain.dll
+/home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Infrastructure.dll
+/home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Infrastructure.pdb
+/home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Domain.pdb
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.csproj.AssemblyReference.cache
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.GeneratedMSBuildEditorConfig.editorconfig
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.AssemblyInfoInputs.cache
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.AssemblyInfo.cs
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.csproj.CoreCompileInputs.cache
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.sourcelink.json
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.csproj.Up2Date
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.dll
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/refint/Service.dll
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.pdb
+/home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/ref/Service.dll

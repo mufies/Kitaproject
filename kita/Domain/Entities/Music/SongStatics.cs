@@ -11,7 +11,7 @@ namespace Domain.Entities.Music
         public int DislikeCount { get; set; }
         public int FavoriteCount { get; set; }
         public int ShareCount { get; set; }
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
         
         // Track which users have interacted
         public List<Guid> LikedByUserIds { get; set; } = new List<Guid>();
@@ -20,6 +20,6 @@ namespace Domain.Entities.Music
         
         public List<Comment> Comments { get; set; } = new List<Comment>();
         public virtual Song Song { get; set; } = null!;
-        public virtual User User { get; set; } = null!;
+        public virtual User? User { get; set; }
     }
 }

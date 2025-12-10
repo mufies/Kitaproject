@@ -5,7 +5,7 @@ namespace Service.DTOs.Music
         public Guid Id { get; set; }
         public Guid SongId { get; set; }
         public Guid UserId { get; set; }
-        public DateTime ListenDate { get; set; }
+        public int Year { get; set; }
         public int? MsPlayed { get; set; }
         public int PlayCount { get; set; }
         public DateTime CreatedAt { get; set; }

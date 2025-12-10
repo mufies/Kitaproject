@@ -5,6 +5,8 @@ import { getAllSongs, getUserPlaylists, createPlaylist } from '../../utils/music
 import { MusicPlayer } from '../../components/MusicPlayer';
 import CreatePlaylistModal from '../../components/CreatePlaylistModal';
 import { UploadSongModal } from '../../components/UploadSongModal';
+import { ImportPlaylistModal } from '../../components/ImportPlaylistModal';
+import { SongInteractionBar } from '../../components/SongInteractionBar';
 
 export const MusicDashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -15,6 +17,7 @@ export const MusicDashboard: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
     const [showUploadSong, setShowUploadSong] = useState(false);
+    const [showImportPlaylist, setShowImportPlaylist] = useState(false);
     const [activeTab, setActiveTab] = useState<'songs' | 'playlists'>('songs');
 
     useEffect(() => {
@@ -102,6 +105,15 @@ export const MusicDashboard: React.FC = () => {
                 </h1>
                 <div className="flex gap-3">
                     <button
+                        onClick={() => setShowImportPlaylist(true)}
+                        className="flex items-center gap-2 px-6 py-3 bg-transparent text-white border border-white rounded-full text-sm font-bold hover:bg-white hover:text-black hover:scale-105 transition-all"
+                    >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                        </svg>
+                        Import Playlist
+                    </button>
+                    <button
                         onClick={() => setShowUploadSong(true)}
                         className="flex items-center gap-2 px-6 py-3 bg-[#1db954] text-white rounded-full text-sm font-bold hover:bg-[#1ed760] hover:scale-105 transition-all"
                     >
@@ -184,9 +196,12 @@ export const MusicDashboard: React.FC = () => {
                                             <h3 className="text-base font-bold text-white mb-1 whitespace-nowrap overflow-hidden text-ellipsis">
                                                 {song.title}
                                             </h3>
-                                            <p className="text-sm text-[#b3b3b3] whitespace-nowrap overflow-hidden text-ellipsis">
+                                            <p className="text-sm text-[#b3b3b3] whitespace-nowrap overflow-hidden text-ellipsis mb-2">
                                                 {song.artist}
                                             </p>
+                                            <div onClick={(e) => e.stopPropagation()}>
+                                                <SongInteractionBar songId={song.id} showStats={true} size="sm" />
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -297,6 +312,13 @@ export const MusicDashboard: React.FC = () => {
             {showUploadSong && (
                 <UploadSongModal
                     onClose={() => setShowUploadSong(false)}
+                    onSuccess={loadData}
+                />
+            )}
+
+            {showImportPlaylist && (
+                <ImportPlaylistModal
+                    onClose={() => setShowImportPlaylist(false)}
                     onSuccess={loadData}
                 />
             )}

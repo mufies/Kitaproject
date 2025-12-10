@@ -1,5 +1,5 @@
 import { axiosInstance } from "./fetchAPI";
-import type { CreateSongDto, SongDto, CreatePlaylistDto, PlaylistDto, ApiResponse } from "../types/api";
+import type { CreateSongDto, SongDto, CreatePlaylistDto, PlaylistDto, ApiResponse, ImportPlaylistRequestDto, ImportPlaylistResponseDto } from "../types/api";
 
 // ==================== SONGS ====================
 
@@ -275,7 +275,7 @@ export const searchPlaylists = async (searchQuery: string): Promise<ApiResponse<
  */
 export const getPublicPlaylists = async (): Promise<ApiResponse<PlaylistDto[]>> => {
     try {
-        const { data } = await axiosInstance.get(`/music/playlists/public`);
+        const { data } = await axiosInstance.get(`/playlist/public`);
         return data;
     } catch (error) {
         console.error("Error fetching public playlists:", error);
@@ -288,7 +288,7 @@ export const getPublicPlaylists = async (): Promise<ApiResponse<PlaylistDto[]>> 
  */
 export const getPrivatePlaylists = async (): Promise<ApiResponse<PlaylistDto[]>> => {
     try {
-        const { data } = await axiosInstance.get(`/music/playlists/private`);
+        const { data } = await axiosInstance.get(`/playlist/private`);
         return data;
     } catch (error) {
         console.error("Error fetching private playlists:", error);
@@ -301,10 +301,26 @@ export const getPrivatePlaylists = async (): Promise<ApiResponse<PlaylistDto[]>>
  */
 export const getPlaylistsByUserAndSong = async (userId: string, songId: string): Promise<ApiResponse<PlaylistDto[]>> => {
     try {
-        const { data } = await axiosInstance.get(`/music/playlists/user/${userId}/song/${songId}`);
+        const { data } = await axiosInstance.get(`/playlist/user/${userId}/song/${songId}`);
         return data;
     } catch (error) {
         console.error("Error fetching playlists by user and song:", error);
+        throw error;
+    }
+};
+
+// ==================== IMPORT PLAYLIST ====================
+
+/**
+ * Import a playlist from external source (e.g., Spotify, YouTube)
+ */
+export const importPlaylist = async (playlistUrl: string): Promise<ApiResponse<ImportPlaylistResponseDto>> => {
+    try {
+        const request: ImportPlaylistRequestDto = { playlistUrl };
+        const { data } = await axiosInstance.post('/playlist/importPlaylist', request);
+        return data;
+    } catch (error) {
+        console.error("Error importing playlist:", error);
         throw error;
     }
 };

@@ -1,248 +1,383 @@
-A:\Code project\Kita\kita\bin\Debug\net8.0\appsettings.Development.json
-A:\Code project\Kita\kita\bin\Debug\net8.0\appsettings.json
-A:\Code project\Kita\kita\bin\Debug\net8.0\Kita.exe
-a:\Code project\Kita\kita\bin\Debug\net8.0\Kita.deps.json
-a:\Code project\Kita\kita\bin\Debug\net8.0\Kita.runtimeconfig.json
-A:\Code project\Kita\kita\bin\Debug\net8.0\Kita.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Kita.pdb
-A:\Code project\Kita\kita\bin\Debug\net8.0\BCrypt.Net-Next.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Humanizer.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.CodeAnalysis.Workspaces.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Mono.TextTemplating.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Npgsql.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\System.CodeDom.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\System.Composition.AttributedModel.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\System.Composition.Convention.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\System.Composition.Hosting.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\System.Composition.Runtime.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\System.Composition.TypedParts.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Domain.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Infrastructure.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Service.dll
-A:\Code project\Kita\kita\bin\Debug\net8.0\Infrastructure.pdb
-A:\Code project\Kita\kita\bin\Debug\net8.0\Service.pdb
-A:\Code project\Kita\kita\bin\Debug\net8.0\Domain.pdb
-A:\Code project\Kita\kita\obj\Debug\net8.0\Kita.csproj.AssemblyReference.cache
-A:\Code project\Kita\kita\obj\Debug\net8.0\Kita.GeneratedMSBuildEditorConfig.editorconfig
-A:\Code project\Kita\kita\obj\Debug\net8.0\Kita.AssemblyInfoInputs.cache
-A:\Code project\Kita\kita\obj\Debug\net8.0\Kita.AssemblyInfo.cs
-A:\Code project\Kita\kita\obj\Debug\net8.0\Kita.csproj.CoreCompileInputs.cache
-A:\Code project\Kita\kita\obj\Debug\net8.0\Kita.MvcApplicationPartsAssemblyInfo.cache
-A:\Code project\Kita\kita\obj\Debug\net8.0\staticwebassets.build.json
-A:\Code project\Kita\kita\obj\Debug\net8.0\staticwebassets.development.json
-A:\Code project\Kita\kita\obj\Debug\net8.0\staticwebassets\msbuild.Kita.Microsoft.AspNetCore.StaticWebAssets.props
-A:\Code project\Kita\kita\obj\Debug\net8.0\staticwebassets\msbuild.build.Kita.props
-A:\Code project\Kita\kita\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.Kita.props
-A:\Code project\Kita\kita\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.Kita.props
-A:\Code project\Kita\kita\obj\Debug\net8.0\staticwebassets.pack.json
-A:\Code project\Kita\kita\obj\Debug\net8.0\scopedcss\bundle\Kita.styles.css
-a:\Code project\Kita\kita\obj\Debug\net8.0\Kita.csproj.Up2Date
-A:\Code project\Kita\kita\obj\Debug\net8.0\Kita.dll
-A:\Code project\Kita\kita\obj\Debug\net8.0\refint\Kita.dll
-A:\Code project\Kita\kita\obj\Debug\net8.0\Kita.pdb
-a:\Code project\Kita\kita\obj\Debug\net8.0\Kita.genruntimeconfig.cache
-a:\Code project\Kita\kita\obj\Debug\net8.0\ref\Kita.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\appsettings.Development.json
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\appsettings.json
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\kita.exe
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\kita.deps.json
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\kita.runtimeconfig.json
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\kita.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\kita.pdb
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\AngleSharp.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\BCrypt.Net-Next.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\DotNetEnv.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Google.Apis.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Google.Apis.Auth.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Google.Apis.Core.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Google.Apis.YouTube.v3.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Humanizer.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.CodeAnalysis.Workspaces.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Mono.TextTemplating.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Newtonsoft.Json.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Npgsql.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Sprache.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.CodeDom.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.Composition.AttributedModel.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.Composition.Convention.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.Composition.Hosting.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.Composition.Runtime.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.Composition.TypedParts.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.IO.Pipelines.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.Management.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.Text.Encodings.Web.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\System.Text.Json.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\YoutubeExplode.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Management.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Domain.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Infrastructure.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Service.dll
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Infrastructure.pdb
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Service.pdb
-A:\Code project\Kitaproject\kita\kita\bin\Debug\net8.0\Domain.pdb
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.csproj.AssemblyReference.cache
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.GeneratedMSBuildEditorConfig.editorconfig
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.AssemblyInfoInputs.cache
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.AssemblyInfo.cs
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.csproj.CoreCompileInputs.cache
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.MvcApplicationPartsAssemblyInfo.cache
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.sourcelink.json
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\staticwebassets.build.json
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\staticwebassets.development.json
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\staticwebassets\msbuild.kita.Microsoft.AspNetCore.StaticWebAssets.props
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\staticwebassets\msbuild.build.kita.props
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.kita.props
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.kita.props
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\staticwebassets.pack.json
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\scopedcss\bundle\kita.styles.css
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.csproj.Up2Date
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.dll
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\refint\kita.dll
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.pdb
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\kita.genruntimeconfig.cache
-A:\Code project\Kitaproject\kita\kita\obj\Debug\net8.0\ref\kita.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/appsettings.Development.json
+A:/Code project/Kita/kita/bin/Debug/net8.0/appsettings.json
+A:/Code project/Kita/kita/bin/Debug/net8.0/Kita.exe
+a:/Code project/Kita/kita/bin/Debug/net8.0/Kita.deps.json
+a:/Code project/Kita/kita/bin/Debug/net8.0/Kita.runtimeconfig.json
+A:/Code project/Kita/kita/bin/Debug/net8.0/Kita.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Kita.pdb
+A:/Code project/Kita/kita/bin/Debug/net8.0/BCrypt.Net-Next.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Humanizer.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.Bcl.AsyncInterfaces.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.CSharp.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.Workspaces.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Design.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Relational.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Configuration.Abstractions.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.Extensions.DependencyModel.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Primitives.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Logging.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Mono.TextTemplating.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Npgsql.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/System.CodeDom.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/System.Composition.AttributedModel.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/System.Composition.Convention.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/System.Composition.Hosting.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/System.Composition.Runtime.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/System.Composition.TypedParts.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Domain.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Infrastructure.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Service.dll
+A:/Code project/Kita/kita/bin/Debug/net8.0/Infrastructure.pdb
+A:/Code project/Kita/kita/bin/Debug/net8.0/Service.pdb
+A:/Code project/Kita/kita/bin/Debug/net8.0/Domain.pdb
+A:/Code project/Kita/kita/obj/Debug/net8.0/Kita.csproj.AssemblyReference.cache
+A:/Code project/Kita/kita/obj/Debug/net8.0/Kita.GeneratedMSBuildEditorConfig.editorconfig
+A:/Code project/Kita/kita/obj/Debug/net8.0/Kita.AssemblyInfoInputs.cache
+A:/Code project/Kita/kita/obj/Debug/net8.0/Kita.AssemblyInfo.cs
+A:/Code project/Kita/kita/obj/Debug/net8.0/Kita.csproj.CoreCompileInputs.cache
+A:/Code project/Kita/kita/obj/Debug/net8.0/Kita.MvcApplicationPartsAssemblyInfo.cache
+A:/Code project/Kita/kita/obj/Debug/net8.0/staticwebassets.build.json
+A:/Code project/Kita/kita/obj/Debug/net8.0/staticwebassets.development.json
+A:/Code project/Kita/kita/obj/Debug/net8.0/staticwebassets/msbuild.Kita.Microsoft.AspNetCore.StaticWebAssets.props
+A:/Code project/Kita/kita/obj/Debug/net8.0/staticwebassets/msbuild.build.Kita.props
+A:/Code project/Kita/kita/obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.Kita.props
+A:/Code project/Kita/kita/obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.Kita.props
+A:/Code project/Kita/kita/obj/Debug/net8.0/staticwebassets.pack.json
+A:/Code project/Kita/kita/obj/Debug/net8.0/scopedcss/bundle/Kita.styles.css
+a:/Code project/Kita/kita/obj/Debug/net8.0/Kita.csproj.Up2Date
+A:/Code project/Kita/kita/obj/Debug/net8.0/Kita.dll
+A:/Code project/Kita/kita/obj/Debug/net8.0/refint/Kita.dll
+A:/Code project/Kita/kita/obj/Debug/net8.0/Kita.pdb
+a:/Code project/Kita/kita/obj/Debug/net8.0/Kita.genruntimeconfig.cache
+a:/Code project/Kita/kita/obj/Debug/net8.0/ref/Kita.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/appsettings.Development.json
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/appsettings.json
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/kita.exe
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/kita.deps.json
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/kita.runtimeconfig.json
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/kita.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/kita.pdb
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/AngleSharp.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/BCrypt.Net-Next.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/DotNetEnv.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Apis.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Apis.Auth.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Apis.Core.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Apis.YouTube.v3.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Humanizer.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Bcl.AsyncInterfaces.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.CSharp.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.Workspaces.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Design.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Relational.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Configuration.Abstractions.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.DependencyModel.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Primitives.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Logging.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Mono.TextTemplating.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Newtonsoft.Json.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Npgsql.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Sprache.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.CodeDom.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.AttributedModel.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.Convention.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.Hosting.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.Runtime.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.TypedParts.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.IO.Pipelines.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.Management.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.Text.Encodings.Web.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/System.Text.Json.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/YoutubeExplode.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.resources.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/runtimes/win/lib/net7.0/System.Management.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/runtimes/browser/lib/net8.0/System.Text.Encodings.Web.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Domain.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Infrastructure.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Service.dll
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Infrastructure.pdb
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Service.pdb
+A:/Code project/Kitaproject/kita/kita/bin/Debug/net8.0/Domain.pdb
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.csproj.AssemblyReference.cache
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.GeneratedMSBuildEditorConfig.editorconfig
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.AssemblyInfoInputs.cache
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.AssemblyInfo.cs
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.csproj.CoreCompileInputs.cache
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.MvcApplicationPartsAssemblyInfo.cache
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.sourcelink.json
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets.build.json
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets.development.json
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets/msbuild.kita.Microsoft.AspNetCore.StaticWebAssets.props
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets/msbuild.build.kita.props
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.kita.props
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.kita.props
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets.pack.json
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/scopedcss/bundle/kita.styles.css
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.csproj.Up2Date
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.dll
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/refint/kita.dll
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.pdb
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.genruntimeconfig.cache
+A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.csproj.AssemblyReference.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/rpswa.dswa.cache.json
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.GeneratedMSBuildEditorConfig.editorconfig
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.AssemblyInfoInputs.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.AssemblyInfo.cs
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.csproj.CoreCompileInputs.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.MvcApplicationPartsAssemblyInfo.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.sourcelink.json
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/appsettings.Development.json
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/appsettings.json
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/kita.staticwebassets.endpoints.json
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/kita
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/kita.deps.json
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/kita.runtimeconfig.json
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/kita.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/kita.pdb
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/AngleSharp.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/BCrypt.Net-Next.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/DotNetEnv.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Apis.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Apis.Auth.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Apis.Core.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Apis.YouTube.v3.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Humanizer.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Bcl.AsyncInterfaces.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.CSharp.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.CodeAnalysis.Workspaces.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Design.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Relational.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Configuration.Abstractions.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.DependencyModel.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Primitives.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Logging.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Mono.TextTemplating.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Newtonsoft.Json.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Npgsql.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Sprache.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.CodeDom.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.AttributedModel.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.Convention.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.Hosting.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.Runtime.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.TypedParts.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.IO.Pipelines.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Management.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Text.Encodings.Web.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Text.Json.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/YoutubeExplode.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/es/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/fr/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/it/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ja/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ko/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/pl/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/pt-BR/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/ru/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/tr/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.resources.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/runtimes/win/lib/net7.0/System.Management.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/runtimes/browser/lib/net8.0/System.Text.Encodings.Web.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Domain.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Infrastructure.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Service.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Infrastructure.pdb
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Service.pdb
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Domain.pdb
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/rjimswa.dswa.cache.json
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/rjsmrazor.dswa.cache.json
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/rjsmcshtml.dswa.cache.json
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/scopedcss/bundle/kita.styles.css
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets.build.json
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets.build.json.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets.development.json
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/staticwebassets.build.endpoints.json
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/swae.build.ex.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.csproj.Up2Date
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.dll
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/refint/kita.dll
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.pdb
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.genruntimeconfig.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll

@@ -56,19 +56,81 @@ namespace Kita.Service.Services
             return await UpdateStatAsync(songId, ss => ss.PlayCount++);
         }
 
-        public async Task<ApiResponse<SongStaticsDto>> IncrementLikeCountAsync(Guid songId)
+        public async Task<ApiResponse<SongStaticsDto>> IncrementLikeCountAsync(Guid songId, Guid userId)
         {
-            return await UpdateStatAsync(songId, ss => ss.LikeCount++);
+            var songStatics = await GetOrCreateSongStaticsAsync(songId);
+            if (songStatics == null)
+            {
+                return ApiResponse<SongStaticsDto>.Fail("Song not found", null, 404);
+            }
+
+            // Check if user already liked
+            if (songStatics.LikedByUserIds.Contains(userId))
+            {
+                return ApiResponse<SongStaticsDto>.Fail("User already liked this song", null, 400);
+            }
+
+            // If user disliked, remove dislike first
+            if (songStatics.DislikedByUserIds.Contains(userId))
+            {
+                songStatics.DislikedByUserIds.Remove(userId);
+                songStatics.DislikeCount = Math.Max(0, songStatics.DislikeCount - 1);
+            }
+
+            songStatics.LikedByUserIds.Add(userId);
+            songStatics.LikeCount++;
+            await _songStaticsRepository.UpdateSongStaticsAsync(songId, songStatics);
+
+            return new ApiResponse<SongStaticsDto>(MapToDto(songStatics));
         }
 
-        public async Task<ApiResponse<SongStaticsDto>> IncrementDislikeCountAsync(Guid songId)
+        public async Task<ApiResponse<SongStaticsDto>> IncrementDislikeCountAsync(Guid songId, Guid userId)
         {
-            return await UpdateStatAsync(songId, ss => ss.DislikeCount++);
+            var songStatics = await GetOrCreateSongStaticsAsync(songId);
+            if (songStatics == null)
+            {
+                return ApiResponse<SongStaticsDto>.Fail("Song not found", null, 404);
+            }
+
+            // Check if user already disliked
+            if (songStatics.DislikedByUserIds.Contains(userId))
+            {
+                return ApiResponse<SongStaticsDto>.Fail("User already disliked this song", null, 400);
+            }
+
+            // If user liked, remove like first
+            if (songStatics.LikedByUserIds.Contains(userId))
+            {
+                songStatics.LikedByUserIds.Remove(userId);
+                songStatics.LikeCount = Math.Max(0, songStatics.LikeCount - 1);
+            }
+
+            songStatics.DislikedByUserIds.Add(userId);
+            songStatics.DislikeCount++;
+            await _songStaticsRepository.UpdateSongStaticsAsync(songId, songStatics);
+
+            return new ApiResponse<SongStaticsDto>(MapToDto(songStatics));
         }
 
-        public async Task<ApiResponse<SongStaticsDto>> IncrementFavoriteCountAsync(Guid songId)
+        public async Task<ApiResponse<SongStaticsDto>> IncrementFavoriteCountAsync(Guid songId, Guid userId)
         {
-            return await UpdateStatAsync(songId, ss => ss.FavoriteCount++);
+            var songStatics = await GetOrCreateSongStaticsAsync(songId);
+            if (songStatics == null)
+            {
+                return ApiResponse<SongStaticsDto>.Fail("Song not found", null, 404);
+            }
+
+            // Check if user already favorited
+            if (songStatics.FavoritedByUserIds.Contains(userId))
+            {
+                return ApiResponse<SongStaticsDto>.Fail("User already favorited this song", null, 400);
+            }
+
+            songStatics.FavoritedByUserIds.Add(userId);
+            songStatics.FavoriteCount++;
+            await _songStaticsRepository.UpdateSongStaticsAsync(songId, songStatics);
+
+            return new ApiResponse<SongStaticsDto>(MapToDto(songStatics));
         }
 
         public async Task<ApiResponse<SongStaticsDto>> IncrementShareCountAsync(Guid songId)
@@ -76,33 +138,123 @@ namespace Kita.Service.Services
             return await UpdateStatAsync(songId, ss => ss.ShareCount++);
         }
 
-        public async Task<ApiResponse<SongStaticsDto>> DecrementLikeCountAsync(Guid songId)
+        public async Task<ApiResponse<SongStaticsDto>> DecrementLikeCountAsync(Guid songId, Guid userId)
         {
-            return await UpdateStatAsync(songId, ss => ss.LikeCount = Math.Max(0, ss.LikeCount - 1));
+            var songStatics = await GetOrCreateSongStaticsAsync(songId);
+            if (songStatics == null)
+            {
+                return ApiResponse<SongStaticsDto>.Fail("Song not found", null, 404);
+            }
+
+            // Check if user actually liked
+            if (!songStatics.LikedByUserIds.Contains(userId))
+            {
+                return ApiResponse<SongStaticsDto>.Fail("User has not liked this song", null, 400);
+            }
+
+            songStatics.LikedByUserIds.Remove(userId);
+            songStatics.LikeCount = Math.Max(0, songStatics.LikeCount - 1);
+            await _songStaticsRepository.UpdateSongStaticsAsync(songId, songStatics);
+
+            return new ApiResponse<SongStaticsDto>(MapToDto(songStatics));
         }
 
-        public async Task<ApiResponse<SongStaticsDto>> DecrementDislikeCountAsync(Guid songId)
+        public async Task<ApiResponse<SongStaticsDto>> DecrementDislikeCountAsync(Guid songId, Guid userId)
         {
-            return await UpdateStatAsync(songId, ss => ss.DislikeCount = Math.Max(0, ss.DislikeCount - 1));
+            var songStatics = await GetOrCreateSongStaticsAsync(songId);
+            if (songStatics == null)
+            {
+                return ApiResponse<SongStaticsDto>.Fail("Song not found", null, 404);
+            }
+
+            // Check if user actually disliked
+            if (!songStatics.DislikedByUserIds.Contains(userId))
+            {
+                return ApiResponse<SongStaticsDto>.Fail("User has not disliked this song", null, 400);
+            }
+
+            songStatics.DislikedByUserIds.Remove(userId);
+            songStatics.DislikeCount = Math.Max(0, songStatics.DislikeCount - 1);
+            await _songStaticsRepository.UpdateSongStaticsAsync(songId, songStatics);
+
+            return new ApiResponse<SongStaticsDto>(MapToDto(songStatics));
         }
 
-        public async Task<ApiResponse<SongStaticsDto>> DecrementFavoriteCountAsync(Guid songId)
+        public async Task<ApiResponse<SongStaticsDto>> DecrementFavoriteCountAsync(Guid songId, Guid userId)
         {
-            return await UpdateStatAsync(songId, ss => ss.FavoriteCount = Math.Max(0, ss.FavoriteCount - 1));
+            var songStatics = await GetOrCreateSongStaticsAsync(songId);
+            if (songStatics == null)
+            {
+                return ApiResponse<SongStaticsDto>.Fail("Song not found", null, 404);
+            }
+
+            // Check if user actually favorited
+            if (!songStatics.FavoritedByUserIds.Contains(userId))
+            {
+                return ApiResponse<SongStaticsDto>.Fail("User has not favorited this song", null, 400);
+            }
+
+            songStatics.FavoritedByUserIds.Remove(userId);
+            songStatics.FavoriteCount = Math.Max(0, songStatics.FavoriteCount - 1);
+            await _songStaticsRepository.UpdateSongStaticsAsync(songId, songStatics);
+
+            return new ApiResponse<SongStaticsDto>(MapToDto(songStatics));
         }
 
-        private async Task<ApiResponse<SongStaticsDto>> UpdateStatAsync(Guid songId, Action<SongStatics> updateAction)
+        public async Task<bool> HasUserLikedSongAsync(Guid songId, Guid userId)
+        {
+            var songStatics = await _songStaticsRepository.GetSongStaticsAsync(songId);
+            return songStatics?.LikedByUserIds.Contains(userId) ?? false;
+        }
+
+        public async Task<bool> HasUserDislikedSongAsync(Guid songId, Guid userId)
+        {
+            var songStatics = await _songStaticsRepository.GetSongStaticsAsync(songId);
+            return songStatics?.DislikedByUserIds.Contains(userId) ?? false;
+        }
+
+        public async Task<bool> HasUserFavoritedSongAsync(Guid songId, Guid userId)
+        {
+            var songStatics = await _songStaticsRepository.GetSongStaticsAsync(songId);
+            return songStatics?.FavoritedByUserIds.Contains(userId) ?? false;
+        }
+
+        private async Task<SongStatics?> GetOrCreateSongStaticsAsync(Guid songId)
         {
             var songStatics = await _songStaticsRepository.GetSongStaticsAsync(songId);
             
             if (songStatics == null)
             {
-                var getResponse = await GetSongStaticsAsync(songId);
-                if (!getResponse.Success)
+                var song = await _songRepository.GetByIdAsync(songId);
+                if (song == null)
                 {
-                    return getResponse;
+                    return null;
                 }
-                songStatics = await _songStaticsRepository.GetSongStaticsAsync(songId);
+
+                songStatics = new SongStatics
+                {
+                    SongId = songId,
+                    PlayCount = 0,
+                    LikeCount = 0,
+                    DislikeCount = 0,
+                    FavoriteCount = 0,
+                    ShareCount = 0,
+                    UserId = song.UserId,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _songStaticsRepository.CreateSongStaticsAsync(songStatics);
+            }
+
+            return songStatics;
+        }
+
+        private async Task<ApiResponse<SongStaticsDto>> UpdateStatAsync(Guid songId, Action<SongStatics> updateAction)
+        {
+            var songStatics = await GetOrCreateSongStaticsAsync(songId);
+            if (songStatics == null)
+            {
+                return ApiResponse<SongStaticsDto>.Fail("Song not found", null, 404);
             }
 
             updateAction(songStatics!);

@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "2nrTzT7ryuI=",
+  "dgSpecHash": "rt6Hjgah7Kk=",
   "success": true,
-  "projectFilePath": "a:\\Code project\\Kitaproject\\kita\\Domain\\Domain.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/home/mufies/Code/Kitaproject/kita/Domain/Domain.csproj",
+  "expectedPackageFiles": [
+    "/home/mufies/.nuget/packages/microsoft.netcore.app.ref/8.0.22/microsoft.netcore.app.ref.8.0.22.nupkg.sha512",
+    "/home/mufies/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.22/microsoft.aspnetcore.app.ref.8.0.22.nupkg.sha512"
+  ],
   "logs": []
 }

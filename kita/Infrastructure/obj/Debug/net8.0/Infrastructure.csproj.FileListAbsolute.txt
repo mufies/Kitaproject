@@ -1,35 +1,53 @@
-a:\Code project\Kita\Infrastructure\bin\Debug\net8.0\Infrastructure.deps.json
-a:\Code project\Kita\Infrastructure\bin\Debug\net8.0\Infrastructure.runtimeconfig.json
-A:\Code project\Kita\Infrastructure\bin\Debug\net8.0\Infrastructure.dll
-A:\Code project\Kita\Infrastructure\bin\Debug\net8.0\Infrastructure.pdb
-A:\Code project\Kita\Infrastructure\bin\Debug\net8.0\Domain.dll
-A:\Code project\Kita\Infrastructure\bin\Debug\net8.0\Domain.pdb
-A:\Code project\Kita\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.AssemblyReference.cache
-A:\Code project\Kita\Infrastructure\obj\Debug\net8.0\Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-A:\Code project\Kita\Infrastructure\obj\Debug\net8.0\Infrastructure.AssemblyInfoInputs.cache
-A:\Code project\Kita\Infrastructure\obj\Debug\net8.0\Infrastructure.AssemblyInfo.cs
-A:\Code project\Kita\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.CoreCompileInputs.cache
-a:\Code project\Kita\Infrastructure\obj\Debug\net8.0\Infrastr.15EFFBFE.Up2Date
-A:\Code project\Kita\Infrastructure\obj\Debug\net8.0\Infrastructure.dll
-A:\Code project\Kita\Infrastructure\obj\Debug\net8.0\refint\Infrastructure.dll
-A:\Code project\Kita\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
-a:\Code project\Kita\Infrastructure\obj\Debug\net8.0\Infrastructure.genruntimeconfig.cache
-a:\Code project\Kita\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll
-A:\Code project\Kitaproject\kita\Infrastructure\bin\Debug\net8.0\Infrastructure.deps.json
-A:\Code project\Kitaproject\kita\Infrastructure\bin\Debug\net8.0\Infrastructure.runtimeconfig.json
-A:\Code project\Kitaproject\kita\Infrastructure\bin\Debug\net8.0\Infrastructure.dll
-A:\Code project\Kitaproject\kita\Infrastructure\bin\Debug\net8.0\Infrastructure.pdb
-A:\Code project\Kitaproject\kita\Infrastructure\bin\Debug\net8.0\Domain.dll
-A:\Code project\Kitaproject\kita\Infrastructure\bin\Debug\net8.0\Domain.pdb
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.AssemblyReference.cache
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.AssemblyInfoInputs.cache
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.AssemblyInfo.cs
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.CoreCompileInputs.cache
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.sourcelink.json
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastr.15EFFBFE.Up2Date
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.dll
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\refint\Infrastructure.dll
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\Infrastructure.genruntimeconfig.cache
-A:\Code project\Kitaproject\kita\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll
+a:/Code project/Kita/Infrastructure/bin/Debug/net8.0/Infrastructure.deps.json
+a:/Code project/Kita/Infrastructure/bin/Debug/net8.0/Infrastructure.runtimeconfig.json
+A:/Code project/Kita/Infrastructure/bin/Debug/net8.0/Infrastructure.dll
+A:/Code project/Kita/Infrastructure/bin/Debug/net8.0/Infrastructure.pdb
+A:/Code project/Kita/Infrastructure/bin/Debug/net8.0/Domain.dll
+A:/Code project/Kita/Infrastructure/bin/Debug/net8.0/Domain.pdb
+A:/Code project/Kita/Infrastructure/obj/Debug/net8.0/Infrastructure.csproj.AssemblyReference.cache
+A:/Code project/Kita/Infrastructure/obj/Debug/net8.0/Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+A:/Code project/Kita/Infrastructure/obj/Debug/net8.0/Infrastructure.AssemblyInfoInputs.cache
+A:/Code project/Kita/Infrastructure/obj/Debug/net8.0/Infrastructure.AssemblyInfo.cs
+A:/Code project/Kita/Infrastructure/obj/Debug/net8.0/Infrastructure.csproj.CoreCompileInputs.cache
+a:/Code project/Kita/Infrastructure/obj/Debug/net8.0/Infrastr.15EFFBFE.Up2Date
+A:/Code project/Kita/Infrastructure/obj/Debug/net8.0/Infrastructure.dll
+A:/Code project/Kita/Infrastructure/obj/Debug/net8.0/refint/Infrastructure.dll
+A:/Code project/Kita/Infrastructure/obj/Debug/net8.0/Infrastructure.pdb
+a:/Code project/Kita/Infrastructure/obj/Debug/net8.0/Infrastructure.genruntimeconfig.cache
+a:/Code project/Kita/Infrastructure/obj/Debug/net8.0/ref/Infrastructure.dll
+A:/Code project/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Infrastructure.deps.json
+A:/Code project/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Infrastructure.runtimeconfig.json
+A:/Code project/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Infrastructure.dll
+A:/Code project/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Infrastructure.pdb
+A:/Code project/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Domain.dll
+A:/Code project/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Domain.pdb
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.csproj.AssemblyReference.cache
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.AssemblyInfoInputs.cache
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.AssemblyInfo.cs
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.csproj.CoreCompileInputs.cache
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.sourcelink.json
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastr.15EFFBFE.Up2Date
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.dll
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/refint/Infrastructure.dll
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.pdb
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.genruntimeconfig.cache
+A:/Code project/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/ref/Infrastructure.dll
+/home/mufies/Code/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Infrastructure.deps.json
+/home/mufies/Code/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Infrastructure.runtimeconfig.json
+/home/mufies/Code/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Infrastructure.dll
+/home/mufies/Code/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Infrastructure.pdb
+/home/mufies/Code/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Domain.dll
+/home/mufies/Code/Kitaproject/kita/Infrastructure/bin/Debug/net8.0/Domain.pdb
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.csproj.AssemblyReference.cache
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.AssemblyInfoInputs.cache
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.AssemblyInfo.cs
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.csproj.CoreCompileInputs.cache
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.sourcelink.json
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastr.15EFFBFE.Up2Date
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.dll
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/refint/Infrastructure.dll
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.pdb
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/Infrastructure.genruntimeconfig.cache
+/home/mufies/Code/Kitaproject/kita/Infrastructure/obj/Debug/net8.0/ref/Infrastructure.dll

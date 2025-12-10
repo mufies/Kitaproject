@@ -105,5 +105,37 @@ namespace Kita.Controllers
             var result = await _playlistService.ImportPlaylistAsync(request, userId);
             return HandleResult(result);
         }
+
+        // Get playlists containing a specific song
+        [HttpGet("song/{songId}")]
+        public async Task<IActionResult> GetPlaylistsBySongId(Guid songId)
+        {
+            var result = await _playlistService.GetPlaylistsBySongIdAsync(songId);
+            return HandleResult(result);
+        }
+
+        // Get public playlists
+        [HttpGet("public")]
+        public async Task<IActionResult> GetPublicPlaylists()
+        {
+            var result = await _playlistService.GetPlaylistsByIsPublicAsync(true);
+            return HandleResult(result);
+        }
+
+        // Get private playlists (user's own)
+        [HttpGet("private")]
+        public async Task<IActionResult> GetPrivatePlaylists()
+        {
+            var result = await _playlistService.GetPlaylistsByIsPrivateAsync(true);
+            return HandleResult(result);
+        }
+
+        // Get playlists by user ID and song ID
+        [HttpGet("user/{userId}/song/{songId}")]
+        public async Task<IActionResult> GetPlaylistsByUserIdAndSongId(Guid userId, Guid songId)
+        {
+            var result = await _playlistService.GetPlaylistsByUserIdAndSongIdAsync(userId, songId);
+            return HandleResult(result);
+        }
     }
 }

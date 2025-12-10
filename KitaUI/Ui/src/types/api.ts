@@ -153,3 +153,59 @@ export interface ServerInviteDto {
 export interface UseInviteDto {
     code: string;
 }
+
+// Song Statistics DTOs
+export interface SongStaticsDto {
+    id: string;
+    songId: string;
+    playCount: number;
+    likeCount: number;
+    dislikeCount: number;
+    favoriteCount: number;
+    shareCount: number;
+    comments: CommentDto[];
+    createdAt: string;
+    updatedAt?: string;
+    songTitle?: string;
+    artistName?: string;
+}
+
+export interface CommentDto {
+    id: string;
+    content: string;
+    userId: string;
+    username: string;
+    createdAt: string;
+}
+
+// Import Playlist DTOs
+export interface ImportPlaylistRequestDto {
+    playlistUrl: string;
+}
+
+export interface ImportPlaylistResponseDto {
+    playlistId: string;
+    playlistName: string;
+    totalTracks: number;
+    downloaded: number;
+    skipped: number;
+    failed: number;
+    importedSongs: ImportedSongDto[];
+    message: string;
+}
+
+export interface ImportedSongDto {
+    title: string;
+    artist: string;
+    wasDownloaded: boolean;
+    alreadyExisted: boolean;
+    errorMessage?: string;
+}
+
+// User interaction status
+export interface UserInteractionStatus {
+    hasLiked: boolean;
+    hasDisliked: boolean;
+    hasFavorited: boolean;
+}
+

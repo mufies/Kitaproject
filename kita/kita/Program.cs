@@ -33,6 +33,8 @@ builder.Services.AddScoped<ISongRepository, SongRepository>();
 builder.Services.AddScoped<IPlaylistSongRepository, PlaylistSongRepository>();
 builder.Services.AddScoped<ISongStaticsRepository, SongStaticsRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IListenHistoryRepository, ListenHistoryRepository>();
+builder.Services.AddScoped<IListenWrappedRepository, ListenWrappedRepository>();
 
 // Add Services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -46,6 +48,8 @@ builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 builder.Services.AddScoped<IYouTubeService, YouTubeService>();
 builder.Services.AddScoped<ISongStaticsService, SongStaticsService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IListenHistoryService, ListenHistoryService>();
+builder.Services.AddScoped<IListenWrappedService, ListenWrappedService>();
 
 // Configure Spotify Options
 builder.Services.Configure<SpotifyOptions>(builder.Configuration.GetSection("Spotify"));
@@ -127,12 +131,12 @@ var app = builder.Build();
 // Configure static files
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"A:/Code project/Kitaproject/kita/Assets/Images"),
+    FileProvider = new PhysicalFileProvider("/home/mufies/Code/Kitaproject/kita/Assets/Images"),
     RequestPath = "/assets/images"
 });
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"A:/Code project/Kitaproject/kita/Assets/Music"),
+    FileProvider = new PhysicalFileProvider("/home/mufies/Code/Kitaproject/kita/Assets/Music"),
     RequestPath = "/assets/music"
 });
 
