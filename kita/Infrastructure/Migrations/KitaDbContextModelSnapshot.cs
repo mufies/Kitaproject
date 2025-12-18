@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using NpgsqlTypes;
 
 #nullable disable
 
@@ -23,6 +22,36 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ArtistUser", b =>
+                {
+                    b.Property<Guid>("ArtistId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ManagedByUsersId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ArtistId", "ManagedByUsersId");
+
+                    b.HasIndex("ManagedByUsersId");
+
+                    b.ToTable("ArtistManagers", (string)null);
+                });
+
+            modelBuilder.Entity("ArtistUser1", b =>
+                {
+                    b.Property<Guid>("Artist1Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("FollowedByUsersId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Artist1Id", "FollowedByUsersId");
+
+                    b.HasIndex("FollowedByUsersId");
+
+                    b.ToTable("ArtistFollowers", (string)null);
+                });
 
             modelBuilder.Entity("Domain.Entities.Music.Comment", b =>
                 {
@@ -181,6 +210,77 @@ namespace Infrastructure.Migrations
                     b.ToTable("SongStatics");
                 });
 
+            modelBuilder.Entity("Kita.Domain.Entities.Artist", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<List<Guid>>("FollowedBy")
+                        .IsRequired()
+                        .HasColumnType("uuid[]");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<List<Guid>>("ManagedBy")
+                        .IsRequired()
+                        .HasColumnType("uuid[]");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Artists");
+                });
+
+            modelBuilder.Entity("Kita.Domain.Entities.Music.Album", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ArtistId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtistId");
+
+                    b.ToTable("Albums");
+                });
+
             modelBuilder.Entity("Kita.Domain.Entities.Music.Playlist", b =>
                 {
                     b.Property<Guid>("Id")
@@ -252,12 +352,11 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Album")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("AlbumId")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("Artist")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid?>("ArtistId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AudioQuality")
                         .HasColumnType("integer");
@@ -274,11 +373,6 @@ namespace Infrastructure.Migrations
                     b.Property<int[]>("Genres")
                         .IsRequired()
                         .HasColumnType("integer[]");
-
-                    b.Property<NpgsqlTsVector>("SearchVector")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("tsvector")
-                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"Title\", '') || ' ' || coalesce(\"Artist\", ''))", true);
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -302,9 +396,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SearchVector");
+                    b.HasIndex("AlbumId");
 
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+                    b.HasIndex("ArtistId");
 
                     b.HasIndex("UserId");
 
@@ -562,14 +656,44 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 12, 10, 8, 47, 4, 372, DateTimeKind.Utc).AddTicks(2062),
+                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 42, 289, DateTimeKind.Utc).AddTicks(6148),
                             Email = "admin@kita.com",
                             PasswordHash = "$2a$11$5glWJIvKFoXWFwYIKJVB5ONySehuC4cMyghaPfEdybGcBazIDZsmy",
                             Role = "Admin",
                             Subscription = 0,
-                            UpdatedAt = new DateTime(2025, 12, 10, 8, 47, 4, 372, DateTimeKind.Utc).AddTicks(2063),
+                            UpdatedAt = new DateTime(2025, 12, 18, 12, 49, 42, 289, DateTimeKind.Utc).AddTicks(6150),
                             UserName = "Admin"
                         });
+                });
+
+            modelBuilder.Entity("ArtistUser", b =>
+                {
+                    b.HasOne("Kita.Domain.Entities.Artist", null)
+                        .WithMany()
+                        .HasForeignKey("ArtistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Kita.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("ManagedByUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ArtistUser1", b =>
+                {
+                    b.HasOne("Kita.Domain.Entities.Artist", null)
+                        .WithMany()
+                        .HasForeignKey("Artist1Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Kita.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("FollowedByUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.Music.Comment", b =>
@@ -651,6 +775,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Kita.Domain.Entities.Music.Album", b =>
+                {
+                    b.HasOne("Kita.Domain.Entities.Artist", "Artist")
+                        .WithMany("Albums")
+                        .HasForeignKey("ArtistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Artist");
+                });
+
             modelBuilder.Entity("Kita.Domain.Entities.Music.Playlist", b =>
                 {
                     b.HasOne("Kita.Domain.Entities.User", "Owner")
@@ -683,10 +818,24 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Kita.Domain.Entities.Music.Song", b =>
                 {
+                    b.HasOne("Kita.Domain.Entities.Music.Album", "Album")
+                        .WithMany("Songs")
+                        .HasForeignKey("AlbumId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Kita.Domain.Entities.Artist", "Artist")
+                        .WithMany("Songs")
+                        .HasForeignKey("ArtistId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Kita.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Album");
+
+                    b.Navigation("Artist");
 
                     b.Navigation("User");
                 });
@@ -790,6 +939,18 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Music.SongStatics", b =>
                 {
                     b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("Kita.Domain.Entities.Artist", b =>
+                {
+                    b.Navigation("Albums");
+
+                    b.Navigation("Songs");
+                });
+
+            modelBuilder.Entity("Kita.Domain.Entities.Music.Album", b =>
+                {
+                    b.Navigation("Songs");
                 });
 
             modelBuilder.Entity("Kita.Domain.Entities.Music.Playlist", b =>

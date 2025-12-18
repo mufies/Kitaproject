@@ -381,3 +381,13 @@ A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.pdb
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.genruntimeconfig.cache
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/BouncyCastle.Cryptography.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Concentus.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/DnsClient.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Logging.Abstractions.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/SIPSorcery.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/websocket-sharp.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/SIPSorceryMedia.Abstractions.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Diagnostics.DiagnosticSource.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/TagLibSharp.dll

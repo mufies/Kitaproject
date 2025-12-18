@@ -1,3 +1,4 @@
+using Kita.Domain.Entities;
 using Kita.Domain.Entities.Music;
 using Kita.Infrastructure.Repositories;
 using Kita.Service.Common;
@@ -17,6 +18,7 @@ namespace Kita.Service.Services
         private readonly IConfiguration _configuration;
         private readonly IYouTubeService _youTubeService;
         private readonly ISpotifyService _spotifyService;
+        private readonly IUserRepository _userRepository;
 
         public PlaylistService(
             IBaseRepository<Playlist> playlistRepository, 
@@ -24,7 +26,8 @@ namespace Kita.Service.Services
             IPlaylistSongRepository playlistSongRepository,
             IConfiguration configuration,
             IYouTubeService youTubeService,
-            ISpotifyService spotifyService)
+            ISpotifyService spotifyService,
+            IUserRepository userRepository)
         {
             _playlistRepository = playlistRepository;
             this._songRepository = _songRepository;
@@ -32,6 +35,28 @@ namespace Kita.Service.Services
             _configuration = configuration;
             _youTubeService = youTubeService;
             _spotifyService = spotifyService;
+            _userRepository = userRepository;
+        }
+
+        private async Task<Guid?> GetOrCreateArtistIdAsync(string artistName)
+        {
+            if (string.IsNullOrWhiteSpace(artistName))
+                return null;
+
+            var artist = await _userRepository.GetByUserNameAsync(artistName);
+            if (artist != null)
+                return artist.Id;
+
+            var newArtist = new User
+            {
+                UserName = artistName,
+                Email = $"{artistName.ToLower().Replace(" ", "")}@artist.placeholder",
+                PasswordHash = string.Empty,
+                Role = "Artist"
+            };
+            await _userRepository.AddAsync(newArtist);
+            await _userRepository.SaveChangesAsync();
+            return newArtist.Id;
         }
 
         // Create Playlist
@@ -178,7 +203,7 @@ namespace Kita.Service.Services
             var playlistSongs = await _playlistSongRepository.FindAsync(ps => ps.PlaylistId == playlistId);
             foreach (var ps in playlistSongs)
             {
-                await _playlistSongRepository.DeleteAsync(ps.Id);
+                await _playlistSongRepository.DeleteByCompositeKeyAsync(ps.PlaylistId, ps.SongId);
             }
 
             await _playlistRepository.DeleteAsync(playlist.Id);
@@ -196,22 +221,33 @@ namespace Kita.Service.Services
             var playlistSongs = await _playlistSongRepository.FindAsync(ps => ps.PlaylistId == playlistId);
             var songIds = playlistSongs.Select(ps => ps.SongId).ToList();
             
-            var songs = await _songRepository.FindAsync(s => songIds.Contains(s.Id));
+            // Use GetSongsByIdsAsync to include navigation properties (Artist, Album, User)
+            var songs = await _songRepository.GetSongsByIdsAsync(songIds);
             
             var songDtos = playlistSongs
                 .OrderBy(ps => ps.OrderIndex)
                 .Select(ps =>
                 {
-                    var song = songs.FirstOrDefault(s => s.Id == ps.SongId);
+                    var song = songs.FirstOrDefault(song => song.Id == ps.SongId);
                     return song != null ? new SongDto
                     {
                         Id = song.Id,
                         Title = song.Title,
-                        Artist = song.Artist,
-                        Album = song.Album,
+                        Artist = song.Artist?.Name ?? string.Empty,
+                        Album = song.Album?.Name,
+                        ArtistId = song.ArtistId,
+                        AlbumId = song.AlbumId,
+                        UserId = song.UserId,
+                        Uploader = song.User?.UserName,
                         Duration = song.Duration,
                         StreamUrl = song.StreamUrl,
-                        CoverUrl = song.CoverUrl
+                        CoverUrl = song.CoverUrl,
+                        Status = song.Status,
+                        Type = song.Type,
+                        Genres = song.Genres,
+                        AudioQuality = song.AudioQuality,
+                        CreatedAt = song.CreatedAt
+                        
                     } : null!;
                 })
                 .Where(s => s != null)
@@ -225,6 +261,7 @@ namespace Kita.Service.Services
                 Description = playlist.Description,
                 IsPublic = playlist.IsPublic,
                 OwnerId = playlist.OwnerId,
+                CoverUrl = playlist.CoverUrl,
                 Songs = songDtos
             });
         }
@@ -250,15 +287,62 @@ namespace Kita.Service.Services
         public async Task<ApiResponse<List<PlaylistDto>>> GetUserPlaylistsAsync(Guid userId)
         {
             var playlists = await _playlistRepository.FindAsync(p => p.OwnerId == userId);
-            var playlistDtos = playlists.Select(p => new PlaylistDto
+            var playlistDtos = new List<PlaylistDto>();
+
+            foreach (var playlist in playlists)
             {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                IsPublic = p.IsPublic,
-                OwnerId = p.OwnerId,
-                CoverUrl = p.CoverUrl
-            }).ToList();
+                // Get all songs in this playlist
+                var playlistSongs = await _playlistSongRepository.FindAsync(ps => ps.PlaylistId == playlist.Id);
+                var songIds = playlistSongs.Select(ps => ps.SongId).ToList();
+                
+                // Use GetSongsByIdsAsync to include navigation properties
+                var songs = await _songRepository.GetSongsByIdsAsync(songIds);
+                
+                var songDtos = playlistSongs
+                    .OrderBy(ps => ps.OrderIndex)
+                    .Select(ps =>
+                    {
+                        var song = songs.FirstOrDefault(s => s.Id == ps.SongId);
+                        return song != null ? new SongDto
+                        {
+                            Id = song.Id,
+                            Title = song.Title,
+                            Artist = song.Artist?.Name ?? string.Empty,
+                            Album = song.Album?.Name,
+                            ArtistId = song.ArtistId,
+                            AlbumId = song.AlbumId,
+                            UserId = song.UserId,
+                            Uploader = song.User?.UserName,
+                            Duration = song.Duration,
+                            StreamUrl = song.StreamUrl,
+                            CoverUrl = song.CoverUrl,
+                            Status = song.Status,
+                            Type = song.Type,
+                            Genres = song.Genres,
+                            AudioQuality = song.AudioQuality,
+                            CreatedAt = song.CreatedAt
+                            
+                        } : null!;
+                    })
+                    .Where(s => s != null)
+                    .Cast<SongDto>()
+                    .ToList();
+
+                // Calculate total duration
+                var totalDuration = songDtos.Sum(s => s.Duration);
+
+                playlistDtos.Add(new PlaylistDto
+                {
+                    Id = playlist.Id,
+                    Name = playlist.Name,
+                    Description = playlist.Description,
+                    IsPublic = playlist.IsPublic,
+                    OwnerId = playlist.OwnerId,
+                    CoverUrl = playlist.CoverUrl,
+                    Songs = songDtos,
+                    TotalDuration = totalDuration
+                });
+            }
 
             return new ApiResponse<List<PlaylistDto>>(playlistDtos);
         }
@@ -347,7 +431,8 @@ namespace Kita.Service.Services
             var playlistSongs = await _playlistSongRepository.FindAsync(ps => ps.PlaylistId == playlistId);
             var songIds = playlistSongs.Select(ps => ps.SongId).ToList();
 
-            var songs = await _songRepository.FindAsync(s => songIds.Contains(s.Id));
+            // Use GetSongsByIdsAsync to include navigation properties
+            var songs = await _songRepository.GetSongsByIdsAsync(songIds);
 
             var songDtos = playlistSongs
                 .OrderBy(ps => ps.OrderIndex)
@@ -358,11 +443,20 @@ namespace Kita.Service.Services
                     {
                         Id = song.Id,
                         Title = song.Title,
-                        Artist = song.Artist,
-                        Album = song.Album,
+                        Artist = song.Artist?.Name ?? string.Empty,
+                        Album = song.Album?.Name,
+                        ArtistId = song.ArtistId,
+                        AlbumId = song.AlbumId,
+                        UserId = song.UserId,
+                        Uploader = song.User?.UserName,
                         Duration = song.Duration,
                         StreamUrl = song.StreamUrl,
-                        CoverUrl = song.CoverUrl
+                        CoverUrl = song.CoverUrl,
+                        Status = song.Status,
+                        Type = song.Type,
+                        Genres = song.Genres,
+                        AudioQuality = song.AudioQuality,
+                        CreatedAt = song.CreatedAt
                     } : null!;
                 })
                 .Where(s => s != null)
@@ -549,13 +643,28 @@ namespace Kita.Service.Services
                             var baseUrl = _configuration["FileStorage:BaseUrl"];
                             var musicFolder = Path.Combine(storagePath!, "Music");
                             var fileName = downloadResult.Data.FileName;
+                            var filePath = Path.Combine(musicFolder, fileName);
                             var streamUrl = $"{baseUrl}/Music/{fileName}";
+
+                            // Extract duration from audio file
+                            int durationInSeconds = 0;
+                            try
+                            {
+                                using (var tfile = TagLib.File.Create(filePath))
+                                {
+                                    durationInSeconds = (int)tfile.Properties.Duration.TotalSeconds;
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                durationInSeconds = 0;
+                            }
 
                             var newSong = new Song
                             {
                                 Title = title,
-                                Artist = artist,
-                                Duration = 0, // Could be extracted from video if needed
+                                ArtistId = await GetOrCreateArtistIdAsync(artist),
+                                Duration = durationInSeconds,
                                 StreamUrl = streamUrl,
                                 CoverUrl = videoInfo.ThumbnailUrl,
                                 Status = SongStatus.Active,

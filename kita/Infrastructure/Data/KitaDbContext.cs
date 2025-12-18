@@ -13,6 +13,8 @@ namespace Kita.Infrastructure.Data
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Artist> Artists { get; set; }
+        public DbSet<Album> Albums { get; set; }
         public DbSet<Song> Songs { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
         public DbSet<PlaylistSong> PlaylistSongs { get; set; }
@@ -162,17 +164,41 @@ namespace Kita.Infrastructure.Data
                 .HasForeignKey(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Song SearchVector configuration for full-text search
-            modelBuilder.Entity<Song>()
-                .Property(s => s.SearchVector)
-                .HasColumnType("tsvector")
-                .HasComputedColumnSql(
-                    "to_tsvector('english', coalesce(\"Title\", '') || ' ' || coalesce(\"Artist\", ''))", 
-                    stored: true);
+            // Artist -> Songs
+            modelBuilder.Entity<Artist>()
+                .HasMany(a => a.Songs)
+                .WithOne(s => s.Artist)
+                .HasForeignKey(s => s.ArtistId)
+                .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<Song>()
-                .HasIndex(s => s.SearchVector)
-                .HasMethod("GIN");
+            // Artist -> Albums
+            modelBuilder.Entity<Artist>()
+                .HasMany(a => a.Albums)
+                .WithOne(al => al.Artist)
+                .HasForeignKey(al => al.ArtistId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Album -> Songs
+            modelBuilder.Entity<Album>()
+                .HasMany(al => al.Songs)
+                .WithOne(s => s.Album)
+                .HasForeignKey(s => s.AlbumId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Artist -> Users (ManagedBy) Many-to-Many
+            modelBuilder.Entity<Artist>()
+                .HasMany(a => a.ManagedByUsers)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("ArtistManagers"));
+
+            // Artist -> Users (FollowedBy) Many-to-Many
+            modelBuilder.Entity<Artist>()
+                .HasMany(a => a.FollowedByUsers)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("ArtistFollowers"));
+
+
+
 
             // SongStatics -> Comments (One-to-Many)
             modelBuilder.Entity<SongStatics>()

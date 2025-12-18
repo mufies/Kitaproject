@@ -288,7 +288,7 @@ namespace Kita.Service.Services
                 CreatedAt = songStatics.CreatedAt,
                 UpdatedAt = songStatics.UpdatedAt,
                 SongTitle = songStatics.Song?.Title,
-                ArtistName = songStatics.Song?.Artist
+                ArtistName = songStatics.Song?.Artist?.Name
             };
         }
     }

@@ -1,0 +1,365 @@
+{
+    "info": {
+        "_postman_id": "upload-song-api-test",
+        "name": "Kita - Upload Song API",
+        "description": "Test collection cho API Upload Song của Kita Music Platform",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:5000",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "",
+            "type": "string",
+            "description": "JWT Bearer Token"
+        }
+    ],
+    "item": [
+        {
+            "name": "Upload Song - Basic",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "Title",
+                            "value": "Test Song Title",
+                            "type": "text",
+                            "description": "Tên bài hát"
+                        },
+                        {
+                            "key": "Artist",
+                            "value": "Test Artist",
+                            "type": "text",
+                            "description": "Tên nghệ sĩ"
+                        },
+                        {
+                            "key": "Album",
+                            "value": "Test Album",
+                            "type": "text",
+                            "description": "Tên album (optional)"
+                        },
+                        {
+                            "key": "Duration",
+                            "value": "180.5",
+                            "type": "text",
+                            "description": "Thời lượng (giây)"
+                        },
+                        {
+                            "key": "StreamUrl",
+                            "value": "",
+                            "type": "text",
+                            "description": "Để trống, sẽ được set sau khi upload"
+                        },
+                        {
+                            "key": "Status",
+                            "value": "0",
+                            "type": "text",
+                            "description": "0=Active, 1=Inactive, 2=Draft, 3=Hidden, 4=Pending, 5=Restricted"
+                        },
+                        {
+                            "key": "Type",
+                            "value": "0",
+                            "type": "text",
+                            "description": "0=Single, 1=Album, 2=Playlist, 3=Radio, 4=Podcast, 5=Remix, 6=Live, 7=Cover, 8=Mashup, 9=Compilation"
+                        },
+                        {
+                            "key": "AudioQuality",
+                            "value": "1",
+                            "type": "text",
+                            "description": "0=Low, 1=Normal, 2=High, 3=Premium, 4=Lossless"
+                        },
+                        {
+                            "key": "songFile",
+                            "type": "file",
+                            "src": "",
+                            "description": "File nhạc (mp3, wav, flac)"
+                        },
+                        {
+                            "key": "coverFile",
+                            "type": "file",
+                            "src": "",
+                            "description": "File ảnh cover (optional)"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/music/upload",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "music",
+                        "upload"
+                    ]
+                },
+                "description": "Upload bài hát với thông tin cơ bản"
+            },
+            "response": []
+        },
+        {
+            "name": "Upload Song - With Genres",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "Title",
+                            "value": "Giấc Mơ Đêm Mưa",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Artist",
+                            "value": "Sơn Tùng M-TP",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Album",
+                            "value": "Single 2024",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Duration",
+                            "value": "245.6",
+                            "type": "text"
+                        },
+                        {
+                            "key": "StreamUrl",
+                            "value": "",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Status",
+                            "value": "0",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Type",
+                            "value": "0",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Genres[0]",
+                            "value": "0",
+                            "type": "text",
+                            "description": "Pop"
+                        },
+                        {
+                            "key": "Genres[1]",
+                            "value": "13",
+                            "type": "text",
+                            "description": "KPop"
+                        },
+                        {
+                            "key": "AudioQuality",
+                            "value": "3",
+                            "type": "text",
+                            "description": "Premium (320kbps)"
+                        },
+                        {
+                            "key": "songFile",
+                            "type": "file",
+                            "src": ""
+                        },
+                        {
+                            "key": "coverFile",
+                            "type": "file",
+                            "src": ""
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/music/upload",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "music",
+                        "upload"
+                    ]
+                },
+                "description": "Upload bài hát với nhiều thể loại"
+            },
+            "response": []
+        },
+        {
+            "name": "Upload Song - Minimal (Required fields only)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "Title",
+                            "value": "Quick Test Song",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Artist",
+                            "value": "Unknown Artist",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Duration",
+                            "value": "120",
+                            "type": "text"
+                        },
+                        {
+                            "key": "StreamUrl",
+                            "value": "",
+                            "type": "text"
+                        },
+                        {
+                            "key": "songFile",
+                            "type": "file",
+                            "src": ""
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/music/upload",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "music",
+                        "upload"
+                    ]
+                },
+                "description": "Upload với các trường bắt buộc tối thiểu"
+            },
+            "response": []
+        },
+        {
+            "name": "Upload Song - No Auth (Should fail 401)",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "Title",
+                            "value": "Test Song",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Artist",
+                            "value": "Test Artist",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Duration",
+                            "value": "180",
+                            "type": "text"
+                        },
+                        {
+                            "key": "StreamUrl",
+                            "value": "",
+                            "type": "text"
+                        },
+                        {
+                            "key": "songFile",
+                            "type": "file",
+                            "src": ""
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/music/upload",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "music",
+                        "upload"
+                    ]
+                },
+                "description": "Test case: Không có Authorization header - Expected: 401 Unauthorized"
+            },
+            "response": []
+        },
+        {
+            "name": "Upload Song - No Song File (Should fail 400)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "Title",
+                            "value": "Test Song",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Artist",
+                            "value": "Test Artist",
+                            "type": "text"
+                        },
+                        {
+                            "key": "Duration",
+                            "value": "180",
+                            "type": "text"
+                        },
+                        {
+                            "key": "StreamUrl",
+                            "value": "",
+                            "type": "text"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/music/upload",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "music",
+                        "upload"
+                    ]
+                },
+                "description": "Test case: Thiếu songFile - Expected: 400 Bad Request với message 'Song file is required.'"
+            },
+            "response": []
+        }
+    ]
+}

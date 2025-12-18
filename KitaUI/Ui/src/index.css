@@ -149,3 +149,41 @@ button:focus-visible {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari and Opera */
+}
+
+/* Custom playlist scrollbar */
+.playlist-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 122, 60, 0.5) rgba(255, 255, 255, 0.05);
+}
+
+.playlist-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.playlist-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.playlist-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 122, 60, 0.5);
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.playlist-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 122, 60, 0.8);
+}

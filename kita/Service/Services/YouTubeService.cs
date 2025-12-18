@@ -155,7 +155,7 @@ namespace Kita.Service.Services
                 {
                     FileName = fileName,
                     ContentType = "audio/mpeg",
-                    FileBytes = Array.Empty<byte>(), // Not returning bytes since we saved to file
+                    FileBytes = Array.Empty<byte>(),
                     FileSize = fileInfo.Length
                 };
 

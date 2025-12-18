@@ -231,6 +231,10 @@
               "target": "Package",
               "version": "[8.15.0, )"
             },
+            "TagLibSharp": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
             "YoutubeExplode": {
               "target": "Package",
               "version": "[6.5.6, )"
@@ -329,6 +333,14 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "SIPSorcery": {
+              "target": "Package",
+              "version": "[8.0.23, )"
+            },
+            "TagLibSharp": {
+              "target": "Package",
+              "version": "[2.3.0, )"
             }
           },
           "imports": [

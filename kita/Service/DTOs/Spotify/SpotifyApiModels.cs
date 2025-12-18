@@ -2,9 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Kita.Service.DTOs.Spotify
 {
-    /// <summary>
-    /// Response model for Spotify token endpoint
-    /// </summary>
+
     public class SpotifyTokenResponse
     {
         [JsonPropertyName("access_token")]

@@ -34,11 +34,12 @@ namespace Kita.Infrastructure.Repositories
             var wrapped = await _dbSet
                 .Where(w => w.UserId == userId && w.Year == year)
                 .Include(w => w.Song)
+                    .ThenInclude(s => s.Artist)
                 .ToListAsync();
 
             return wrapped
                 .Where(w => w.Song?.Artist != null)
-                .GroupBy(w => w.Song.Artist!)
+                .GroupBy(w => w.Song.Artist!.Name)
                 .OrderByDescending(g => g.Sum(w => w.PlayCount))
                 .Take(limit)
                 .ToDictionary(g => g.Key, g => g.Sum(w => w.PlayCount));

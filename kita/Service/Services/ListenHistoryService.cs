@@ -80,8 +80,8 @@ namespace Kita.Service.Services
                     {
                         Id = song.Id,
                         Title = song.Title,
-                        Artist = song.Artist,
-                        Album = song.Album,
+                        Artist = song.Artist?.Name ?? string.Empty,
+                        Album = song.Album?.Name,
                         CoverUrl = song.CoverUrl
                     };
                 }
@@ -90,7 +90,7 @@ namespace Kita.Service.Services
             // Find favorite artist
             var favoriteArtist = history
                 .Where(h => h.Song?.Artist != null)
-                .GroupBy(h => h.Song.Artist)
+                .GroupBy(h => h.Song.Artist!.Name)
                 .OrderByDescending(g => g.Count())
                 .FirstOrDefault()?.Key;
 

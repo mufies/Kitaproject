@@ -57,8 +57,12 @@ export interface CreateSongDto {
 export interface SongDto {
     id: string;
     title: string;
-    artist: string;
-    album?: string;
+    artist: string; // Artist name for display
+    album?: string; // Album name for display
+    artistId?: string; // Artist entity ID
+    albumId?: string; // Album entity ID
+    userId?: string; // Uploader ID
+    uploader?: string; // Uploader username for display
     duration?: number;
     streamUrl: string;
     coverUrl?: string;
@@ -66,6 +70,7 @@ export interface SongDto {
     type?: string;
     genres?: string[];
     audioQuality?: string;
+    createdAt?: string;
 }
 
 export interface CreatePlaylistDto {

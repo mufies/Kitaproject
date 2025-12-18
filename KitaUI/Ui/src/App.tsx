@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import './App.css'
 import Home from './page/Home'
-import { MusicDashboard } from './page/Music/MusicDashboard'
+// import { MusicDashboard } from './page/Music/MusicDas'
 import PlaylistPage from './page/Music/PlaylistPage'
 import ProfilePage from './page/ProfilePage'
 import LoginPage from './page/LoginPage'
@@ -10,6 +10,9 @@ import VoiceRoom from './pages/VoiceRoom'
 import Navigator from './components/navigator'
 import { AuthProvider } from './context/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import HomePage from './page/Music/Home/HomePage'
+import MyArtistsPage from './page/Artist/MyArtistsPage'
+import ArtistDetailsPage from './page/Artist/ArtistDetailsPage'
 
 function AppContent() {
   const location = useLocation();
@@ -26,7 +29,7 @@ function AppContent() {
           <Route path="/voice" element={<VoiceRoom channelId="52bfcf4b-c2fc-4941-9558-623a98f52c3b" channelName="Voice Chat" />} />
           <Route path="/music" element={
             <ProtectedRoute>
-              <MusicDashboard />
+              <HomePage />
             </ProtectedRoute>
           } />
           <Route path="/music/playlist/:id" element={
@@ -39,7 +42,19 @@ function AppContent() {
               <ProfilePage />
             </ProtectedRoute>
           } />
+          <Route path="/artists/my" element={
+            <ProtectedRoute>
+              <MyArtistsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/artist/:id" element={
+            <ProtectedRoute>
+              <ArtistDetailsPage />
+            </ProtectedRoute>
+          } />
+
         </Routes>
+
       </div>
     </>
   );

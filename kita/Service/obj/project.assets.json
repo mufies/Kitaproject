@@ -579,6 +579,19 @@
           "lib/netcoreapp2.1/_._": {}
         }
       },
+      "TagLibSharp/2.3.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/TagLibSharp.dll": {
+            "related": ".pdb"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/TagLibSharp.dll": {
+            "related": ".pdb"
+          }
+        }
+      },
       "YoutubeExplode/6.5.6": {
         "type": "package",
         "dependencies": {
@@ -1590,6 +1603,23 @@
         "system.threading.tasks.extensions.nuspec"
       ]
     },
+    "TagLibSharp/2.3.0": {
+      "sha512": "Qo4z6ZjnIfbR3Us1Za5M2vQ97OWZPmODvVmepxZ8XW0UIVLGdO2T63/N3b23kCcyiwuIe0TQvMEQG8wUCCD1mA==",
+      "type": "package",
+      "path": "taglibsharp/2.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net462/TagLibSharp.dll",
+        "lib/net462/TagLibSharp.pdb",
+        "lib/net462/TaglibSharp.xml",
+        "lib/netstandard2.0/TagLibSharp.dll",
+        "lib/netstandard2.0/TagLibSharp.pdb",
+        "lib/netstandard2.0/TaglibSharp.xml",
+        "taglibsharp.2.3.0.nupkg.sha512",
+        "taglibsharp.nuspec"
+      ]
+    },
     "YoutubeExplode/6.5.6": {
       "sha512": "W0iR/zLll4UwgsfPvgGkNtn+f01ut8Mm3lDrU2V3iujRmQSnelKUXWsFvZYojw/gPD+pvTS4/MMYNkDvwocbvg==",
       "type": "package",
@@ -1625,6 +1655,7 @@
       "Infrastructure >= 1.0.0",
       "Microsoft.Extensions.Configuration.Abstractions >= 10.0.0",
       "System.IdentityModel.Tokens.Jwt >= 8.15.0",
+      "TagLibSharp >= 2.3.0",
       "YoutubeExplode >= 6.5.6"
     ]
   },
@@ -1693,6 +1724,10 @@
           "System.IdentityModel.Tokens.Jwt": {
             "target": "Package",
             "version": "[8.15.0, )"
+          },
+          "TagLibSharp": {
+            "target": "Package",
+            "version": "[2.3.0, )"
           },
           "YoutubeExplode": {
             "target": "Package",

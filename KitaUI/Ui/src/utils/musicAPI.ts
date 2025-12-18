@@ -16,7 +16,6 @@ export const uploadSong = async (
 
         // Append song data
         formData.append('title', songData.title);
-        formData.append('artist', songData.artist);
         if (songData.album) formData.append('album', songData.album);
         if (songData.duration) formData.append('duration', songData.duration.toString());
 
@@ -99,6 +98,19 @@ export const changeSongStatus = async (songId: string, status: string): Promise<
         return data;
     } catch (error) {
         console.error("Error changing song status:", error);
+        throw error;
+    }
+};
+
+/**
+ * Get songs uploaded by current user
+ */
+export const getMySongs = async (): Promise<ApiResponse<SongDto[]>> => {
+    try {
+        const { data } = await axiosInstance.get('/music/songs/my');
+        return data;
+    } catch (error) {
+        console.error("Error fetching my songs:", error);
         throw error;
     }
 };

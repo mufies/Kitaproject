@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Zv654W7ZRcY=",
+  "dgSpecHash": "A/W8NLxbCu0=",
   "success": true,
   "projectFilePath": "/home/mufies/Code/Kitaproject/kita/Service/Service.csproj",
   "expectedPackageFiles": [
@@ -38,9 +38,10 @@
     "/home/mufies/.nuget/packages/system.text.encodings.web/9.0.1/system.text.encodings.web.9.0.1.nupkg.sha512",
     "/home/mufies/.nuget/packages/system.text.json/9.0.1/system.text.json.9.0.1.nupkg.sha512",
     "/home/mufies/.nuget/packages/system.threading.tasks.extensions/4.6.0/system.threading.tasks.extensions.4.6.0.nupkg.sha512",
+    "/home/mufies/.nuget/packages/taglibsharp/2.3.0/taglibsharp.2.3.0.nupkg.sha512",
     "/home/mufies/.nuget/packages/youtubeexplode/6.5.6/youtubeexplode.6.5.6.nupkg.sha512",
-    "/home/mufies/.nuget/packages/microsoft.netcore.app.ref/8.0.22/microsoft.netcore.app.ref.8.0.22.nupkg.sha512",
-    "/home/mufies/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.22/microsoft.aspnetcore.app.ref.8.0.22.nupkg.sha512"
+    "/home/mufies/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.22/microsoft.aspnetcore.app.ref.8.0.22.nupkg.sha512",
+    "/home/mufies/.nuget/packages/microsoft.netcore.app.ref/8.0.22/microsoft.netcore.app.ref.8.0.22.nupkg.sha512"
   ],
   "logs": []
 }

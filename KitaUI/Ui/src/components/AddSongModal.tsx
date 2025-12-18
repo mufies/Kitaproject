@@ -68,15 +68,6 @@ export default function AddSongModal({ isOpen, onClose, availableSongs, onAddSon
                 </div>
 
                 {/* Search */}
-                <div className="p-6 border-b border-gray-700/50">
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search songs, artists, or albums..."
-                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-200"
-                    />
-                </div>
 
                 {/* Song List */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-2">
@@ -134,6 +125,15 @@ export default function AddSongModal({ isOpen, onClose, availableSongs, onAddSon
                     )}
                 </div>
 
+                <div className="p-6 border-b border-gray-700/50">
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search songs, artists, or albums..."
+                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-200"
+                    />
+                </div>
                 {/* Footer */}
                 <div className="p-6 border-t border-gray-700/50 flex gap-3">
                     <button

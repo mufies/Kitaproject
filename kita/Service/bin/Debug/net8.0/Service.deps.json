@@ -14,6 +14,7 @@
           "Infrastructure": "1.0.0",
           "Microsoft.Extensions.Configuration.Abstractions": "10.0.0",
           "System.IdentityModel.Tokens.Jwt": "8.15.0",
+          "TagLibSharp": "2.3.0",
           "YoutubeExplode": "6.5.6"
         },
         "runtime": {
@@ -287,6 +288,14 @@
           }
         }
       },
+      "TagLibSharp/2.3.0": {
+        "runtime": {
+          "lib/netstandard2.0/TagLibSharp.dll": {
+            "assemblyVersion": "2.3.0.0",
+            "fileVersion": "2.3.0.0"
+          }
+        }
+      },
       "YoutubeExplode/6.5.6": {
         "dependencies": {
           "AngleSharp": "1.3.0",
@@ -506,6 +515,13 @@
       "sha512": "sha512-eqWHDZqYPv1PvuvoIIx5pF74plL3iEOZOl/0kQP+Y0TEbtgNnM2W6k8h8EPYs+LTJZsXuWa92n5W5sHTWvE3VA==",
       "path": "system.text.json/9.0.1",
       "hashPath": "system.text.json.9.0.1.nupkg.sha512"
+    },
+    "TagLibSharp/2.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Qo4z6ZjnIfbR3Us1Za5M2vQ97OWZPmODvVmepxZ8XW0UIVLGdO2T63/N3b23kCcyiwuIe0TQvMEQG8wUCCD1mA==",
+      "path": "taglibsharp/2.3.0",
+      "hashPath": "taglibsharp.2.3.0.nupkg.sha512"
     },
     "YoutubeExplode/6.5.6": {
       "type": "package",

@@ -10,8 +10,8 @@ namespace Kita.Service.Interfaces
 {
     public interface IMusicService
     {
-        Task<ApiResponse<SongDto>> CreateSongAsync(CreateSongDto createSongDto);
-        Task<ApiResponse<SongDto>> UploadSongAsync(CreateSongDto createSongDto, IFormFile songFile, IFormFile? coverFile);
+        Task<ApiResponse<SongDto>> CreateSongAsync(CreateSongDto createSongDto, Guid userId);
+        Task<ApiResponse<SongDto>> UploadSongAsync(CreateSongDto createSongDto, IFormFile songFile, IFormFile? coverFile, Guid userId, string role);
         Task<ApiResponse<List<SongDto>>> GetAllSongsAsync();
         Task<ApiResponse<SongDto>> GetSongByIdAsync(Guid songId);
         Task<ApiResponse<SongDto>> UpdateSongAsync(Guid songId, SongDto updateSongDto);

@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { Play, Music, TrendingUp, ChevronRight, Star } from 'lucide-react';
+import { Play, Music, TrendingUp, ChevronRight, Disc, Heart, MoreHorizontal, Speaker } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     useEffect(() => {
         setIsVisible(true);
@@ -13,29 +14,29 @@ export default function Home() {
     const featuredPlaylists = [
         {
             id: '1',
-            title: 'Top Hits 2024',
-            description: 'The biggest songs right now',
+            title: 'Kitasan Favorites',
+            description: 'Top tracks for the festival season',
             image: '/src/assets/kitasan_playlist_1_1765341146682.png',
             songs: 50
         },
         {
             id: '2',
-            title: 'Chill Vibes',
-            description: 'Relax and unwind with these tracks',
+            title: 'Late Night Practice',
+            description: 'Beats to keep you running',
             image: '/src/assets/kitasan_playlist_2_1765341165904.png',
             songs: 42
         },
         {
             id: '3',
-            title: 'Workout Energy',
-            description: 'High energy beats for your workout',
+            title: 'Victory Lap',
+            description: 'Celebration anthems',
             image: '/src/assets/kitasan_playlist_1_1765341146682.png',
             songs: 38
         },
         {
             id: '4',
-            title: 'Lo-Fi Study',
-            description: 'Focus music for productivity',
+            title: 'Study & Strategy',
+            description: 'Focus music for race planning',
             image: '/src/assets/kitasan_playlist_2_1765341165904.png',
             songs: 65
         }
@@ -44,222 +45,274 @@ export default function Home() {
     const trendingAlbums = [
         {
             id: '1',
-            title: 'Midnight Dreams',
-            artist: 'The Weeknd',
+            title: 'Black & Red',
+            artist: 'Kitasan Black',
+            listeners: '1.2M',
             image: '/src/assets/kitasan_trending_1765341183668.png'
         },
         {
             id: '2',
-            title: 'Summer Vibes',
-            artist: 'Dua Lipa',
+            title: 'Festival Night',
+            artist: 'Satono Diamond',
+            listeners: '980K',
             image: '/src/assets/kitasan_trending_1765341183668.png'
         },
         {
             id: '3',
-            title: 'Urban Legends',
-            artist: 'Drake',
+            title: 'Speed of Sound',
+            artist: 'Duramente',
+            listeners: '850K',
             image: '/src/assets/kitasan_trending_1765341183668.png'
         }
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
+        <div className="min-h-screen bg-[#0a0a0a] text-white font-sans overflow-x-hidden">
+            {/* Background Texture */}
+            <div className="fixed inset-0 opacity-5 pointer-events-none"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                }}>
+            </div>
+
+            {/* Decorative Elements */}
+            <div className="fixed top-0 right-0 w-[800px] h-[800px] bg-red-900/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+            <div className="fixed bottom-0 left-0 w-[600px] h-[600px] bg-amber-600/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+
             {/* Hero Section */}
-            <section className="relative h-screen flex items-center justify-center overflow-hidden">
-                {/* Animated Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-900/30 via-black to-amber-900/20">
-                    <div className="absolute inset-0 bg-[url('/src/assets/kitasan_hero_background_1765341125395.png')] bg-cover bg-center opacity-40 animate-pulse"></div>
-                </div>
+            <section className="relative min-h-screen flex items-center px-6 lg:px-20 pt-20">
+                <div className="grid lg:grid-cols-2 gap-12 w-full max-w-7xl mx-auto items-center">
 
-                {/* Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                <div className="absolute top-0 left-0 w-96 h-96 bg-orange-600/30 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-500/30 rounded-full blur-3xl animate-pulse delay-700"></div>
+                    {/* Left: Text Content */}
+                    <div className={`space-y-8 z-10 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-red-500/30 rounded-full bg-red-950/20 backdrop-blur-md">
+                            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                            <span className="text-red-400 text-sm font-medium tracking-wider">KITA PROJECT</span>
+                        </div>
 
-                {/* Hero Content */}
-                <div className={`relative z-10 text-center px-4 max-w-5xl mx-auto transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600/20 border border-orange-500/50 rounded-full mb-6 backdrop-blur-sm">
-                        <Star className="w-4 h-4 text-orange-400" />
-                        <span className="text-sm text-orange-400 font-medium">Welcome to Kitaproject</span>
+                        <h1 className="text-6xl md:text-8xl font-black leading-tight tracking-tight">
+                            RHYTHM <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-amber-500">
+                                OF SPEED
+                            </span>
+                        </h1>
+
+                        <p className="text-xl text-gray-300 max-w-lg leading-relaxed border-l-2 border-red-600 pl-6">
+                            Experience music with the intensity of a race. <br />
+                            Curated playlists inspired by legends.
+                        </p>
+
+                        <div className="flex flex-wrap gap-4 pt-4">
+                            <button
+                                onClick={() => navigate('/music')}
+                                className="group relative px-8 py-4 bg-red-600 text-white font-bold rounded-full overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_-10px_rgba(220,20,60,0.5)] flex items-center gap-3"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <Play className="w-5 h-5 fill-current relative z-10" />
+                                <span className="relative z-10">Start Listening</span>
+                            </button>
+
+                            <button
+                                onClick={() => navigate('/music')}
+                                className="px-8 py-4 border border-gray-700 hover:border-white rounded-full font-bold transition-all hover:bg-white/5 flex items-center gap-3"
+                            >
+                                <Disc className="w-5 h-5" />
+                                <span>Browse Vinyls</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <h1 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-white via-orange-200 to-amber-200 bg-clip-text text-transparent animate-gradient">
-                        Your Music,<br />Your Moments
-                    </h1>
+                    {/* Right: Spinning Vinyl */}
+                    <div className={`relative flex justify-center items-center transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
+                        {/* Glow effect behind */}
+                        <div className="absolute w-[80%] h-[80%] bg-red-600/20 rounded-full blur-[60px] animate-pulse"></div>
 
-                    <p className="text-xl md:text-2xl text-gray-300 mb-10 max-w-2xl mx-auto">
-                        Discover millions of songs, create playlists, and share your favorite music with friends
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <button
-                            onClick={() => navigate('/music')}
-                            className="group relative px-8 py-4 bg-gradient-to-r from-orange-600 to-orange-700 rounded-full font-semibold text-lg overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/50 flex items-center gap-2"
+                        {/* The Vinyl Record */}
+                        <div
+                            className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full shadow-2xl cursor-pointer group"
+                            onMouseEnter={() => setIsPlaying(true)}
+                            onMouseLeave={() => setIsPlaying(false)}
+                            style={{
+                                animation: `spin 8s linear infinite`,
+                                animationPlayState: isPlaying ? 'running' : 'paused',
+                                boxShadow: '0 0 0 10px #1a1a1a, 0 0 0 25px #0a0a0a, 0 20px 50px -10px rgba(0,0,0,0.5)'
+                            }}
                         >
-                            <Play className="w-5 h-5" fill="white" />
-                            <span>Start Listening</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <span className="relative">Start Listening</span>
-                        </button>
+                            {/* Vinyl Texture */}
+                            <div className="absolute inset-0 rounded-full bg-[#111] overflow-hidden border-4 border-gray-800">
+                                <div className="absolute inset-0 opacity-20"
+                                    style={{
+                                        backgroundImage: 'repeating-radial-gradient(#333 0, #111 2px, #111 3px)'
+                                    }}></div>
 
-                        <button
-                            onClick={() => navigate('/music')}
-                            className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full font-semibold text-lg hover:bg-white/20 transition-all duration-300 flex items-center gap-2"
-                        >
-                            <Music className="w-5 h-5" />
-                            <span>Browse Library</span>
-                        </button>
+                                {/* Light reflection on vinyl */}
+                                <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent rounded-full pointer-events-none"></div>
+                            </div>
+
+                            {/* Center Label (Album Art) */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] bg-red-600 rounded-full border-8 border-[#0a0a0a] overflow-hidden flex items-center justify-center">
+                                <img
+                                    src="src/assets/3ba24ff35f84be33f4458bb4599935b6.jpg"
+                                    alt="Album Art"
+                                    className="w-full h-full object-cover opacity-80 mix-blend-overlay"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className="font-bold text-black/80 text-xl tracking-widest">キタ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Tone Arm (Stylized representation) */}
+                        <div className={`absolute top-0 right-10 w-4 h-64 bg-gray-800 origin-top transition-transform duration-700 rounded-full shadow-xl border border-gray-700 ${isPlaying ? 'rotate-12' : '-rotate-12'}`}>
+                            <div className="absolute -bottom-2 -left-2 w-8 h-12 bg-gray-700 rounded-md"></div>
+                        </div>
                     </div>
                 </div>
 
                 {/* Scroll Indicator */}
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-                    <ChevronRight className="w-6 h-6 text-white/50 rotate-90" />
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce">
+                    <span className="text-xs uppercase tracking-[0.2em]">Scroll</span>
+                    <div className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent"></div>
                 </div>
             </section>
 
-            {/* Featured Playlists Section */}
-            <section className="py-20 px-4 sm:px-6 lg:px-8 relative">
-                <div className="max-w-7xl mx-auto">
-                    <div className="flex items-center justify-between mb-10">
+            {/* Content Sections Container */}
+            <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 space-y-32">
+
+                {/* Featured Playlists */}
+                <section>
+                    <div className="flex items-end justify-between mb-12">
                         <div>
                             <h2 className="text-4xl font-bold mb-2 flex items-center gap-3">
-                                <Star className="w-8 h-8 text-orange-500" />
-                                Featured Playlists
+                                <Disc className="w-8 h-8 text-red-500 animate-spin-slow" />
+                                FEATURED COLLECTIONS
                             </h2>
-                            <p className="text-gray-400">Curated collections just for you</p>
+                            <div className="h-1 w-20 bg-red-600 mt-4"></div>
                         </div>
-                        <button
-                            onClick={() => navigate('/music')}
-                            className="text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-2 group"
-                        >
-                            <span>View All</span>
-                            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        <button onClick={() => navigate('/music')} className="text-sm font-bold tracking-widest hover:text-red-500 transition-colors">
+                            VIEW ALL
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {featuredPlaylists.map((playlist, index) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {featuredPlaylists.map((playlist, idx) => (
                             <div
                                 key={playlist.id}
-                                className="group relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/30"
-                                style={{ animationDelay: `${index * 100}ms` }}
+                                className="group cursor-pointer relative"
                                 onClick={() => navigate('/music')}
                             >
-                                <div className="relative aspect-square overflow-hidden">
+                                {/* Vinyl Record sliding out animation */}
+                                <div className="absolute top-2 left-2 right-2 bottom-2 rounded-full bg-black border border-gray-800 transition-transform duration-500 group-hover:translate-x-12 group-hover:rotate-12 flex items-center justify-center shadow-xl z-0">
+                                    <div className="w-1/3 h-1/3 bg-red-900 rounded-full border-4 border-black"></div>
+                                </div>
+
+                                {/* Sleeve Cover */}
+                                <div className="relative z-10 aspect-square bg-gray-900 rounded-sm overflow-hidden shadow-lg transition-transform duration-300 group-hover:-translate-y-2 border border-gray-800 group-hover:border-red-500/50">
                                     <img
                                         src={playlist.image}
                                         alt={playlist.title}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity grayscale group-hover:grayscale-0"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <div className="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center transform scale-90 group-hover:scale-100 transition-transform duration-300 shadow-lg">
-                                            <Play className="text-white ml-1" size={28} fill="white" />
+                                    {/* Overlay Info */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                                            <p className="text-red-400 text-xs font-bold tracking-widest mb-1">PLAYLIST</p>
+                                            <h3 className="text-xl font-bold leading-tight">{playlist.title}</h3>
+                                            <p className="text-sm text-gray-300 mt-1">{playlist.songs} Tracks</p>
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="p-4">
-                                    <h3 className="text-white font-bold text-lg mb-1 truncate group-hover:text-orange-400 transition-colors duration-300">
-                                        {playlist.title}
-                                    </h3>
-                                    <p className="text-gray-400 text-sm mb-2 line-clamp-2">
-                                        {playlist.description}
-                                    </p>
-                                    <div className="flex items-center justify-between text-xs text-gray-500">
-                                        <span>{playlist.songs} songs</span>
-                                        <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-orange-400">
-                                            Play →
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="absolute inset-0 border-2 border-transparent group-hover:border-orange-500/50 rounded-xl transition-colors duration-300 pointer-events-none"></div>
                             </div>
                         ))}
                     </div>
-                </div>
-            </section>
+                </section>
 
-            {/* Trending Now Section */}
-            <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent via-orange-950/10 to-transparent">
-                <div className="max-w-7xl mx-auto">
-                    <div className="flex items-center justify-between mb-10">
-                        <div>
-                            <h2 className="text-4xl font-bold mb-2 flex items-center gap-3">
-                                <TrendingUp className="w-8 h-8 text-orange-500" />
-                                Trending Now
-                            </h2>
-                            <p className="text-gray-400">What everyone's listening to</p>
-                        </div>
+                {/* Trending Charts */}
+                <section className="grid lg:grid-cols-3 gap-12 items-start">
+                    <div className="lg:col-span-1 space-y-6">
+                        <h2 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-800">
+                            TOP <br /> CHARTS
+                        </h2>
+                        <p className="text-gray-300">
+                            The most played tracks this week. Handpicked vibes for your daily routine.
+                        </p>
+                        <button
+                            onClick={() => navigate('/music')}
+                            className="bg-white text-black px-6 py-3 rounded-full font-bold hover:bg-red-500 hover:text-white transition-colors"
+                        >
+                            Play Top 50
+                        </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {trendingAlbums.map((album, index) => (
+                    <div className="lg:col-span-2 space-y-4">
+                        {trendingAlbums.map((album, idx) => (
                             <div
                                 key={album.id}
-                                className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/40 border border-gray-800 hover:border-orange-500/60"
+                                className="group flex items-center gap-6 p-4 rounded-xl hover:bg-white/5 transition-all border border-transparent hover:border-white/10 cursor-pointer"
                                 onClick={() => navigate('/music')}
                             >
-                                <div className="relative aspect-square overflow-hidden">
-                                    <img
-                                        src={album.image}
-                                        alt={album.title}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-2"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                                <span className="text-3xl font-black text-gray-800 group-hover:text-red-600 transition-colors w-12 text-center">
+                                    0{idx + 1}
+                                </span>
 
-                                    <div className="absolute top-4 right-4 bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
-                                        <TrendingUp className="w-4 h-4" />
-                                        #{index + 1}
+                                <div className="relative w-16 h-16 rounded overflow-hidden">
+                                    <img src={album.image} className="w-full h-full object-cover" alt={album.title} />
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Play className="w-6 h-6 fill-white" />
                                     </div>
+                                </div>
 
-                                    <div className="absolute bottom-4 left-4 right-4">
-                                        <h3 className="text-white font-bold text-xl mb-1 group-hover:text-orange-400 transition-colors">
-                                            {album.title}
-                                        </h3>
-                                        <p className="text-gray-300 text-sm">{album.artist}</p>
-                                    </div>
+                                <div className="flex-1">
+                                    <h3 className="font-bold text-lg group-hover:text-red-400 transition-colors">{album.title}</h3>
+                                    <p className="text-gray-500 text-sm">{album.artist}</p>
+                                </div>
 
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center transform scale-90 group-hover:scale-100 transition-transform duration-300 shadow-2xl">
-                                            <Play className="text-white ml-1" size={32} fill="white" />
-                                        </div>
+                                <div className="hidden sm:flex items-center gap-8 text-sm text-gray-500">
+                                    <div className="flex items-center gap-2">
+                                        <Speaker className="w-4 h-4" />
+                                        <span>{album.listeners}</span>
                                     </div>
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="w-4 h-4 text-green-500" />
+                                    </div>
+                                    <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                                        <MoreHorizontal className="w-5 h-5" />
+                                    </button>
                                 </div>
                             </div>
                         ))}
                     </div>
-                </div>
-            </section>
+                </section>
 
-            {/* CTA Section */}
-            <section className="py-20 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto text-center">
-                    <div className="relative bg-gradient-to-r from-orange-600/20 via-amber-600/20 to-orange-600/20 rounded-3xl p-12 border border-orange-500/40 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-orange-600/10 to-amber-600/10 animate-pulse"></div>
+                {/* Footer CTA */}
+                <section className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-red-900/40 to-black border border-red-900/30 p-12 lg:p-24 text-center">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50"></div>
 
-                        <div className="relative z-10">
-                            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                                Ready to dive in?
-                            </h2>
-                            <p className="text-xl text-gray-300 mb-8">
-                                Start your musical journey today with unlimited access to millions of songs
-                            </p>
-                            <button
-                                onClick={() => navigate('/music')}
-                                className="px-10 py-5 bg-gradient-to-r from-orange-600 to-orange-700 rounded-full font-bold text-lg hover:from-orange-500 hover:to-orange-600 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/50 flex items-center gap-3 mx-auto"
-                            >
-                                <Music className="w-6 h-6" />
-                                <span>Explore Music Library</span>
-                                <ChevronRight className="w-6 h-6" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                    <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter">
+                        JOIN THE <span className="text-red-500">KITA</span> CLUB
+                    </h2>
+                    <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+                        Create your profile, build your collection, and share your taste with the community.
+                    </p>
+
+                    <button
+                        onClick={() => navigate('/music')}
+                        className="px-12 py-5 bg-white text-black font-black text-lg rounded-full hover:bg-red-600 hover:text-white transition-all transform hover:scale-105 shadow-2xl"
+                    >
+                        GET STARTED
+                    </button>
+                </section>
+
+            </div>
+
+            {/* Inline Styles for Keyframe Animations */}
+            <style>{`
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            `}</style>
         </div>
     );
 }

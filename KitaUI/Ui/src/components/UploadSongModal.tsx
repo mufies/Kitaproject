@@ -8,8 +8,6 @@ interface UploadSongModalProps {
 
 export const UploadSongModal: React.FC<UploadSongModalProps> = ({ onClose, onSuccess }) => {
     const [title, setTitle] = useState('');
-    const [artist, setArtist] = useState('');
-    const [album, setAlbum] = useState('');
     const [songFile, setSongFile] = useState<File | null>(null);
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
@@ -47,11 +45,6 @@ export const UploadSongModal: React.FC<UploadSongModalProps> = ({ onClose, onSuc
             return;
         }
 
-        if (!artist.trim()) {
-            setError('Please enter an artist name');
-            return;
-        }
-
         if (!songFile) {
             setError('Please select a song file');
             return;
@@ -64,8 +57,7 @@ export const UploadSongModal: React.FC<UploadSongModalProps> = ({ onClose, onSuc
             await uploadSong(
                 {
                     title: title.trim(),
-                    artist: artist.trim(),
-                    album: album.trim() || undefined,
+                    artist: '',
                 },
                 songFile,
                 coverFile || undefined
@@ -116,32 +108,9 @@ export const UploadSongModal: React.FC<UploadSongModalProps> = ({ onClose, onSuc
                         />
                     </div>
 
-                    <div className="mb-5">
-                        <label htmlFor="artist" className="block text-sm font-bold text-white mb-2">Artist *</label>
-                        <input
-                            id="artist"
-                            type="text"
-                            value={artist}
-                            onChange={(e) => setArtist(e.target.value)}
-                            placeholder="Enter artist name"
-                            disabled={isUploading}
-                            required
-                            className="w-full px-4 py-3 bg-[#3e3e3e] border border-[#535353] rounded text-white text-sm placeholder-[#b3b3b3] focus:outline-none focus:border-[#1db954] focus:bg-[#4a4a4a] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        />
-                    </div>
 
-                    <div className="mb-5">
-                        <label htmlFor="album" className="block text-sm font-bold text-white mb-2">Album (Optional)</label>
-                        <input
-                            id="album"
-                            type="text"
-                            value={album}
-                            onChange={(e) => setAlbum(e.target.value)}
-                            placeholder="Enter album name"
-                            disabled={isUploading}
-                            className="w-full px-4 py-3 bg-[#3e3e3e] border border-[#535353] rounded text-white text-sm placeholder-[#b3b3b3] focus:outline-none focus:border-[#1db954] focus:bg-[#4a4a4a] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        />
-                    </div>
+
+
 
                     <div className="mb-5">
                         <label htmlFor="songFile" className="block text-sm font-bold text-white mb-2">Audio File *</label>

@@ -22,14 +22,25 @@ namespace Kita.Controllers
         [HttpPost("songs")]
         public async Task<IActionResult> CreateSong(CreateSongDto createSongDto)
         {
-            var result = await _musicService.CreateSongAsync(createSongDto);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+            var result = await _musicService.CreateSongAsync(createSongDto, userId);
             return HandleResult(result);
         }
 
         [HttpPost("upload")]
         public async Task<IActionResult> UploadSong([FromForm] CreateSongDto createSongDto, [FromForm] IFormFile songFile, [FromForm] IFormFile? coverFile)
         {
-            var result = await _musicService.UploadSongAsync(createSongDto, songFile, coverFile);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var Role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+            var result = await _musicService.UploadSongAsync(createSongDto, songFile, coverFile, userId, Role);
             return HandleResult(result);
         }
 
@@ -61,7 +72,7 @@ namespace Kita.Controllers
             return HandleResult(result);
         }
 
-        [Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")]
         [HttpDelete("songs/all")]
         public async Task<IActionResult> DeleteAllSongs()
         {
@@ -108,6 +119,18 @@ namespace Kita.Controllers
         public async Task<IActionResult> SearchSongs([FromQuery] string q)
         {
             var result = await _musicService.SearchSongsAsync(q);
+            return HandleResult(result);
+        }
+
+        [HttpGet("songs/my")]
+        public async Task<IActionResult> GetMySongs()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+            var result = await _musicService.GetSongByUserId(userId);
             return HandleResult(result);
         }
     }

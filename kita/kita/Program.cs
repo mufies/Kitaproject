@@ -36,6 +36,8 @@ builder.Services.AddScoped<ISongStaticsRepository, SongStaticsRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IListenHistoryRepository, ListenHistoryRepository>();
 builder.Services.AddScoped<IListenWrappedRepository, ListenWrappedRepository>();
+builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
+builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 
 // Add Services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -51,12 +53,16 @@ builder.Services.AddScoped<ISongStaticsService, SongStaticsService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IListenHistoryService, ListenHistoryService>();
 builder.Services.AddScoped<IListenWrappedService, ListenWrappedService>();
+builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddScoped<IAlbumService, AlbumService>();
 
 // Configure Spotify Options
 builder.Services.Configure<SpotifyOptions>(builder.Configuration.GetSection("Spotify"));
 
 // Add HttpClient for Spotify Service
 builder.Services.AddHttpClient<ISpotifyService, SpotifyService>();
+
+// builder.Services.AddHostedService<WebRTCSfuService>();
 
 // Add SignalR
 builder.Services.AddSignalR(options =>
@@ -155,5 +161,6 @@ app.MapControllers();
 
 // Map SignalR Hub
 app.MapHub<ChatHub>("/hubs/chat");
+app.MapHub<VoiceHub>("/hubs/voice");
 
 app.Run();

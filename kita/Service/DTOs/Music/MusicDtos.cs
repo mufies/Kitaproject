@@ -9,8 +9,12 @@ namespace Kita.Service.DTOs.Music
     {
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        public string Artist { get; set; } = string.Empty;
-        public string? Album { get; set; }
+        public string Artist { get; set; } = string.Empty; // Artist name for display
+        public string? Album { get; set; } // Album name for display
+        public Guid? ArtistId { get; set; } // Artist entity ID
+        public Guid? AlbumId { get; set; } // Album entity ID
+        public Guid? UserId { get; set; } // Uploader ID (for user uploads)
+        public string? Uploader {get; set;} 
         public double Duration { get; set; }
         public string StreamUrl { get; set; } = string.Empty;
         public string? CoverUrl { get; set; }
@@ -18,8 +22,7 @@ namespace Kita.Service.DTOs.Music
         public SongType Type { get; set; }
         public List<MusicGenre> Genres { get; set; } = new List<MusicGenre>();
         public AudioQuality AudioQuality { get; set; }
-        
-
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 
     public class CreateSongDto
@@ -34,6 +37,7 @@ namespace Kita.Service.DTOs.Music
         public SongType Type { get; set; } = SongType.Single;
         public List<MusicGenre> Genres { get; set; } = new List<MusicGenre>();
         public AudioQuality AudioQuality { get; set; } = AudioQuality.Normal;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     }
 
@@ -46,6 +50,7 @@ namespace Kita.Service.DTOs.Music
         public bool IsPublic { get; set; }
         public Guid OwnerId { get; set; }
         public List<SongDto> Songs { get; set; } = new List<SongDto>();
+        public double TotalDuration { get; set; }
     }
 
     public class CreatePlaylistDto

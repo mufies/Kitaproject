@@ -13,7 +13,9 @@ namespace Kita.Infrastructure.Repositories
 
         public async Task<Song?> GetByNameAndArtistAsync(string name, string artist)
         {
-            return await _dbSet.FirstOrDefaultAsync(x => x.Title == name && x.Artist == artist);
+            return await _dbSet
+                .Include(x => x.Artist)
+                .FirstOrDefaultAsync(x => x.Title == name && x.Artist!.Name == artist);
         }
 
         public async Task<List<Song>> FilterSongByName(string name)
@@ -22,11 +24,14 @@ namespace Kita.Infrastructure.Repositories
         }
         public async Task<List<Song>> FilterSongByArtist(string artist)
         {
-            return await _dbSet.Where(x => x.Artist!.Contains(artist)).ToListAsync();
+            return await _dbSet
+                .Include(x => x.Artist)
+                .Where(x => x.Artist!.Name.Contains(artist))
+                .ToListAsync();
         }
         public async Task<List<Song>> FilterSongByAlbum(string album)
         {
-            return await _dbSet.Where(x => x.Album!.Contains(album)).ToListAsync();
+            return await _dbSet.Where(x => x.Album!.Name.Contains(album)).ToListAsync();
         }
         public async Task<List<Song>> FilterSongByGenre(string genre)
         {
@@ -65,6 +70,9 @@ namespace Kita.Infrastructure.Repositories
         public async Task<List<Song>> GetSongsByUserIdAsync(Guid userId)
         {
             return await _dbSet
+                .Include(s => s.Artist)
+                .Include(s => s.Album)
+                .Include(s => s.User)
                 .Where(s => s.UserId == userId)
                 .ToListAsync();
         }
@@ -74,8 +82,43 @@ namespace Kita.Infrastructure.Repositories
             return await _context.PlaylistSongs
                 .Where(ps => ps.PlaylistId == playlistId)
                 .Include(ps => ps.Song)
+                    .ThenInclude(s => s.Artist)
+                .Include(ps => ps.Song)
+                    .ThenInclude(s => s.Album)
+                .Include(ps => ps.Song)
+                    .ThenInclude(s => s.User)
+                .Include(ps => ps.Song)
                     .ThenInclude(s => s.SongStatics)
                 .Select(ps => ps.Song)
+                .ToListAsync();
+        }
+
+        // Override base methods to include related entities
+        public new async Task<IEnumerable<Song>> GetAllAsync()
+        {
+            return await _dbSet
+                .Include(s => s.Artist)
+                .Include(s => s.Album)
+                .Include(s => s.User)
+                .ToListAsync();
+        }
+
+        public new async Task<Song?> GetByIdAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(s => s.Artist)
+                .Include(s => s.Album)
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public async Task<List<Song>> GetSongsByIdsAsync(IEnumerable<Guid> ids)
+        {
+            return await _dbSet
+                .Include(s => s.Artist)
+                .Include(s => s.Album)
+                .Include(s => s.User)
+                .Where(s => ids.Contains(s.Id))
                 .ToListAsync();
         }
 
@@ -87,38 +130,24 @@ namespace Kita.Infrastructure.Repositories
             // Sanitize input
             var sanitized = query.Trim().Replace("'", "''");
             
-            // Strategy 1: Full-text search with tsvector (handles word order, exact words)
+            // Primary search: ILIKE partial match (SearchVector temporarily disabled)
             var results = await _dbSet
-                .FromSqlRaw(@"
-                    SELECT * FROM ""Songs"" 
-                    WHERE ""SearchVector"" @@ websearch_to_tsquery('english', {0})
-                    ORDER BY ts_rank(""SearchVector"", websearch_to_tsquery('english', {0})) DESC
-                    LIMIT 50
-                ", sanitized)
+                .Include(s => s.Artist)
+                .Include(s => s.User)
+                .Where(s => s.Title.Contains(sanitized) || (s.Artist != null && s.Artist.Name.Contains(sanitized)))
+                .Take(50)
                 .ToListAsync();
             
-            // Strategy 2: If no results, try partial match with ILIKE (handles partial words)
-            if (!results.Any())
-            {
-                results = await _dbSet
-                    .FromSqlRaw(@"
-                        SELECT * FROM ""Songs""
-                        WHERE ""Title"" ILIKE {0} OR ""Artist"" ILIKE {0}
-                        LIMIT 30
-                    ", $"%{sanitized}%")
-                    .ToListAsync();
-            }
+            // Fallback: If no results, try album search
             
-            // Strategy 3: If still no results, fallback to trigram similarity (handles heavy typos)
+            // Strategy 3: If still no results, fallback to EF.Functions similarity search
             if (!results.Any())
             {
                 results = await _dbSet
-                    .FromSqlRaw(@"
-                        SELECT * FROM ""Songs""
-                        WHERE similarity(""Title"" || ' ' || ""Artist"", {0}) > 0.15
-                        ORDER BY similarity(""Title"" || ' ' || ""Artist"", {0}) DESC
-                        LIMIT 20
-                    ", sanitized)
+                    .Include(s => s.Artist)
+                    .Include(s => s.User)
+                    .Where(s => s.Title.Contains(sanitized) || s.Album!.Name.Contains(sanitized))
+                    .Take(20)
                     .ToListAsync();
             }
             

@@ -25,5 +25,8 @@ namespace Kita.Infrastructure.Repositories
         // Full-text search
         Task<List<Song>> SearchSongsFullTextAsync(string query);
         
+        // Get songs by multiple IDs with includes
+        Task<List<Song>> GetSongsByIdsAsync(IEnumerable<Guid> ids);
+        
     }
 }
