@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { albumService, type Album } from "../../../services/albumService";
-import { Heart, Play, Music } from "lucide-react";
+import { Heart, Play, Pause, Music } from "lucide-react";
+import { usePlay } from "../../../context/PlayContext";
+import type { SongDto } from "../../../types/api";
 
 const HomeLikedAlbumList: React.FC = () => {
     const navigate = useNavigate();
+    const { playSong, isPlaying, currentSong, togglePlayPause, playlist } = usePlay();
     const [albums, setAlbums] = useState<Album[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [playingAlbumId, setPlayingAlbumId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchAlbums = async () => {
@@ -25,6 +29,52 @@ const HomeLikedAlbumList: React.FC = () => {
 
         fetchAlbums();
     }, []);
+
+    // Check if an album is currently playing
+    const isAlbumPlaying = (albumId: string): boolean => {
+        if (!currentSong || playlist.length === 0) return false;
+        // Check if current song belongs to this album
+        return currentSong.albumId === albumId && isPlaying;
+    };
+
+    // Handle play button click on an album
+    const handlePlayAlbum = async (e: React.MouseEvent, album: Album) => {
+        e.stopPropagation();
+
+        if (isAlbumPlaying(album.id)) {
+            togglePlayPause();
+            return;
+        }
+
+        // If currently paused on same album, resume
+        if (currentSong?.albumId === album.id && !isPlaying) {
+            togglePlayPause();
+            return;
+        }
+
+        // Need to fetch album details to get songs
+        try {
+            setPlayingAlbumId(album.id);
+            const albumDetail = await albumService.getAlbumById(album.id);
+            if (albumDetail.songs && albumDetail.songs.length > 0) {
+                const playableSongs: SongDto[] = albumDetail.songs.map(song => ({
+                    id: song.id,
+                    title: song.title,
+                    artist: song.artist || albumDetail.artistName || '',
+                    streamUrl: song.streamUrl,
+                    coverUrl: song.coverUrl || albumDetail.imageUrl,
+                    duration: song.duration,
+                    artistId: albumDetail.artistId,
+                    albumId: albumDetail.id,
+                }));
+                playSong(playableSongs[0], playableSongs);
+            }
+        } catch (err) {
+            console.error('Failed to fetch album for playback:', err);
+        } finally {
+            setPlayingAlbumId(null);
+        }
+    };
 
     if (loading) {
         return (
@@ -108,11 +158,18 @@ const HomeLikedAlbumList: React.FC = () => {
                                 </div>
                             </div>
                             {/* Play button */}
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div className="w-8 h-8 bg-[#ff7a3c] rounded-full flex items-center justify-center hover:scale-105 transition-transform">
-                                    <Play className="text-black fill-current" size={14} />
+                            <button
+                                onClick={(e) => handlePlayAlbum(e, album)}
+                                className={`opacity-0 group-hover:opacity-100 transition-all ${isAlbumPlaying(album.id) || currentSong?.albumId === album.id ? 'opacity-100' : ''}`}
+                            >
+                                <div className={`w-8 h-8 bg-[#ff7a3c] rounded-full flex items-center justify-center hover:scale-105 transition-transform ${playingAlbumId === album.id ? 'animate-pulse' : ''}`}>
+                                    {isAlbumPlaying(album.id) ? (
+                                        <Pause className="text-black fill-current" size={14} />
+                                    ) : (
+                                        <Play className="text-black fill-current ml-0.5" size={14} />
+                                    )}
                                 </div>
-                            </div>
+                            </button>
                         </div>
                         <div className="flex items-center gap-4 text-[11px] text-white/40">
                             <span className="flex items-center gap-1">

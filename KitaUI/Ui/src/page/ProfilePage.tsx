@@ -1,9 +1,9 @@
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, Calendar, Music, Star, Edit, Loader2, Camera, Check, X, Lock, Disc, Activity, Zap, TrendingUp, Settings, LogOut, Upload } from 'lucide-react';
+import { Mail, Calendar, Music, Star, Edit, Loader2, Camera, Check, X, Lock, Disc, Activity, Zap, Settings, LogOut, Upload } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { fetchGetProfile, fetchUploadAvatar, fetchUpdateUsername, fetchUpdatePassword } from '../utils/fetchAPI';
+import { fetchGetProfile, fetchUploadAvatar, fetchUpdateUsername, fetchUpdatePassword, fetchRecentlyPlayed, fetchListenStats } from '../utils/fetchAPI';
 import { getMySongs } from '../utils/musicAPI';
-import type { SongDto } from '../types/api';
+import type { SongDto, ListenHistoryDto, ListenHistoryStatsDto } from '../types/api';
 
 interface UserProfile {
     id: string;
@@ -37,9 +37,16 @@ export default function ProfilePage() {
     const [mySongs, setMySongs] = useState<SongDto[]>([]);
     const [loadingSongs, setLoadingSongs] = useState(true);
 
+    // Listen History state
+    const [recentActivity, setRecentActivity] = useState<ListenHistoryDto[]>([]);
+    const [listenStats, setListenStats] = useState<ListenHistoryStatsDto | null>(null);
+    const [loadingHistory, setLoadingHistory] = useState(true);
+
     useEffect(() => {
         loadUserProfile();
         loadMySongs();
+        loadListenHistory();
+        loadListenStats();
     }, []);
 
     const loadUserProfile = async () => {
@@ -73,11 +80,50 @@ export default function ProfilePage() {
         }
     };
 
+    const loadListenHistory = async () => {
+        try {
+            setLoadingHistory(true);
+            const result = await fetchRecentlyPlayed(10);
+            if (result.success) {
+                setRecentActivity(result.data || []);
+            }
+        } catch (err) {
+            console.error('Error loading listen history:', err);
+        } finally {
+            setLoadingHistory(false);
+        }
+    };
+
+    const loadListenStats = async () => {
+        try {
+            const result = await fetchListenStats();
+            if (result.success) {
+                setListenStats(result.data);
+            }
+        } catch (err) {
+            console.error('Error loading listen stats:', err);
+        }
+    };
+
+    const formatTimeAgo = (dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} mins ago`;
+        if (diffHours < 24) return `${diffHours} hours ago`;
+        return `${diffDays} days ago`;
+    };
+
     const formatDuration = (seconds?: number) => {
         if (!seconds) return '0:00';
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
+        return `${mins}:${secs.toString().padStart(2, '0')} `;
     };
 
     const handleAvatarClick = () => {
@@ -205,19 +251,13 @@ export default function ProfilePage() {
 
     if (!userData) return null;
 
-    // Mock Data for UI
+    // Dynamic stats based on real data
     const joinDate = new Date();
     const stats = [
-        { label: 'Songs Played', value: '1,248', icon: Disc, color: 'text-blue-400' },
-        { label: 'Listening Time', value: '86h', icon: Calendar, color: 'text-green-400' },
-        { label: 'Playlists', value: '12', icon: Music, color: 'text-purple-400' },
-        { label: 'Rank', value: '#42', icon: TrendingUp, color: 'text-orange-400' },
-    ];
-
-    const recentActivity = [
-        { song: 'Midnight Rain', artist: 'Kitasan Black', time: '2 mins ago', image: '/src/assets/kitasan_playlist_1_1765341146682.png' },
-        { song: 'Victory Lap', artist: 'Satono Diamond', time: '15 mins ago', image: '/src/assets/kitasan_playlist_2_1765341165904.png' },
-        { song: 'Speed of Sound', artist: 'Duramente', time: '1 hour ago', image: '/src/assets/kitasan_trending_1765341183668.png' },
+        { label: 'Songs Played', value: listenStats?.totalListenCount?.toLocaleString() || '0', icon: Disc, color: 'text-blue-400' },
+        { label: 'Listening Time', value: listenStats?.totalListenTimeFormatted || '0m', icon: Calendar, color: 'text-green-400' },
+        { label: 'Unique Songs', value: listenStats?.uniqueSongsListened?.toString() || '0', icon: Music, color: 'text-purple-400' },
+        { label: 'My Songs', value: mySongs.length.toString(), icon: Upload, color: 'text-orange-400' },
     ];
 
     return (
@@ -226,7 +266,17 @@ export default function ProfilePage() {
 
                 {/* Profile Header Banner */}
                 <div className="relative h-64 rounded-3xl overflow-hidden mb-24 border border-gray-800">
-                    <div className="absolute inset-0 bg-gradient-to-r from-red-900 to-black"></div>
+                    {/* Avatar as blurred background or fallback gradient */}
+                    {userData.avatarUrl ? (
+                        <img
+                            src={userData.avatarUrl}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover blur-s scale-125"
+                        />
+                    ) : (
+                        <div className="absolute inset-0 bg-gradient-to-r from-red-900 to-black"></div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-900/60 to-black/70"></div>
                     <div className="absolute inset-0 opacity-20"
                         style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }}
                     ></div>
@@ -336,7 +386,7 @@ export default function ProfilePage() {
                                 const Icon = stat.icon;
                                 return (
                                     <div key={index} className="bg-[#111] border border-gray-800 p-6 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-red-900/50 transition-colors group">
-                                        <div className={`p-3 rounded-full bg-gray-900 group-hover:bg-gray-800 transition-colors ${stat.color}`}>
+                                        <div className={`p - 3 rounded - full bg - gray - 900 group - hover: bg - gray - 800 transition - colors ${stat.color} `}>
                                             <Icon className="w-6 h-6" />
                                         </div>
                                         <span className="text-2xl font-black text-white">{stat.value}</span>
@@ -352,23 +402,41 @@ export default function ProfilePage() {
                                 <Activity className="w-5 h-5 text-red-500" />
                                 Recent Activity
                             </h2>
-                            <div className="space-y-4">
-                                {recentActivity.map((item, index) => (
-                                    <div key={index} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors group cursor-pointer border border-transparent hover:border-white/10">
-                                        <img src={item.image} alt={item.song} className="w-12 h-12 rounded-lg object-cover" />
-                                        <div className="flex-1">
-                                            <h4 className="font-bold text-white group-hover:text-red-500 transition-colors">{item.song}</h4>
-                                            <p className="text-sm text-gray-500">{item.artist}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-xs text-gray-500 mb-1">{item.time}</p>
-                                            <div className="flex gap-1 justify-end">
-                                                {[1, 2, 3, 4].map(i => <div key={i} className={`w-1 h-3 rounded-full ${Math.random() > 0.5 ? 'bg-red-600' : 'bg-gray-800'}`}></div>)}
+                            {loadingHistory ? (
+                                <div className="flex items-center justify-center py-8">
+                                    <Loader2 className="w-8 h-8 text-red-500 animate-spin" />
+                                </div>
+                            ) : recentActivity.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <Music className="w-12 h-12 text-gray-700 mx-auto mb-3" />
+                                    <p className="text-gray-500">No recent listening activity.</p>
+                                    <p className="text-gray-600 text-sm mt-1">Start listening to some songs!</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {recentActivity.map((item, index) => (
+                                        <div key={index} className="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors group cursor-pointer border border-transparent hover:border-white/10">
+                                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center overflow-hidden">
+                                                {item.coverUrl ? (
+                                                    <img src={item.coverUrl} alt={item.songTitle || ''} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <Music className="w-6 h-6 text-white" />
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-bold text-white group-hover:text-red-500 transition-colors">{item.songTitle || 'Unknown Song'}</h4>
+                                                <p className="text-sm text-gray-500">{item.artistName || 'Unknown Artist'}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-xs text-gray-500 mb-1">{formatTimeAgo(item.createdAt)}</p>
+                                                <div className="flex gap-1 justify-end">
+                                                    {[1, 2, 3, 4].map(i => <div key={i} className={`w - 1 h - 3 rounded - full ${i <= 2 ? 'bg-red-600' : 'bg-gray-800'} `}></div>)}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         {/* My Uploaded Songs */}

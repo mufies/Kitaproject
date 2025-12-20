@@ -15,9 +15,7 @@ namespace Kita.Controllers
             _listenHistoryService = listenHistoryService;
         }
 
-        /// <summary>
-        /// Add a song to user's listen history
-        /// </summary>
+
         [HttpPost("songs/{songId}/listen")]
         public async Task<IActionResult> AddToHistory(Guid songId, [FromQuery] int? msPlayed = null)
         {

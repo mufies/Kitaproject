@@ -111,7 +111,8 @@ namespace Kita.Service.Services
                     Title = s.Title,
                     CoverUrl = s.CoverUrl,
                     Duration = s.Duration,
-                    TrackNumber = index + 1
+                    TrackNumber = index + 1,
+                    StreamUrl = s.StreamUrl
                 }).ToList() ?? new List<AlbumSongDto>()
             };
 

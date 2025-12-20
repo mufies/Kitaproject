@@ -22,5 +22,6 @@ namespace Kita.Service.Interfaces
         Task<ApiResponse<List<SongDto>>> GetSongInPlaylist(Guid playlistId);
         Task<ApiResponse<List<PlaylistDto>>> GetPlaylistsByUserIdAndSongIdAsync(Guid userId, Guid songId);
         Task<ApiResponse<ImportPlaylistResponseDto>> ImportPlaylistAsync(ImportPlaylistRequestDto request, Guid userId);
+        Task<ApiResponse<List<PlaylistDto>>> GetPublicPlaylistsByUserIdAsync(Guid userId);
     }
 }

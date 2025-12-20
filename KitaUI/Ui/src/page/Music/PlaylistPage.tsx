@@ -1,13 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Play, Music, Trash2, Edit2, Search, Clock, MoreHorizontal, Download, X, Upload, Camera } from 'lucide-react';
+import { ArrowLeft, Plus, Play, Pause, Music, Trash2, Edit2, Search, Clock, MoreHorizontal, Download, X, Upload, Camera } from 'lucide-react';
 import type { PlaylistDto, SongDto } from '../../types/api';
 import { getPlaylistById, getSongsInPlaylist, addSongToPlaylist, removeSongFromPlaylist, deletePlaylist, updatePlaylist } from '../../utils/musicAPI';
 import { getAllSongs } from '../../utils/musicAPI';
+import { usePlay } from '../../context/PlayContext';
 
 export default function PlaylistPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { playSong, currentSong, isPlaying, togglePlayPause } = usePlay();
     const [playlist, setPlaylist] = useState<PlaylistDto | null>(null);
     const [songs, setSongs] = useState<SongDto[]>([]);
     const [availableSongs, setAvailableSongs] = useState<SongDto[]>([]);
@@ -22,7 +24,6 @@ export default function PlaylistPage() {
     const [editedCoverFile, setEditedCoverFile] = useState<File | null>(null);
     const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isPlaying, setIsPlaying] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -279,9 +280,28 @@ export default function PlaylistPage() {
                     <div className="flex items-center gap-6 mb-8">
                         <button
                             className="w-14 h-14 bg-[#ff7a3c] rounded-full flex items-center justify-center hover:scale-105 hover:bg-[#ff8c52] transition-all duration-200 shadow-xl text-black"
-                            onClick={() => setIsPlaying(!isPlaying)}
+                            onClick={() => {
+                                if (songs.length > 0) {
+                                    // Check if currently playing a song from this playlist
+                                    const isPlayingFromThisPlaylist = currentSong && songs.some(s => s.id === currentSong.id);
+                                    if (isPlayingFromThisPlaylist && isPlaying) {
+                                        togglePlayPause();
+                                    }
+                                    else if (isPlayingFromThisPlaylist && !isPlaying) {
+                                        togglePlayPause();
+                                    }
+                                    else {
+
+                                        playSong(songs[0], songs);
+                                    }
+                                }
+                            }}
                         >
-                            <Play size={28} fill="currentColor" className="ml-1" />
+                            {currentSong && songs.some(s => s.id === currentSong.id) && isPlaying ? (
+                                <Pause size={28} fill="currentColor" />
+                            ) : (
+                                <Play size={28} fill="currentColor" className="ml-1" />
+                            )}
                         </button>
 
                         <div className="flex items-center gap-4">
@@ -306,12 +326,7 @@ export default function PlaylistPage() {
                             >
                                 <Trash2 size={24} />
                             </button>
-                            <button className="text-[#b3b3b3] hover:text-white transition-colors p-2 rounded-full hover:bg-white/10">
-                                <Download size={24} />
-                            </button>
-                            <button className="text-[#b3b3b3] hover:text-white transition-colors p-2 rounded-full hover:bg-white/10">
-                                <MoreHorizontal size={32} />
-                            </button>
+
                         </div>
                     </div>
 
@@ -350,10 +365,27 @@ export default function PlaylistPage() {
                                             className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-4 py-3 hover:bg-[#ffffff10] rounded-md group transition-colors items-center cursor-default"
                                         >
                                             <div className="relative text-center text-[#a7a7a7] font-medium w-4 flex justify-center">
-                                                <span className="group-hover:hidden">{index + 1}</span>
-                                                <button className="hidden group-hover:block text-white">
-                                                    <Play size={14} fill="currentColor" />
-                                                </button>
+                                                {currentSong?.id === song.id && isPlaying ? (
+                                                    <button onClick={() => togglePlayPause()} className="text-[#ff7a3c]">
+                                                        <Pause size={14} fill="currentColor" />
+                                                    </button>
+                                                ) : (
+                                                    <>
+                                                        <span className="group-hover:hidden">
+                                                            {currentSong?.id === song.id ? (
+                                                                <span className="text-[#ff7a3c]">▶</span>
+                                                            ) : (
+                                                                index + 1
+                                                            )}
+                                                        </span>
+                                                        <button
+                                                            className="hidden group-hover:block text-white"
+                                                            onClick={() => playSong(song, songs)}
+                                                        >
+                                                            <Play size={14} fill="currentColor" />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
 
                                             <div className="flex items-center gap-4 min-w-0">

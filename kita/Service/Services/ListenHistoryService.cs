@@ -36,12 +36,13 @@ namespace Kita.Service.Services
             };
 
             await _listenHistoryRepository.AddAsync(listenHistory);
+            await _listenHistoryRepository.SaveChangesAsync(); // Save to database
 
             var dto = MapToDto(listenHistory, song);
             return new ApiResponse<ListenHistoryDto>(dto);
         }
 
-        public async Task<ApiResponse<List<ListenHistoryDto>>> GetUserHistoryAsync(Guid userId, int limit = 50)
+        public async Task<ApiResponse<List<ListenHistoryDto>>> GetUserHistoryAsync(Guid userId, int limit = 10)
         {
             var history = await _listenHistoryRepository.GetUserListenHistoryAsync(userId, limit);
             var dtos = history.Select(h => MapToDto(h, h.Song)).ToList();
@@ -164,6 +165,8 @@ namespace Kita.Service.Services
                 CreatedAt = history.CreatedAt,
                 UpdatedAt = history.UpdatedAt,
                 SongTitle = song?.Title,
+                ArtistName = song?.Artist?.Name,
+                CoverUrl = song?.CoverUrl,
                 UserName = history.User?.UserName
             };
         }

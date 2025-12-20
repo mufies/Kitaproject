@@ -198,7 +198,7 @@ const HomePage: React.FC = () => {
                         </nav>
                     </section> */}
 
-                    <section className="mb-6">
+                    {/* <section className="mb-6">
                         <div className="uppercase text-[10px] text-white/40 mb-3 tracking-wide">
                             Your music
                         </div>
@@ -208,7 +208,7 @@ const HomePage: React.FC = () => {
                             <button>History</button>
                             <button>Podcasts</button>
                         </nav>
-                    </section>
+                    </section> */}
 
                     <section>
                         <div className="uppercase text-[10px] text-white/40 mb-3 tracking-wide">
@@ -248,8 +248,7 @@ const HomePage: React.FC = () => {
 
                 {/* Center content */}
                 <main className="flex-1 px-3 py-3 overflow-y-auto">
-                    {/* Search Bar (Moved from top) */}
-                    <div className="mb-6 relative z-40 max-w-xl">
+                    <div className="mb-6 relative z-40 max-w-xl mx-auto">
                         <div className="relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" size={20} />
                             <input
@@ -258,7 +257,7 @@ const HomePage: React.FC = () => {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onFocus={() => searchQuery && setShowSearchResults(true)}
                                 placeholder="What do you want to play?"
-                                className="w-full pl-12 pr-4 py-3 bg-[#242424] hover:bg-[#2a2a2a] focus:bg-[#333] border-2 border-transparent focus:border-white/20 rounded-full text-white placeholder-white/50 text-sm font-medium transition-all outline-none"
+                                className="w-full pl-12 pr-4 py-2.5 bg-[#242424] hover:bg-[#2a2a2a] focus:bg-[#333] border-2 border-transparent focus:border-white/20 rounded-full text-white placeholder-white/50 text-sm font-medium transition-all outline-none"
                             />
                             {searchQuery && (
                                 <button
@@ -355,7 +354,7 @@ const HomePage: React.FC = () => {
                     {showSearchResults && (<div className="fixed inset-0 z-30" onClick={() => setShowSearchResults(false)} />)}
 
                     {/* top cards */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">
+                    {/* <div className="grid grid-cols-2 gap-4 mb-6">
                         <div className="bg-[#221320] rounded-2xl p-4 flex flex-col justify-between">
                             <div className="text-xs text-white/60 mb-1">
                                 86 tracks | 4 hours 37 minutes
@@ -372,7 +371,6 @@ const HomePage: React.FC = () => {
                                 <h2 className="font-semibold">Between Death and Dreams</h2>
                             </div>
                             <div className="flex-1 bg-black/40 flex items-center justify-center">
-                                {/* Video / cover placeholder */}
                                 <div className="w-16 h-16 rounded-full border border-white/60" />
                             </div>
                             <div className="p-3 text-[11px] text-white/60 flex justify-between">
@@ -380,30 +378,29 @@ const HomePage: React.FC = () => {
                                 <span>•••</span>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Tabs + playlists */}
                     <div className="mb-4 flex items-center justify-between">
                         <div className="flex items-center gap-6 text-xs uppercase tracking-wide">
                             <button
                                 onClick={() => setActiveTab('playlists')}
-                                className={`${activeTab === 'playlists' ? 'text-[#ff7a3c] border-b-2 border-[#ff7a3c]' : 'text-white/50 hover:text-white'} pb-1 transition-colors`}
+                                className={`${activeTab === 'playlists' ? 'text-[#ff7a3c] border-b-2 border-[#ff7a3c]' : 'text-white/50 hover:text-white'} pb-1 transition-colors cursor-pointer`}
                             >
                                 Playlists
                             </button>
                             <button
                                 onClick={() => setActiveTab('artists')}
-                                className={`${activeTab === 'artists' ? 'text-[#ff7a3c] border-b-2 border-[#ff7a3c]' : 'text-white/50 hover:text-white'} pb-1 transition-colors`}
+                                className={`${activeTab === 'artists' ? 'text-[#ff7a3c] border-b-2 border-[#ff7a3c]' : 'text-white/50 hover:text-white'} pb-1 transition-colors cursor-pointer`}
                             >
                                 Artists
                             </button>
                             <button
                                 onClick={() => setActiveTab('albums')}
-                                className={`${activeTab === 'albums' ? 'text-[#ff7a3c] border-b-2 border-[#ff7a3c]' : 'text-white/50 hover:text-white'} pb-1 transition-colors`}
+                                className={`${activeTab === 'albums' ? 'text-[#ff7a3c] border-b-2 border-[#ff7a3c]' : 'text-white/50 hover:text-white'} pb-1 transition-colors cursor-pointer`}
                             >
                                 Albums
                             </button>
-                            <button className="text-white/50 cursor-not-allowed opacity-50">Streams</button>
                         </div>
                         <button
                             onClick={() => setIsUploadSongOpen(true)}

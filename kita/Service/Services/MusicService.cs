@@ -162,7 +162,7 @@ namespace Kita.Service.Services
             {
                 await songFile.CopyToAsync(stream);
             }
-            var songUrl = $"{baseUrl}/music/{songFileName}";
+            var songUrl = $"{baseUrl}/Music/{songFileName}";
 
             int duration = 0;
             try
@@ -278,7 +278,7 @@ namespace Kita.Service.Services
             {
                 await songFile.CopyToAsync(stream);
             }
-            var songUrl = $"{baseUrl}/music/{songFileName}";
+            var songUrl = $"{baseUrl}/Music/{songFileName}";
 
             int duration = 0;
             try

@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, Plus, Trash2, Music, X, Search, MoreHorizontal, Clock, Heart } from 'lucide-react';
+import { ArrowLeft, Upload, Plus, Trash2, Music, X, Search, MoreHorizontal, Clock, Heart, Play, Pause } from 'lucide-react';
 import { albumService, type AlbumDetail } from '../../services/albumService';
 import { artistService } from '../../services/artistService';
 import { getMySongs } from '../../utils/musicAPI';
 import type { SongDto } from '../../types/api';
+import { usePlay } from '../../context/PlayContext';
 
 const AlbumDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { playSong, isPlaying, currentSong, togglePlayPause, playlist } = usePlay();
     const [album, setAlbum] = useState<AlbumDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
@@ -97,6 +99,53 @@ const AlbumDetailsPage: React.FC = () => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    // Convert album songs to SongDto format for playback
+    const getPlayableSongs = (): SongDto[] => {
+        if (!album) return [];
+        return album.songs.map(song => ({
+            id: song.id,
+            title: song.title,
+            artist: song.artist || album.artistName || '',
+            streamUrl: song.streamUrl,
+            coverUrl: song.coverUrl || album.imageUrl,
+            duration: song.duration,
+            artistId: album.artistId,
+            albumId: album.id,
+        }));
+    };
+
+    // Check if this album is currently playing
+    const isAlbumPlaying = (): boolean => {
+        if (!album || !currentSong || playlist.length === 0) return false;
+        const albumSongIds = album.songs.map(s => s.id);
+        return albumSongIds.includes(currentSong.id) && isPlaying;
+    };
+
+    // Handle play button click on album
+    const handlePlayAlbum = () => {
+        if (!album || album.songs.length === 0) return;
+        const playableSongs = getPlayableSongs();
+        if (isAlbumPlaying()) {
+            togglePlayPause();
+        } else {
+            playSong(playableSongs[0], playableSongs);
+        }
+    };
+
+    // Handle play button click on a specific song
+    const handlePlaySong = (songIndex: number) => {
+        if (!album) return;
+        const playableSongs = getPlayableSongs();
+        const song = playableSongs[songIndex];
+        if (song) {
+            if (currentSong?.id === song.id) {
+                togglePlayPause();
+            } else {
+                playSong(song, playableSongs);
+            }
+        }
     };
 
     if (isLoading) {
@@ -210,8 +259,16 @@ const AlbumDetailsPage: React.FC = () => {
 
                     {/* Action Bar */}
                     <div className="flex items-center gap-6 mb-8">
-                        <button className="w-14 h-14 bg-[#ff7a3c] rounded-full flex items-center justify-center hover:scale-105 hover:bg-[#ff8c52] transition-all duration-200 shadow-xl text-black">
-                            <svg className="w-6 h-6 fill-current pl-1" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                        <button
+                            onClick={handlePlayAlbum}
+                            disabled={!album || album.songs.length === 0}
+                            className="w-14 h-14 bg-[#ff7a3c] rounded-full flex items-center justify-center hover:scale-105 hover:bg-[#ff8c52] transition-all duration-200 shadow-xl text-black disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isAlbumPlaying() ? (
+                                <Pause className="w-6 h-6 fill-current" />
+                            ) : (
+                                <Play className="w-6 h-6 fill-current ml-1" />
+                            )}
                         </button>
 
                         {/* Like Button */}
@@ -317,10 +374,18 @@ const AlbumDetailsPage: React.FC = () => {
                                             className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-4 py-3 hover:bg-[#ffffff10] rounded-md group transition-colors items-center cursor-default"
                                         >
                                             <div className="relative text-center text-[#a7a7a7] font-medium w-4 flex justify-center">
-                                                <span className="group-hover:hidden">{index + 1}</span>
-                                                <button className="hidden group-hover:block text-white">
-                                                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                                                </button>
+                                                {currentSong?.id === song.id && isPlaying ? (
+                                                    <button onClick={() => handlePlaySong(index)} className="text-[#ff7a3c]">
+                                                        <Pause className="w-4 h-4 fill-current" />
+                                                    </button>
+                                                ) : (
+                                                    <>
+                                                        <span className="group-hover:hidden">{currentSong?.id === song.id ? <Play className="w-4 h-4 fill-current text-[#ff7a3c]" /> : index + 1}</span>
+                                                        <button onClick={() => handlePlaySong(index)} className="hidden group-hover:block text-white">
+                                                            <Play className="w-4 h-4 fill-current" />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
 
                                             <div className="flex items-center gap-4 min-w-0">

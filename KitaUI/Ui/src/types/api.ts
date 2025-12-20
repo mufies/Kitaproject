@@ -227,3 +227,27 @@ export interface UserInteractionStatus {
     hasFavorited: boolean;
 }
 
+// Listen History DTOs
+export interface ListenHistoryDto {
+    id: string;
+    songId: string;
+    userId: string;
+    msPlayed?: number;
+    createdAt: string;
+    updatedAt?: string;
+    songTitle?: string;
+    artistName?: string;
+    coverUrl?: string;
+    userName?: string;
+}
+
+export interface ListenHistoryStatsDto {
+    userId: string;
+    totalListenCount: number;
+    totalListenTimeMs: number;
+    totalListenTimeFormatted: string;
+    uniqueSongsListened: number;
+    mostPlayedSong?: SongDto;
+    favoriteArtist?: string;
+    favoriteGenre?: string;
+}

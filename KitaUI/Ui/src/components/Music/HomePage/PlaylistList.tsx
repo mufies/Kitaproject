@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Play, Pause } from "lucide-react";
 import { getUserPlaylists, type Playlist } from "../../../services/musicService";
+import { usePlay } from "../../../context/PlayContext";
 import AllPlaylistsModal from "./AllPlaylistsModal";
 
 const PlaylistList: React.FC = () => {
     const navigate = useNavigate();
+    const { playSong, isPlaying, currentSong, togglePlayPause, playlist } = usePlay();
     const [playlists, setPlaylists] = useState<Playlist[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -31,6 +34,36 @@ const PlaylistList: React.FC = () => {
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    };
+
+    // Check if a playlist is currently playing
+    const isPlaylistPlaying = (playlistSongs: Playlist['songs']): boolean => {
+        if (!currentSong || playlist.length === 0 || playlistSongs.length === 0) return false;
+        const playlistSongIds = playlistSongs.map(s => s.id);
+        return playlistSongIds.includes(currentSong.id) && isPlaying;
+    };
+
+    // Handle play button click on a playlist
+    const handlePlayPlaylist = (e: React.MouseEvent, playlistData: Playlist) => {
+        e.stopPropagation();
+
+        if (!playlistData.songs || playlistData.songs.length === 0) return;
+
+        if (isPlaylistPlaying(playlistData.songs)) {
+            togglePlayPause();
+            return;
+        }
+
+        // If currently paused on same playlist, resume
+        const playlistSongIds = playlistData.songs.map(s => s.id);
+        if (currentSong && playlistSongIds.includes(currentSong.id) && !isPlaying) {
+            togglePlayPause();
+            return;
+        }
+
+        // Start playing the playlist from the beginning
+        // @ts-ignore - Assuming song structures are compatible
+        playSong(playlistData.songs[0], playlistData.songs);
     };
 
     if (loading) {
@@ -97,11 +130,12 @@ const PlaylistList: React.FC = () => {
                             0
                         );
                         const trackCount = playlist.songs.length;
+                        const hasSongs = playlist.songs && playlist.songs.length > 0;
 
                         return (
                             <div
                                 key={playlist.id}
-                                className="min-w-[280px] bg-[#1a141a] rounded-xl p-3 hover:bg-[#221a22] transition-colors cursor-pointer flex-shrink-0"
+                                className="min-w-[280px] bg-[#1a141a] rounded-xl p-3 hover:bg-[#221a22] transition-colors cursor-pointer flex-shrink-0 group relative overflow-hidden"
                                 onClick={() => {
                                     console.log("Navigating to playlist:", playlist.id);
                                     navigate(`/music/playlist/${playlist.id}`);
@@ -125,6 +159,24 @@ const PlaylistList: React.FC = () => {
                                             {trackCount} tracks | {formatDuration(totalDuration)}
                                         </div>
                                     </div>
+
+                                    {/* Play Button - Hover Only, shows when playing */}
+                                    {hasSongs && (
+                                        <button
+                                            className={`w-8 h-8 rounded-full bg-[#ff7a3c] flex items-center justify-center transition-all hover:scale-110 shadow-lg ${isPlaylistPlaying(playlist.songs) || (currentSong && playlist.songs.some(s => s.id === currentSong.id))
+                                                    ? 'opacity-100 translate-x-0'
+                                                    : 'opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0'
+                                                }`}
+                                            onClick={(e) => handlePlayPlaylist(e, playlist)}
+                                            title={isPlaylistPlaying(playlist.songs) ? "Pause" : "Play Playlist"}
+                                        >
+                                            {isPlaylistPlaying(playlist.songs) ? (
+                                                <Pause size={14} fill="currentColor" className="text-white" />
+                                            ) : (
+                                                <Play size={14} fill="currentColor" className="text-white ml-0.5" />
+                                            )}
+                                        </button>
+                                    )}
                                 </div>
                                 {playlist.description && (
                                     <div className="text-[11px] text-white/40 line-clamp-2 mb-1">

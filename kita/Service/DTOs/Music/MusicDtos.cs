@@ -65,6 +65,7 @@ namespace Kita.Service.DTOs.Music
         public Guid OwnerId { get; set; }
         public List<SongDto> Songs { get; set; } = new List<SongDto>();
         public double TotalDuration { get; set; }
+        public int? SongCount { get; set; }
     }
 
     public class CreatePlaylistDto

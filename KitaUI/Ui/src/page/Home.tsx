@@ -1,15 +1,45 @@
 import { useNavigate } from 'react-router-dom';
 import { Play, Music, TrendingUp, ChevronRight, Disc, Heart, MoreHorizontal, Speaker } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import themeSong from '../assets/Song/theme.mp3';
 
 export default function Home() {
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const audioRef = useRef(new Audio(themeSong));
 
     useEffect(() => {
         setIsVisible(true);
+        // Set volume lower for subtle effect
+        audioRef.current.volume = 0.5;
+
+        // Restore saved playback time
+        const savedTime = sessionStorage.getItem('homeVinylTime');
+        if (savedTime) {
+            audioRef.current.currentTime = parseFloat(savedTime);
+        }
+
+        return () => {
+            // Save time and cleanup
+            sessionStorage.setItem('homeVinylTime', audioRef.current.currentTime.toString());
+            audioRef.current.pause();
+        };
     }, []);
+
+    const handleMouseEnter = () => {
+        setIsPlaying(true);
+        audioRef.current.play().catch(error => {
+            console.error("Audio playback failed:", error);
+        });
+    };
+
+    const handleMouseLeave = () => {
+        setIsPlaying(false);
+        audioRef.current.pause();
+        // Save current time instead of resetting
+        sessionStorage.setItem('homeVinylTime', audioRef.current.currentTime.toString());
+    };
 
     const featuredPlaylists = [
         {
@@ -130,8 +160,8 @@ export default function Home() {
                         {/* The Vinyl Record */}
                         <div
                             className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full shadow-2xl cursor-pointer group"
-                            onMouseEnter={() => setIsPlaying(true)}
-                            onMouseLeave={() => setIsPlaying(false)}
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
                             style={{
                                 animation: `spin 8s linear infinite`,
                                 animationPlayState: isPlaying ? 'running' : 'paused',

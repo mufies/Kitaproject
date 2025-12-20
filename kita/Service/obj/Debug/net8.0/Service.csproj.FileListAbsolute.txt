@@ -38,8 +38,8 @@ A:/Code project/Kitaproject/kita/Service/obj/Debug/net8.0/ref/Service.dll
 /home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Service.pdb
 /home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Domain.dll
 /home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Infrastructure.dll
-/home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Infrastructure.pdb
 /home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Domain.pdb
+/home/mufies/Code/Kitaproject/kita/Service/bin/Debug/net8.0/Infrastructure.pdb
 /home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.csproj.AssemblyReference.cache
 /home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.GeneratedMSBuildEditorConfig.editorconfig
 /home/mufies/Code/Kitaproject/kita/Service/obj/Debug/net8.0/Service.AssemblyInfoInputs.cache

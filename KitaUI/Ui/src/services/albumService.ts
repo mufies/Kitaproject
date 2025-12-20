@@ -17,7 +17,9 @@ export interface AlbumDetail extends Album {
 export interface AlbumSong {
     id: string;
     title: string;
+    artist?: string;
     coverUrl?: string;
+    streamUrl: string;
     duration: number;
     trackNumber: number;
 }

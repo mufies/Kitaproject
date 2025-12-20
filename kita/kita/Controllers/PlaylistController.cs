@@ -137,5 +137,13 @@ namespace Kita.Controllers
             var result = await _playlistService.GetPlaylistsByUserIdAndSongIdAsync(userId, songId);
             return HandleResult(result);
         }
+
+        // Get public playlists by user ID
+        [HttpGet("user/{userId}/public")]
+        public async Task<IActionResult> GetPublicPlaylistsByUserId(Guid userId)
+        {
+            var result = await _playlistService.GetPublicPlaylistsByUserIdAsync(userId);
+            return HandleResult(result);
+        }
     }
 }

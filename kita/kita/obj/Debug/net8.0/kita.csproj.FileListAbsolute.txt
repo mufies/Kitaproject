@@ -246,14 +246,6 @@ A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/refint/kita.dll
 A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.pdb
 A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/kita.genruntimeconfig.cache
 A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
-/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.csproj.AssemblyReference.cache
-/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/rpswa.dswa.cache.json
-/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.GeneratedMSBuildEditorConfig.editorconfig
-/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.AssemblyInfoInputs.cache
-/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.AssemblyInfo.cs
-/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.csproj.CoreCompileInputs.cache
-/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.MvcApplicationPartsAssemblyInfo.cache
-/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.sourcelink.json
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/appsettings.Development.json
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/appsettings.json
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/kita.staticwebassets.endpoints.json
@@ -264,6 +256,9 @@ A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/kita.pdb
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/AngleSharp.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/BCrypt.Net-Next.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/BouncyCastle.Cryptography.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Concentus.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/DnsClient.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/DotNetEnv.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Apis.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Apis.Auth.dll
@@ -281,7 +276,9 @@ A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Design.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.EntityFrameworkCore.Relational.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Configuration.Abstractions.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.DependencyModel.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Logging.Abstractions.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Primitives.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
@@ -293,6 +290,9 @@ A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Newtonsoft.Json.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Npgsql.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/SIPSorcery.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/websocket-sharp.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/SIPSorceryMedia.Abstractions.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Sprache.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.CodeDom.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.AttributedModel.dll
@@ -300,11 +300,13 @@ A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.Hosting.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.Runtime.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Composition.TypedParts.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Diagnostics.DiagnosticSource.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.IO.Pipelines.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Management.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Text.Encodings.Web.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Text.Json.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/TagLibSharp.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/YoutubeExplode.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/cs/Microsoft.CodeAnalysis.resources.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/de/Microsoft.CodeAnalysis.resources.dll
@@ -366,6 +368,14 @@ A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Infrastructure.pdb
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Service.pdb
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Domain.pdb
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.csproj.AssemblyReference.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/rpswa.dswa.cache.json
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.GeneratedMSBuildEditorConfig.editorconfig
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.AssemblyInfoInputs.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.AssemblyInfo.cs
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.csproj.CoreCompileInputs.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.MvcApplicationPartsAssemblyInfo.cache
+/home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.sourcelink.json
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/rjimswa.dswa.cache.json
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/rjsmrazor.dswa.cache.json
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/rjsmcshtml.dswa.cache.json
@@ -381,13 +391,3 @@ A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.pdb
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.genruntimeconfig.cache
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
-/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/BouncyCastle.Cryptography.dll
-/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Concentus.dll
-/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/DnsClient.dll
-/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
-/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Microsoft.Extensions.Logging.Abstractions.dll
-/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/SIPSorcery.dll
-/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/websocket-sharp.dll
-/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/SIPSorceryMedia.Abstractions.dll
-/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/System.Diagnostics.DiagnosticSource.dll
-/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/TagLibSharp.dll

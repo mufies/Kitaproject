@@ -28,6 +28,13 @@ namespace Kita.Controllers
             return HandleResult(result);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(Guid id)
+        {
+            var result = await _userService.GetUserProfileAsync(id);
+            return HandleResult(result);
+        }
+
         [HttpPost("avatar")]
         public async Task<IActionResult> UploadAvatar([FromForm] FileUploadDto uploadDto)
         {

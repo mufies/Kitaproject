@@ -110,6 +110,26 @@ export const fetchGetProfile = async () => {
     }
 };
 
+export const fetchGetUserById = async (userId: string) => {
+    try {
+        const { data } = await axiosInstance.get(`/user/${userId}`);
+        return data;
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        throw error;
+    }
+};
+
+export const fetchPublicPlaylistsByUserId = async (userId: string) => {
+    try {
+        const { data } = await axiosInstance.get(`/playlist/user/${userId}/public`);
+        return data;
+    } catch (error) {
+        console.error("Error fetching public playlists:", error);
+        throw error;
+    }
+};
+
 export const fetchUploadAvatar = async (file: File) => {
     try {
         const formData = new FormData();
@@ -189,5 +209,43 @@ export const fetchCreateUser = async (payload: FormData) => {
         }
 
         throw new Error('Có lỗi xảy ra khi tạo người dùng');
+    }
+};
+
+// ==================== LISTEN HISTORY ====================
+
+export const fetchRecentlyPlayed = async (limit: number = 10) => {
+    try {
+        const { data } = await axiosInstance.get(`/listenhistory/history/recent?limit=${limit}`);
+        console.log('fetchRecentlyPlayed response:', data);
+        return data;
+    } catch (error) {
+        console.error("Error fetching recently played:", error);
+        throw error;
+    }
+};
+
+export const fetchListenStats = async () => {
+    try {
+        const { data } = await axiosInstance.get('/listenhistory/history/stats');
+        console.log('fetchListenStats response:', data);
+        return data;
+    } catch (error) {
+        console.error("Error fetching listen stats:", error);
+        throw error;
+    }
+};
+
+export const addToListenHistory = async (songId: string, msPlayed?: number) => {
+    try {
+        const url = msPlayed
+            ? `/listenhistory/songs/${songId}/listen?msPlayed=${msPlayed}`
+            : `/listenhistory/songs/${songId}/listen`;
+        const { data } = await axiosInstance.post(url);
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.error("Error adding to listen history:", error);
+        throw error;
     }
 };

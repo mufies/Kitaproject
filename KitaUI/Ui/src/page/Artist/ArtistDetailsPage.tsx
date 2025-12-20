@@ -4,6 +4,7 @@ import { Upload, Plus, Music, Heart } from 'lucide-react';
 import { artistService, type ArtistDetail } from '../../services/artistService';
 import CreateAlbumModal from '../../components/Artist/CreateAlbumModal';
 import UploadArtistSongModal from '../../components/Artist/UploadArtistSongModal';
+import { getSongStats } from '../../utils/songStaticsAPI';
 
 const ArtistDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -16,6 +17,7 @@ const ArtistDetailsPage: React.FC = () => {
     const [isFollowing, setIsFollowing] = useState(false);
     const [isFollowLoading, setIsFollowLoading] = useState(false);
     const [isManager, setIsManager] = useState(false);
+    const [songPlayCounts, setSongPlayCounts] = useState<Record<string, number>>({});
 
     const fetchArtistDetails = async () => {
         if (!id) return;
@@ -31,11 +33,36 @@ const ArtistDetailsPage: React.FC = () => {
         }
     };
 
+    const fetchSongPlayCounts = async (songs: { id: string }[]) => {
+        const counts: Record<string, number> = {};
+        await Promise.all(
+            songs.map(async (song) => {
+                try {
+                    const response = await getSongStats(song.id);
+                    if (response.success && response.data) {
+                        counts[song.id] = response.data.playCount;
+                    } else {
+                        counts[song.id] = 0;
+                    }
+                } catch (error) {
+                    counts[song.id] = 0;
+                }
+            })
+        );
+        setSongPlayCounts(counts);
+    };
+
     useEffect(() => {
         fetchArtistDetails();
         checkFollowStatus();
         checkManagerStatus();
     }, [id]);
+
+    useEffect(() => {
+        if (artist && artist.songs.length > 0) {
+            fetchSongPlayCounts(artist.songs);
+        }
+    }, [artist?.songs]);
 
     const checkFollowStatus = async () => {
         if (!id) return;
@@ -261,8 +288,7 @@ const ArtistDetailsPage: React.FC = () => {
                                         <div className="flex-1 min-w-0 pr-4">
                                             <div className="text-white font-semibold truncate text-[16px] mb-0.5 group-hover:text-green-400 transition-colors">{song.title}</div>
                                             <div className="text-[#a7a7a7] text-xs font-medium">
-                                                {/* Could show play count here for data-rich feel */}
-                                                {(Math.random() * 1000000).toLocaleString('en-US', { maximumFractionDigits: 0 })} plays
+                                                {(songPlayCounts[song.id] ?? 0).toLocaleString('en-US')} plays
                                             </div>
                                         </div>
 

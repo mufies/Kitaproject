@@ -763,5 +763,31 @@ namespace Kita.Service.Services
 
             return ("Unknown Artist", videoTitle);
         }
+
+        // Get Public Playlists by User ID
+        public async Task<ApiResponse<List<PlaylistDto>>> GetPublicPlaylistsByUserIdAsync(Guid userId)
+        {
+            var playlists = await _playlistRepository.FindAsync(p => p.OwnerId == userId && p.IsPublic);
+            var playlistDtos = new List<PlaylistDto>();
+
+            foreach (var playlist in playlists)
+            {
+                var playlistSongs = await _playlistSongRepository.FindAsync(ps => ps.PlaylistId == playlist.Id);
+                var songCount = playlistSongs.Count();
+
+                playlistDtos.Add(new PlaylistDto
+                {
+                    Id = playlist.Id,
+                    Name = playlist.Name,
+                    Description = playlist.Description,
+                    IsPublic = playlist.IsPublic,
+                    OwnerId = playlist.OwnerId,
+                    CoverUrl = playlist.CoverUrl,
+                    SongCount = songCount
+                });
+            }
+
+            return new ApiResponse<List<PlaylistDto>>(playlistDtos);
+        }
     }
 }

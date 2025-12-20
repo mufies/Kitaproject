@@ -32,16 +32,24 @@ namespace Kita.Infrastructure.Repositories
 
         public async Task<List<ListenHistory>> GetRecentlyPlayedAsync(Guid userId, int limit = 20)
         {
-            // Get distinct songs, most recent first
-            return await _dbSet
+            // Get all recent history with includes first, then filter for unique songs client-side
+            var allHistory = await _dbSet
                 .Where(lh => lh.UserId == userId)
+                .Include(lh => lh.Song)
+                    .ThenInclude(s => s.Artist)
+                .Include(lh => lh.Song)
+                    .ThenInclude(s => s.SongStatics)
                 .OrderByDescending(lh => lh.CreatedAt)
+                .Take(limit * 3) // Get extra to account for duplicates
+                .ToListAsync();
+
+            var uniqueHistory = allHistory
                 .GroupBy(lh => lh.SongId)
                 .Select(g => g.First())
                 .Take(limit)
-                .Include(lh => lh.Song)
-                    .ThenInclude(s => s.SongStatics)
-                .ToListAsync();
+                .ToList();
+
+            return uniqueHistory;
         }
 
         public async Task<int> GetTotalListenCountAsync(Guid userId)

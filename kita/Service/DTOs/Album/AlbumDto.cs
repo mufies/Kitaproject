@@ -26,5 +26,6 @@ namespace Kita.Service.DTOs.Album
         public string? CoverUrl { get; set; }
         public double Duration { get; set; }
         public int TrackNumber { get; set; }
+        public string? StreamUrl { get; set; }
     }
 }

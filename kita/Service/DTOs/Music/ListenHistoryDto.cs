@@ -11,6 +11,8 @@ namespace Service.DTOs.Music
         
         // Navigation properties (optional)
         public string? SongTitle { get; set; }
+        public string? ArtistName { get; set; }
+        public string? CoverUrl { get; set; }
         public string? UserName { get; set; }
     }
 }
