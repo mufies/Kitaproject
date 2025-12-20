@@ -1,5 +1,5 @@
 import { axiosInstance } from "./fetchAPI";
-import type { CreateSongDto, SongDto, CreatePlaylistDto, PlaylistDto, ApiResponse, ImportPlaylistRequestDto, ImportPlaylistResponseDto } from "../types/api";
+import type { CreateSongDto, CreateArtistSongDto, SongDto, CreatePlaylistDto, PlaylistDto, ApiResponse, ImportPlaylistRequestDto, ImportPlaylistResponseDto } from "../types/api";
 
 // ==================== SONGS ====================
 
@@ -33,6 +33,41 @@ export const uploadSong = async (
         return data;
     } catch (error) {
         console.error("Error uploading song:", error);
+        throw error;
+    }
+};
+
+/**
+ * Upload a new song as an artist with full artist info
+ */
+export const uploadArtistSong = async (
+    songData: CreateArtistSongDto,
+    songFile: File,
+    coverFile?: File
+): Promise<ApiResponse<SongDto>> => {
+    try {
+        const formData = new FormData();
+
+        // Append song data
+        formData.append('artistId', songData.artistId);
+        formData.append('title', songData.title);
+        if (songData.albumId) formData.append('albumId', songData.albumId);
+        if (songData.duration) formData.append('duration', songData.duration.toString());
+
+        // Append files
+        formData.append('songFile', songFile);
+        if (coverFile) {
+            formData.append('coverFile', coverFile);
+        }
+
+        const { data } = await axiosInstance.post('/music/artist/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return data;
+    } catch (error) {
+        console.error("Error uploading artist song:", error);
         throw error;
     }
 };
@@ -188,10 +223,33 @@ export const getUserPlaylists = async (): Promise<ApiResponse<PlaylistDto[]>> =>
 /**
  * Update a playlist
  */
-export const updatePlaylist = async (playlistId: string, playlistData: PlaylistDto): Promise<ApiResponse<PlaylistDto>> => {
+/**
+ * Update a playlist
+ */
+export const updatePlaylist = async (
+    playlistId: string,
+    playlistData: PlaylistDto,
+    coverFile?: File
+): Promise<ApiResponse<PlaylistDto>> => {
     try {
-        const { data } = await axiosInstance.put(`/playlist/${playlistId}`, playlistData);
-        return data;
+        if (coverFile) {
+            const formData = new FormData();
+            formData.append('id', playlistData.id);
+            formData.append('name', playlistData.name);
+            if (playlistData.description) formData.append('description', playlistData.description);
+            formData.append('isPublic', String(playlistData.isPublic));
+            formData.append('coverFile', coverFile);
+
+            const { data } = await axiosInstance.put(`/playlist/${playlistId}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return data;
+        } else {
+            const { data } = await axiosInstance.put(`/playlist/${playlistId}`, playlistData);
+            return data;
+        }
     } catch (error) {
         console.error("Error updating playlist:", error);
         throw error;

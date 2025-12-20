@@ -23,6 +23,21 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AlbumUser", b =>
+                {
+                    b.Property<Guid>("LikedAlbumsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("LikedByUsersId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("LikedAlbumsId", "LikedByUsersId");
+
+                    b.HasIndex("LikedByUsersId");
+
+                    b.ToTable("AlbumLikes", (string)null);
+                });
+
             modelBuilder.Entity("ArtistUser", b =>
                 {
                     b.Property<Guid>("ArtistId")
@@ -40,13 +55,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ArtistUser1", b =>
                 {
-                    b.Property<Guid>("Artist1Id")
+                    b.Property<Guid>("FollowedArtistsId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("FollowedByUsersId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Artist1Id", "FollowedByUsersId");
+                    b.HasKey("FollowedArtistsId", "FollowedByUsersId");
 
                     b.HasIndex("FollowedByUsersId");
 
@@ -222,16 +237,8 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<List<Guid>>("FollowedBy")
-                        .IsRequired()
-                        .HasColumnType("uuid[]");
-
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
-
-                    b.Property<List<Guid>>("ManagedBy")
-                        .IsRequired()
-                        .HasColumnType("uuid[]");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -656,14 +663,29 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 12, 18, 12, 49, 42, 289, DateTimeKind.Utc).AddTicks(6148),
+                            CreatedAt = new DateTime(2025, 12, 19, 8, 17, 13, 778, DateTimeKind.Utc).AddTicks(197),
                             Email = "admin@kita.com",
                             PasswordHash = "$2a$11$5glWJIvKFoXWFwYIKJVB5ONySehuC4cMyghaPfEdybGcBazIDZsmy",
                             Role = "Admin",
                             Subscription = 0,
-                            UpdatedAt = new DateTime(2025, 12, 18, 12, 49, 42, 289, DateTimeKind.Utc).AddTicks(6150),
+                            UpdatedAt = new DateTime(2025, 12, 19, 8, 17, 13, 778, DateTimeKind.Utc).AddTicks(198),
                             UserName = "Admin"
                         });
+                });
+
+            modelBuilder.Entity("AlbumUser", b =>
+                {
+                    b.HasOne("Kita.Domain.Entities.Music.Album", null)
+                        .WithMany()
+                        .HasForeignKey("LikedAlbumsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Kita.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("LikedByUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ArtistUser", b =>
@@ -685,7 +707,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Kita.Domain.Entities.Artist", null)
                         .WithMany()
-                        .HasForeignKey("Artist1Id")
+                        .HasForeignKey("FollowedArtistsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

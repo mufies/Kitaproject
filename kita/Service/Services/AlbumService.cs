@@ -18,15 +18,21 @@ namespace Kita.Service.Services
     {
         private readonly IAlbumRepository _albumRepository;
         private readonly IArtistRepository _artistRepository;
+        private readonly ISongRepository _songRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
 
         public AlbumService(
             IAlbumRepository albumRepository,
             IArtistRepository artistRepository,
+            ISongRepository songRepository,
+            IUserRepository userRepository,
             IConfiguration configuration)
         {
             _albumRepository = albumRepository;
             _artistRepository = artistRepository;
+            _songRepository = songRepository;
+            _userRepository = userRepository;
             _configuration = configuration;
         }
 
@@ -267,6 +273,205 @@ namespace Kita.Service.Services
                 ArtistName = artistName,
                 SongCount = album.Songs?.Count ?? 0
             };
+        }
+
+        public async Task<ApiResponse<AlbumDetailDto>> AddSongsToAlbumAsync(Guid userId, Guid albumId, AddSongsToAlbumDto dto)
+        {
+            var album = await _albumRepository.GetByIdWithSongsAsync(albumId);
+            if (album == null)
+            {
+                return ApiResponse<AlbumDetailDto>.Fail("Album not found.", code: 404);
+            }
+
+            // Check if user has permission
+            var artist = await _artistRepository.GetByIdAsync(album.ArtistId);
+            if (artist == null || !artist.ManagedByUsers.Any(u => u.Id == userId))
+            {
+                return ApiResponse<AlbumDetailDto>.Fail("You don't have permission to modify this album.", code: 403);
+            }
+
+            if (dto.SongIds == null || !dto.SongIds.Any())
+            {
+                return ApiResponse<AlbumDetailDto>.Fail("No songs provided.", code: 400);
+            }
+
+            // Get songs by IDs
+            var songs = await _songRepository.GetSongsByIdsAsync(dto.SongIds);
+            if (!songs.Any())
+            {
+                return ApiResponse<AlbumDetailDto>.Fail("No valid songs found.", code: 404);
+            }
+
+            // Filter to only include songs belonging to this artist
+            var artistSongs = songs.Where(s => s.ArtistId == album.ArtistId).ToList();
+            if (!artistSongs.Any())
+            {
+                return ApiResponse<AlbumDetailDto>.Fail("No songs from this artist were found. You can only add songs that belong to this artist.", code: 400);
+            }
+
+            // Update AlbumId for each song
+            foreach (var song in artistSongs)
+            {
+                song.AlbumId = albumId;
+                await _songRepository.UpdateAsync(song);
+            }
+
+            await _songRepository.SaveChangesAsync();
+
+            // Reload album with updated songs
+            album = await _albumRepository.GetByIdWithSongsAsync(albumId);
+
+            var albumDetailDto = new AlbumDetailDto
+            {
+                Id = album!.Id,
+                Name = album.Name,
+                Description = album.Description,
+                ImageUrl = album.ImageUrl,
+                ArtistId = album.ArtistId,
+                ArtistName = artist?.Name,
+                SongCount = album.Songs?.Count ?? 0,
+                Songs = album.Songs?.Select((s, index) => new AlbumSongDto
+                {
+                    Id = s.Id,
+                    Title = s.Title,
+                    CoverUrl = s.CoverUrl,
+                    Duration = s.Duration,
+                    TrackNumber = index + 1
+                }).ToList() ?? new List<AlbumSongDto>()
+            };
+
+            return new ApiResponse<AlbumDetailDto>(albumDetailDto, $"{artistSongs.Count} song(s) added to album successfully.");
+        }
+
+        public async Task<ApiResponse<AlbumDetailDto>> RemoveSongsFromAlbumAsync(Guid userId, Guid albumId, RemoveSongsFromAlbumDto dto)
+        {
+            var album = await _albumRepository.GetByIdWithSongsAsync(albumId);
+            if (album == null)
+            {
+                return ApiResponse<AlbumDetailDto>.Fail("Album not found.", code: 404);
+            }
+
+            // Check if user has permission
+            var artist = await _artistRepository.GetByIdAsync(album.ArtistId);
+            if (artist == null || !artist.ManagedByUsers.Any(u => u.Id == userId))
+            {
+                return ApiResponse<AlbumDetailDto>.Fail("You don't have permission to modify this album.", code: 403);
+            }
+
+            if (dto.SongIds == null || !dto.SongIds.Any())
+            {
+                return ApiResponse<AlbumDetailDto>.Fail("No songs provided.", code: 400);
+            }
+
+            // Get songs by IDs
+            var songs = await _songRepository.GetSongsByIdsAsync(dto.SongIds);
+            var songsInAlbum = songs.Where(s => s.AlbumId == albumId).ToList();
+            
+            if (!songsInAlbum.Any())
+            {
+                return ApiResponse<AlbumDetailDto>.Fail("No songs found in this album.", code: 404);
+            }
+
+            // Remove AlbumId from each song
+            foreach (var song in songsInAlbum)
+            {
+                song.AlbumId = null;
+                await _songRepository.UpdateAsync(song);
+            }
+
+            await _songRepository.SaveChangesAsync();
+
+            // Reload album with updated songs
+            album = await _albumRepository.GetByIdWithSongsAsync(albumId);
+
+            var albumDetailDto = new AlbumDetailDto
+            {
+                Id = album!.Id,
+                Name = album.Name,
+                Description = album.Description,
+                ImageUrl = album.ImageUrl,
+                ArtistId = album.ArtistId,
+                ArtistName = artist?.Name,
+                SongCount = album.Songs?.Count ?? 0,
+                Songs = album.Songs?.Select((s, index) => new AlbumSongDto
+                {
+                    Id = s.Id,
+                    Title = s.Title,
+                    CoverUrl = s.CoverUrl,
+                    Duration = s.Duration,
+                    TrackNumber = index + 1
+                }).ToList() ?? new List<AlbumSongDto>()
+            };
+
+            return new ApiResponse<AlbumDetailDto>(albumDetailDto, $"{songsInAlbum.Count} song(s) removed from album successfully.");
+        }
+
+        public async Task<ApiResponse<bool>> LikeAlbumAsync(Guid userId, Guid albumId)
+        {
+            var album = await _albumRepository.GetByIdWithLikesAsync(albumId);
+            if (album == null)
+            {
+                return ApiResponse<bool>.Fail("Album not found.", code: 404);
+            }
+
+            // Check if already liked
+            if (album.LikedByUsers.Any(u => u.Id == userId))
+            {
+                return ApiResponse<bool>.Fail("You already liked this album.", code: 400);
+            }
+
+            // Get user
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return ApiResponse<bool>.Fail("User not found.", code: 404);
+            }
+
+            album.LikedByUsers.Add(user);
+            await _albumRepository.UpdateAsync(album);
+            await _albumRepository.SaveChangesAsync();
+
+            return new ApiResponse<bool>(true, "Album liked successfully.");
+        }
+
+        public async Task<ApiResponse<bool>> UnlikeAlbumAsync(Guid userId, Guid albumId)
+        {
+            var album = await _albumRepository.GetByIdWithLikesAsync(albumId);
+            if (album == null)
+            {
+                return ApiResponse<bool>.Fail("Album not found.", code: 404);
+            }
+
+            var likedUser = album.LikedByUsers.FirstOrDefault(u => u.Id == userId);
+            if (likedUser == null)
+            {
+                return ApiResponse<bool>.Fail("You haven't liked this album.", code: 400);
+            }
+
+            album.LikedByUsers.Remove(likedUser);
+            await _albumRepository.UpdateAsync(album);
+            await _albumRepository.SaveChangesAsync();
+
+            return new ApiResponse<bool>(true, "Album unliked successfully.");
+        }
+
+        public async Task<ApiResponse<List<AlbumDto>>> GetLikedAlbumsAsync(Guid userId)
+        {
+            var likedAlbums = await _albumRepository.GetLikedAlbumsByUserIdAsync(userId);
+            var albumDtos = likedAlbums.Select(a => MapToAlbumDto(a, a.Artist?.Name)).ToList();
+            return new ApiResponse<List<AlbumDto>>(albumDtos);
+        }
+
+        public async Task<ApiResponse<bool>> IsLikingAlbumAsync(Guid userId, Guid albumId)
+        {
+            var album = await _albumRepository.GetByIdWithLikesAsync(albumId);
+            if (album == null)
+            {
+                return ApiResponse<bool>.Fail("Album not found.", code: 404);
+            }
+
+            var isLiking = album.LikedByUsers.Any(u => u.Id == userId);
+            return new ApiResponse<bool>(isLiking);
         }
     }
 }

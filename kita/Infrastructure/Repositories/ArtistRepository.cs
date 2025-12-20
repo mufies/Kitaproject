@@ -14,9 +14,30 @@ namespace Kita.Infrastructure.Repositories
         {
         }
 
+        // Override to include ManagedByUsers and FollowedByUsers for all artists
+        public new async Task<IEnumerable<Artist>> GetAllAsync()
+        {
+            return await _dbSet
+                .Include(a => a.ManagedByUsers)
+                .Include(a => a.FollowedByUsers)
+                .Include(a => a.Songs)
+                .Include(a => a.Albums)
+                .ToListAsync();
+        }
+
+        public async Task<Artist?> GetByIdAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(a => a.ManagedByUsers)
+                .Include(a => a.FollowedByUsers)
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
         public async Task<Artist?> GetByNameAsync(string name)
         {
             return await _dbSet
+                .Include(a => a.ManagedByUsers)
+                .Include(a => a.FollowedByUsers)
                 .FirstOrDefaultAsync(a => a.Name == name);
         }
 
@@ -24,6 +45,9 @@ namespace Kita.Infrastructure.Repositories
         {
             return await _dbSet
                 .Include(a => a.ManagedByUsers)
+                .Include(a => a.FollowedByUsers)
+                .Include(a => a.Songs)
+                .Include(a => a.Albums)
                 .Where(a => a.ManagedByUsers.Any(u => u.Id == userId))
                 .ToListAsync();
         }
@@ -32,6 +56,7 @@ namespace Kita.Infrastructure.Repositories
         {
             return await _dbSet
                 .Include(a => a.Songs)
+                .Include(a => a.FollowedByUsers)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
@@ -39,7 +64,25 @@ namespace Kita.Infrastructure.Repositories
         {
             return await _dbSet
                 .Include(a => a.Albums)
+                .Include(a => a.FollowedByUsers)
                 .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<Artist?> GetByIdWithFollowersAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(a => a.FollowedByUsers)
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<List<Artist>> GetFollowedArtistsByUserIdAsync(Guid userId)
+        {
+            return await _dbSet
+                .Include(a => a.FollowedByUsers)
+                .Include(a => a.Songs)
+                .Include(a => a.Albums)
+                .Where(a => a.FollowedByUsers.Any(u => u.Id == userId))
+                .ToListAsync();
         }
     }
 }

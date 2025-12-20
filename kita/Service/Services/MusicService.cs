@@ -140,8 +140,6 @@ namespace Kita.Service.Services
                         return ApiResponse<SongDto>.Fail("User not found.", code: 404);
                 }
             }
-
-
             var storagePath = _configuration["FileStorage:BasePath"];
             var baseUrl = _configuration["FileStorage:BaseUrl"];
 
@@ -237,6 +235,117 @@ namespace Kita.Service.Services
                 AudioQuality = song.AudioQuality,
                 CreatedAt = song.CreatedAt
             }, "Song uploaded successfully.");
+        }
+
+        public async Task<ApiResponse<SongDto>> UploadArtistSongAsync(CreateArtistSongDto createArtistSongDto, IFormFile songFile, IFormFile? coverFile, Guid userId)
+        {
+            if (songFile == null || songFile.Length == 0)
+            {
+                return ApiResponse<SongDto>.Fail("Song file is required.");
+            }
+
+            // Get the artist and check if user is a manager
+            var artist = await _artistRepository.GetByIdAsync(createArtistSongDto.ArtistId);
+            if (artist == null)
+            {
+                return ApiResponse<SongDto>.Fail("Artist not found.", code: 404);
+            }
+
+            if (!artist.ManagedByUsers.Any(u => u.Id == userId))
+            {
+                return ApiResponse<SongDto>.Fail("You are not authorized to upload songs for this artist.", code: 403);
+            }
+
+            var storagePath = _configuration["FileStorage:BasePath"];
+            var baseUrl = _configuration["FileStorage:BaseUrl"];
+
+            if (string.IsNullOrEmpty(storagePath) || string.IsNullOrEmpty(baseUrl))
+            {
+                return ApiResponse<SongDto>.Fail("File storage configuration is missing.", code: 500);
+            }
+
+            var songsPath = Path.Combine(storagePath, "Music");
+            var coversPath = Path.Combine(storagePath, "Images");
+
+            if (!Directory.Exists(songsPath)) Directory.CreateDirectory(songsPath);
+            if (!Directory.Exists(coversPath)) Directory.CreateDirectory(coversPath);
+
+            var songExtension = Path.GetExtension(songFile.FileName);
+            var songFileName = $"{Guid.NewGuid()}{songExtension}";
+            var songFilePath = Path.Combine(songsPath, songFileName);
+
+            using (var stream = new FileStream(songFilePath, FileMode.Create))
+            {
+                await songFile.CopyToAsync(stream);
+            }
+            var songUrl = $"{baseUrl}/music/{songFileName}";
+
+            int duration = 0;
+            try
+            {
+                var tagFile = TagLib.File.Create(songFilePath);
+                duration = (int)tagFile.Properties.Duration.TotalSeconds;
+            }
+            catch (Exception)
+            {
+                // Ignore duration extraction errors
+            }
+
+            string? coverUrl = null;
+            if (coverFile != null && coverFile.Length > 0)
+            {
+                var coverExtension = Path.GetExtension(coverFile.FileName);
+                var coverFileName = $"{Guid.NewGuid()}{coverExtension}";
+                var coverFilePath = Path.Combine(coversPath, coverFileName);
+
+                using (var stream = new FileStream(coverFilePath, FileMode.Create))
+                {
+                    await coverFile.CopyToAsync(stream);
+                }
+                coverUrl = $"{baseUrl}/Images/{coverFileName}";
+            }
+
+            // Create Song Entity with full artist info
+            var song = new Song
+            {
+                Title = createArtistSongDto.Title,
+                Duration = duration,
+                StreamUrl = songUrl,
+                CoverUrl = coverUrl ?? createArtistSongDto.CoverUrl,
+                Status = createArtistSongDto.Status,
+                Type = createArtistSongDto.Type,
+                Genres = createArtistSongDto.Genres,
+                AudioQuality = createArtistSongDto.AudioQuality,
+                CreatedAt = DateTime.UtcNow,
+                UserId = userId,
+                ArtistId = artist.Id,
+                AlbumId = createArtistSongDto.AlbumId
+            };
+
+            await _songRepository.AddAsync(song);
+            await _songRepository.SaveChangesAsync();
+
+            // Reload to get navigation properties
+            song = await _songRepository.GetByIdAsync(song.Id);
+
+            return new ApiResponse<SongDto>(new SongDto
+            {
+                Id = song.Id,
+                Title = song.Title,
+                Artist = song.Artist?.Name ?? artist.Name,
+                Album = song.Album?.Name,
+                ArtistId = song.ArtistId,
+                AlbumId = song.AlbumId,
+                UserId = song.UserId,
+                Duration = song.Duration,
+                StreamUrl = song.StreamUrl,
+                CoverUrl = song.CoverUrl,
+                Status = song.Status,
+                Type = song.Type,
+                Genres = song.Genres,
+                AudioQuality = song.AudioQuality,
+                CreatedAt = song.CreatedAt
+            }, "Artist song uploaded successfully.");
         }
 
         public async Task<ApiResponse<List<SongDto>>> GetAllSongsAsync()

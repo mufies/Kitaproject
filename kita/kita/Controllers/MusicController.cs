@@ -44,6 +44,18 @@ namespace Kita.Controllers
             return HandleResult(result);
         }
 
+        [HttpPost("artist/upload")]
+        public async Task<IActionResult> UploadArtistSong([FromForm] CreateArtistSongDto createArtistSongDto, [FromForm] IFormFile songFile, [FromForm] IFormFile? coverFile)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+            var result = await _musicService.UploadArtistSongAsync(createArtistSongDto, songFile, coverFile, userId);
+            return HandleResult(result);
+        }
+
         [HttpGet("songs")]
         public async Task<IActionResult> GetAllSongs()
         {

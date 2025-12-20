@@ -194,8 +194,14 @@ namespace Kita.Infrastructure.Data
             // Artist -> Users (FollowedBy) Many-to-Many
             modelBuilder.Entity<Artist>()
                 .HasMany(a => a.FollowedByUsers)
-                .WithMany()
+                .WithMany(u => u.FollowedArtists)
                 .UsingEntity(j => j.ToTable("ArtistFollowers"));
+
+            // Album -> Users (LikedBy) Many-to-Many
+            modelBuilder.Entity<Album>()
+                .HasMany(a => a.LikedByUsers)
+                .WithMany(u => u.LikedAlbums)
+                .UsingEntity(j => j.ToTable("AlbumLikes"));
 
 
 

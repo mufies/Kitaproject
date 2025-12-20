@@ -146,6 +146,16 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider("/home/mufies/Code/Kitaproject/kita/Assets/Music"),
     RequestPath = "/assets/music"
 });
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider("/home/mufies/Code/Kitaproject/kita/Assets/artists"),
+    RequestPath = "/Assets/artists"
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider("/home/mufies/Code/Kitaproject/kita/Assets/avatars"),
+    RequestPath = "/Assets/avatars"
+});
 
 app.UseHttpsRedirection();
 

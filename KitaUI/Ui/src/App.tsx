@@ -13,6 +13,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import HomePage from './page/Music/Home/HomePage'
 import MyArtistsPage from './page/Artist/MyArtistsPage'
 import ArtistDetailsPage from './page/Artist/ArtistDetailsPage'
+import AlbumDetailsPage from './page/Album/AlbumDetailsPage'
 
 function AppContent() {
   const location = useLocation();
@@ -50,6 +51,11 @@ function AppContent() {
           <Route path="/artist/:id" element={
             <ProtectedRoute>
               <ArtistDetailsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/album/:id" element={
+            <ProtectedRoute>
+              <AlbumDetailsPage />
             </ProtectedRoute>
           } />
 

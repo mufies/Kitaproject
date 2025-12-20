@@ -42,5 +42,22 @@ namespace Kita.Infrastructure.Repositories
                 .Include(a => a.Songs)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
+
+        public async Task<Album?> GetByIdWithLikesAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(a => a.LikedByUsers)
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<List<Album>> GetLikedAlbumsByUserIdAsync(Guid userId)
+        {
+            return await _dbSet
+                .Include(a => a.LikedByUsers)
+                .Include(a => a.Artist)
+                .Include(a => a.Songs)
+                .Where(a => a.LikedByUsers.Any(u => u.Id == userId))
+                .ToListAsync();
+        }
     }
 }

@@ -54,6 +54,19 @@ export interface CreateSongDto {
     audioQuality?: string; // AudioQuality enum: Normal, High, Lossless
 }
 
+export interface CreateArtistSongDto {
+    artistId: string;
+    title: string;
+    albumId?: string;
+    duration?: number;
+    streamUrl?: string;
+    coverUrl?: string;
+    status?: string;
+    type?: string;
+    genres?: string[];
+    audioQuality?: string;
+}
+
 export interface SongDto {
     id: string;
     title: string;

@@ -11,5 +11,7 @@ namespace Kita.Infrastructure.Repositories
         Task<Album?> GetByNameAndArtistAsync(string name, Guid artistId);
         Task<List<Song>> GetSongsInAlbumAsync(Guid albumId);
         Task<Album?> GetByIdWithSongsAsync(Guid id);
+        Task<Album?> GetByIdWithLikesAsync(Guid id);
+        Task<List<Album>> GetLikedAlbumsByUserIdAsync(Guid userId);
     }
 }

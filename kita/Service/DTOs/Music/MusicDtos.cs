@@ -41,6 +41,20 @@ namespace Kita.Service.DTOs.Music
 
     }
 
+    public class CreateArtistSongDto
+    {
+        public Guid ArtistId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public Guid? AlbumId { get; set; }
+        public double Duration { get; set; }
+        public string StreamUrl { get; set; } = string.Empty;
+        public string? CoverUrl { get; set; }
+        public SongStatus Status { get; set; } = SongStatus.Active;
+        public SongType Type { get; set; } = SongType.Single;
+        public List<MusicGenre> Genres { get; set; } = new List<MusicGenre>();
+        public AudioQuality AudioQuality { get; set; } = AudioQuality.Normal;
+    }
+
     public class PlaylistDto
     {
         public Guid Id { get; set; }

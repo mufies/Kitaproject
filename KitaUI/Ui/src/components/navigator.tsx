@@ -1,10 +1,11 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Music, MessageCircle, LogOut, User, Disc, Mic2 } from 'lucide-react';
+import { Home, Music, MessageCircle, LogOut, User, Mic2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useState, useRef, useEffect } from 'react';
 import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
 import { fetchGetProfile } from '../utils/fetchAPI';
+import umaLogo from '../assets/uma.png';
 
 interface UserProfile {
     id: string;
@@ -86,19 +87,22 @@ export default function Navigator() {
 
     return (
         <>
-            <nav className="fixed inset-x-0 top-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-red-900/30 shadow-lg shadow-black/50">
+            <nav className="fixed inset-x-0 top-0 z-50 bg-black border-b border-white/5 shadow-lg">
                 <div className="w-full px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         {/* Logo Area */}
                         <div className="flex-shrink-0 flex items-center gap-6">
                             <Link to="/" className="flex items-center gap-2 group">
-                                <div className="relative w-8 h-8 flex items-center justify-center">
-                                    <Disc className="w-full h-full text-red-600 animate-spin-slow group-hover:text-amber-500 transition-colors" />
-                                    <div className="absolute w-2 h-2 bg-black rounded-full mb-[1px]"></div>
+                                <div className="h-16 w-auto overflow-hidden flex items-center">
+                                    <img
+                                        src={umaLogo}
+                                        alt="Running Uma"
+                                        className="h-10 object-contain origin-right transform group-hover:-translate-x-1.5 transition-all duration-500 ease-out"
+                                    />
                                 </div>
                                 <h4 className="text-xl font-black tracking-tighter">
-                                    <span className="text-white group-hover:text-red-500 transition-colors">KITA</span>
-                                    <span className="text-red-600 font-light">PROJECT</span>
+                                    <span className="text-white group-hover:text-[#ff7a3c] transition-colors">KITA</span>
+                                    <span className="text-[#ff7a3c] font-light">PROJECT</span>
                                 </h4>
                             </Link>
 

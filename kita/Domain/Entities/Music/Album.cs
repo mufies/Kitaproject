@@ -13,5 +13,6 @@ namespace Kita.Domain.Entities.Music
         public Guid ArtistId { get; set; }
         public virtual List<Song> Songs { get; set; } = new List<Song>();
         public virtual Artist Artist { get; set; } = null!;
+        public virtual ICollection<User> LikedByUsers { get; set; } = new List<User>();
     }
 }

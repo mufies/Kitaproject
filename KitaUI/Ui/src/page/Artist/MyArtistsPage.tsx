@@ -21,6 +21,17 @@ const MyArtistsPage: React.FC = () => {
         }
     };
 
+    const handleDeleteArtist = async (artistId: string) => {
+        try {
+            await artistService.deleteArtist(artistId);
+            // Refresh the list after deletion
+            fetchArtists();
+        } catch (error) {
+            console.error('Failed to delete artist:', error);
+            alert('Xóa artist thất bại. Vui lòng thử lại.');
+        }
+    };
+
     useEffect(() => {
         fetchArtists();
     }, []);
@@ -41,7 +52,7 @@ const MyArtistsPage: React.FC = () => {
                 </button>
             </div>
 
-            <ArtistList artists={artists} isLoading={isLoading} />
+            <ArtistList artists={artists} isLoading={isLoading} onDelete={handleDeleteArtist} />
 
             <CreateArtistModal
                 isOpen={isCreateModalOpen}

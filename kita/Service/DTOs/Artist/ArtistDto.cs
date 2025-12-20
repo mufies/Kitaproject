@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Kita.Domain.Entities;
 
 namespace Kita.Service.DTOs.Artist
 {
@@ -13,13 +14,13 @@ namespace Kita.Service.DTOs.Artist
         public int SongCount { get; set; }
         public int AlbumCount { get; set; }
         public int FollowedByCount { get; set; }
-        
     }
 
     public class ArtistDetailDto : ArtistDto
     {
         public List<ArtistSongDto> Songs { get; set; } = new List<ArtistSongDto>();
         public List<ArtistAlbumDto> Albums { get; set; } = new List<ArtistAlbumDto>();
+
     }
 
     public class ArtistSongDto

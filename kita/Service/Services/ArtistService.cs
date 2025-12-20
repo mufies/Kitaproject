@@ -48,6 +48,7 @@ namespace Kita.Service.Services
                 Id = Guid.NewGuid(),
                 Name = createDto.Name,
                 Description = createDto.Description,
+                // ImageUrl = createDto.ImageUrl,
                 ManagedByUsers = new List<User> { user }
             };
 
@@ -124,7 +125,10 @@ namespace Kita.Service.Services
                     Name = a.Name,
                     ImageUrl = a.ImageUrl,
                     SongCount = a.Songs?.Count ?? 0
-                }).ToList() ?? new List<ArtistAlbumDto>()
+                }).ToList() ?? new List<ArtistAlbumDto>(),
+                FollowedByCount = artist.FollowedByUsers?.Count ?? 0
+                // ManagedByUsers = artist.ManagedByUsers.Select(u => u.Id).ToList()
+
             };
 
             return new ApiResponse<ArtistDetailDto>(artistDetailDto);
@@ -267,8 +271,82 @@ namespace Kita.Service.Services
                 ImageUrl = artist.ImageUrl,
                 Role = artist.Role,
                 SongCount = artist.Songs?.Count ?? 0,
-                AlbumCount = artist.Albums?.Count ?? 0
+                AlbumCount = artist.Albums?.Count ?? 0,
+                FollowedByCount = artist.FollowedByUsers?.Count ?? 0
             };
+        }
+
+        public async Task<ApiResponse<bool>> FollowArtistAsync(Guid userId, Guid artistId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return ApiResponse<bool>.Fail("User not found.", code: 404);
+            }
+
+            var artist = await _artistRepository.GetByIdWithFollowersAsync(artistId);
+            if (artist == null)
+            {
+                return ApiResponse<bool>.Fail("Artist not found.", code: 404);
+            }
+
+            // Check if already following
+            if (artist.FollowedByUsers.Any(u => u.Id == userId))
+            {
+                return ApiResponse<bool>.Fail("You are already following this artist.", code: 400);
+            }
+
+            artist.FollowedByUsers.Add(user);
+            await _artistRepository.UpdateAsync(artist);
+            await _artistRepository.SaveChangesAsync();
+
+            return new ApiResponse<bool>(true, "Successfully followed the artist.");
+        }
+
+        public async Task<ApiResponse<bool>> UnfollowArtistAsync(Guid userId, Guid artistId)
+        {
+            var artist = await _artistRepository.GetByIdWithFollowersAsync(artistId);
+            if (artist == null)
+            {
+                return ApiResponse<bool>.Fail("Artist not found.", code: 404);
+            }
+
+            var follower = artist.FollowedByUsers.FirstOrDefault(u => u.Id == userId);
+            if (follower == null)
+            {
+                return ApiResponse<bool>.Fail("You are not following this artist.", code: 400);
+            }
+
+            artist.FollowedByUsers.Remove(follower);
+            await _artistRepository.UpdateAsync(artist);
+            await _artistRepository.SaveChangesAsync();
+
+            return new ApiResponse<bool>(true, "Successfully unfollowed the artist.");
+        }
+
+        public async Task<ApiResponse<List<ArtistDto>>> GetFollowedArtistsAsync(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return ApiResponse<List<ArtistDto>>.Fail("User not found.", code: 404);
+            }
+
+            var followedArtists = await _artistRepository.GetFollowedArtistsByUserIdAsync(userId);
+            var artistDtos = followedArtists.Select(a => MapToArtistDto(a)).ToList();
+            return new ApiResponse<List<ArtistDto>>(artistDtos);
+        }
+
+        public async Task<ApiResponse<bool>> IsFollowingArtistAsync(Guid userId, Guid artistId)
+        {
+            var artist = await _artistRepository.GetByIdWithFollowersAsync(artistId);
+            if (artist == null)
+            {
+                return ApiResponse<bool>.Fail("Artist not found.", code: 404);
+            }
+
+            var isFollowing = artist.FollowedByUsers.Any(u => u.Id == userId);
+            return new ApiResponse<bool>(isFollowing);
         }
     }
 }

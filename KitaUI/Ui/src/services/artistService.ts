@@ -8,6 +8,7 @@ export interface Artist {
     role: string;
     songCount: number;
     albumCount: number;
+    followedByCount: number;
 }
 
 export interface ArtistDetail extends Artist {
@@ -77,5 +78,21 @@ export const artistService = {
             },
         });
         return response.data.data as string;
+    },
+    followArtist: async (id: string) => {
+        const response = await api.post<any>(`/artist/${id}/follow`);
+        return response.data.data as boolean;
+    },
+    unfollowArtist: async (id: string) => {
+        const response = await api.delete<any>(`/artist/${id}/follow`);
+        return response.data.data as boolean;
+    },
+    getFollowedArtists: async () => {
+        const response = await api.get<any>('/artist/followed');
+        return response.data.data as Artist[];
+    },
+    isFollowingArtist: async (id: string) => {
+        const response = await api.get<any>(`/artist/${id}/is-following`);
+        return response.data.data as boolean;
     }
 };

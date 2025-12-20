@@ -82,5 +82,59 @@ namespace Kita.Controllers
             var result = await _albumService.UploadAlbumImageAsync(userId, id, uploadDto.File);
             return HandleResult(result);
         }
+
+        [Authorize]
+        [HttpPost("{id}/songs")]
+        public async Task<IActionResult> AddSongsToAlbum(Guid id, [FromBody] AddSongsToAlbumDto dto)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _albumService.AddSongsToAlbumAsync(userId, id, dto);
+            return HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpDelete("{id}/songs")]
+        public async Task<IActionResult> RemoveSongsFromAlbum(Guid id, [FromBody] RemoveSongsFromAlbumDto dto)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _albumService.RemoveSongsFromAlbumAsync(userId, id, dto);
+            return HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpPost("{id}/like")]
+        public async Task<IActionResult> LikeAlbum(Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _albumService.LikeAlbumAsync(userId, id);
+            return HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpDelete("{id}/like")]
+        public async Task<IActionResult> UnlikeAlbum(Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _albumService.UnlikeAlbumAsync(userId, id);
+            return HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpGet("liked")]
+        public async Task<IActionResult> GetLikedAlbums()
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _albumService.GetLikedAlbumsAsync(userId);
+            return HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpGet("{id}/is-liking")]
+        public async Task<IActionResult> IsLikingAlbum(Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _albumService.IsLikingAlbumAsync(userId, id);
+            return HandleResult(result);
+        }
     }
 }

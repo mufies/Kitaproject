@@ -1,11 +1,23 @@
-import React, { useState } from "react";
-import { Plus, Upload, X, Download } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Plus, Upload, X, Download, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import PlaylistList from "../../../components/Music/HomePage/PlaylistList";
 import HomeArtistList from "../../../components/Music/HomePage/HomeArtistList";
+import HomeLikedAlbumList from "../../../components/Music/HomePage/HomeLikedAlbumList";
 import { createPlaylist, uploadSong, importPlaylist } from "../../../utils/musicAPI";
+import { searchSongs, getAllSongs, type Song } from "../../../services/musicService";
+import { artistService, type Artist } from "../../../services/artistService";
+import { getUserPlaylists, type Playlist } from "../../../services/musicService";
 
 const HomePage: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'playlists' | 'artists'>('playlists');
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState<'playlists' | 'artists' | 'albums'>('playlists');
+
+    // Search state
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState<{ songs: Song[]; artists: Artist[] }>({ songs: [], artists: [] });
+    const [isSearching, setIsSearching] = useState(false);
+    const [showSearchResults, setShowSearchResults] = useState(false);
 
     // Create Playlist state
     const [isCreatePlaylistOpen, setIsCreatePlaylistOpen] = useState(false);
@@ -26,6 +38,68 @@ const HomePage: React.FC = () => {
     const [isImportPlaylistOpen, setIsImportPlaylistOpen] = useState(false);
     const [playlistUrl, setPlaylistUrl] = useState("");
     const [isImportingPlaylist, setIsImportingPlaylist] = useState(false);
+
+    // Sidebar data
+    const [userPlaylists, setUserPlaylists] = useState<Playlist[]>([]);
+    const [followedArtists, setFollowedArtists] = useState<Artist[]>([]);
+    const [recentSongs, setRecentSongs] = useState<Song[]>([]);
+
+    // Fetch sidebar data
+    useEffect(() => {
+        const fetchSidebarData = async () => {
+            try {
+                const [playlists, artists, songs] = await Promise.all([
+                    getUserPlaylists(),
+                    artistService.getFollowedArtists(),
+                    getAllSongs()
+                ]);
+                setUserPlaylists(playlists.slice(0, 5));
+                setFollowedArtists(artists.slice(0, 5));
+                setRecentSongs(songs.slice(0, 5));
+            } catch (error) {
+                console.error('Failed to fetch sidebar data:', error);
+            }
+        };
+        fetchSidebarData();
+    }, []);
+
+    // Debounced search
+    const performSearch = useCallback(async (query: string) => {
+        if (!query.trim()) {
+            setSearchResults({ songs: [], artists: [] });
+            setShowSearchResults(false);
+            return;
+        }
+
+        setIsSearching(true);
+        setShowSearchResults(true);
+        try {
+            const [songs, artists] = await Promise.all([
+                searchSongs(query),
+                artistService.searchArtists(query)
+            ]);
+            setSearchResults({ songs: songs.slice(0, 5), artists: artists.slice(0, 5) });
+        } catch (error) {
+            console.error("Search error:", error);
+        } finally {
+            setIsSearching(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        const debounceTimer = setTimeout(() => {
+            performSearch(searchQuery);
+        }, 300);
+
+        return () => clearTimeout(debounceTimer);
+    }, [searchQuery, performSearch]);
+
+    // Format duration
+    const formatDuration = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
 
     // Handlers
     const handleCreatePlaylist = async () => {
@@ -99,8 +173,9 @@ const HomePage: React.FC = () => {
         <div className="h-screen  bg-[#120c12] text-white flex flex-col">
 
 
+
             {/* Main content */}
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 overflow-hidden pt-4">
                 {/* Left sidebar */}
                 <aside className="w-60 bg-[#0d080f] border-r border-white/5 px-4 py-6 text-sm overflow-y-auto">
                     {/* <section className="mb-6">
@@ -140,10 +215,19 @@ const HomePage: React.FC = () => {
                             Your playlists
                         </div>
                         <div className="space-y-2 text-white/80">
-                            <button>Metalcore</button>
-                            <button>Electro</button>
-                            <button>Funk</button>
-                            <button>Disco</button>
+                            {userPlaylists.length > 0 ? (
+                                userPlaylists.map((playlist) => (
+                                    <button
+                                        key={playlist.id}
+                                        onClick={() => navigate(`/music/playlist/${playlist.id}`)}
+                                        className="block w-full text-left truncate hover:text-white transition-colors"
+                                    >
+                                        {playlist.name}
+                                    </button>
+                                ))
+                            ) : (
+                                <span className="text-white/40 text-xs">No playlists yet</span>
+                            )}
                         </div>
                         <button
                             onClick={() => setIsCreatePlaylistOpen(true)}
@@ -164,6 +248,112 @@ const HomePage: React.FC = () => {
 
                 {/* Center content */}
                 <main className="flex-1 px-3 py-3 overflow-y-auto">
+                    {/* Search Bar (Moved from top) */}
+                    <div className="mb-6 relative z-40 max-w-xl">
+                        <div className="relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" size={20} />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onFocus={() => searchQuery && setShowSearchResults(true)}
+                                placeholder="What do you want to play?"
+                                className="w-full pl-12 pr-4 py-3 bg-[#242424] hover:bg-[#2a2a2a] focus:bg-[#333] border-2 border-transparent focus:border-white/20 rounded-full text-white placeholder-white/50 text-sm font-medium transition-all outline-none"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => { setSearchQuery(""); setShowSearchResults(false); }}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                                >
+                                    <X size={18} />
+                                </button>
+                            )}
+                        </div>
+                        {/* Search Results Dropdown */}
+                        {showSearchResults && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-[#1e1e1e] rounded-xl shadow-2xl border border-white/10 overflow-hidden max-h-[60vh] overflow-y-auto z-50">
+                                {isSearching ? (
+                                    <div className="p-8 text-center text-white/50">
+                                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-2"></div>
+                                        Searching...
+                                    </div>
+                                ) : searchResults.songs.length === 0 && searchResults.artists.length === 0 ? (
+                                    <div className="p-8 text-center text-white/50">
+                                        No results found for "{searchQuery}"
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Songs Section */}
+                                        {searchResults.songs.length > 0 && (
+                                            <div className="p-4">
+                                                <h3 className="text-xs font-bold uppercase text-white/40 mb-3 tracking-wider">Songs</h3>
+                                                <div className="space-y-1">
+                                                    {searchResults.songs.map((song) => (
+                                                        <div
+                                                            key={song.id}
+                                                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group"
+                                                            onClick={() => {
+                                                                setShowSearchResults(false);
+                                                                // TODO: Play song or navigate
+                                                            }}
+                                                        >
+                                                            <div className="w-10 h-10 bg-[#333] rounded overflow-hidden flex-shrink-0">
+                                                                <img
+                                                                    src={song.coverUrl || "/assets/images/default-album.svg"}
+                                                                    alt={song.title}
+                                                                    className="w-full h-full object-cover"
+                                                                    onError={(e) => { e.currentTarget.src = "/assets/images/default-album.svg"; }}
+                                                                />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-white font-medium truncate text-sm group-hover:text-[#ff7a3c] transition-colors">{song.title}</p>
+                                                                <p className="text-white/50 text-xs truncate">{song.artist || "Unknown Artist"}</p>
+                                                            </div>
+                                                            <span className="text-white/40 text-xs font-mono">{formatDuration(song.duration)}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Artists Section */}
+                                        {searchResults.artists.length > 0 && (
+                                            <div className="p-4 border-t border-white/5">
+                                                <h3 className="text-xs font-bold uppercase text-white/40 mb-3 tracking-wider">Artists</h3>
+                                                <div className="space-y-1">
+                                                    {searchResults.artists.map((artist) => (
+                                                        <div
+                                                            key={artist.id}
+                                                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group"
+                                                            onClick={() => {
+                                                                setShowSearchResults(false);
+                                                                navigate(`/artist/${artist.id}`);
+                                                            }}
+                                                        >
+                                                            <div className="w-10 h-10 bg-[#333] rounded-full overflow-hidden flex-shrink-0">
+                                                                <img
+                                                                    src={artist.imageUrl || "/assets/images/default-avatar.svg"}
+                                                                    alt={artist.name}
+                                                                    className="w-full h-full object-cover"
+                                                                    onError={(e) => { e.currentTarget.src = "/assets/images/default-avatar.svg"; }}
+                                                                />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-white font-medium truncate text-sm group-hover:text-[#ff7a3c] transition-colors">{artist.name}</p>
+                                                                <p className="text-white/50 text-xs">Artist • {artist.followedByCount?.toLocaleString() || 0} followers</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                    {showSearchResults && (<div className="fixed inset-0 z-30" onClick={() => setShowSearchResults(false)} />)}
+
                     {/* top cards */}
                     <div className="grid grid-cols-2 gap-4 mb-6">
                         <div className="bg-[#221320] rounded-2xl p-4 flex flex-col justify-between">
@@ -207,7 +397,12 @@ const HomePage: React.FC = () => {
                             >
                                 Artists
                             </button>
-                            <button className="text-white/50 cursor-not-allowed opacity-50">Albums</button>
+                            <button
+                                onClick={() => setActiveTab('albums')}
+                                className={`${activeTab === 'albums' ? 'text-[#ff7a3c] border-b-2 border-[#ff7a3c]' : 'text-white/50 hover:text-white'} pb-1 transition-colors`}
+                            >
+                                Albums
+                            </button>
                             <button className="text-white/50 cursor-not-allowed opacity-50">Streams</button>
                         </div>
                         <button
@@ -223,8 +418,10 @@ const HomePage: React.FC = () => {
                     <div className="min-h-[200px]">
                         {activeTab === 'playlists' ? (
                             <PlaylistList />
-                        ) : (
+                        ) : activeTab === 'artists' ? (
                             <HomeArtistList />
+                        ) : (
+                            <HomeLikedAlbumList />
                         )}
                     </div>
 
@@ -275,68 +472,68 @@ const HomePage: React.FC = () => {
                     <section className="mb-5">
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-xs uppercase tracking-wide text-white/40">
-                                New releases
+                                Recent Songs
                             </h3>
-                            <button className="text-xs text-white/60">See all</button>
                         </div>
                         <div className="space-y-3">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-white/10 rounded-lg" />
-                                    <div className="flex-1">
-                                        <div className="text-sm">Calamity</div>
-                                        <div className="text-[11px] text-white/50">
-                                            Track | Calamity | 2023
+                            {recentSongs.length > 0 ? (
+                                recentSongs.map((song) => (
+                                    <div key={song.id} className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-lg p-1 -m-1 transition-colors">
+                                        <div className="w-10 h-10 bg-white/10 rounded-lg overflow-hidden">
+                                            <img
+                                                src={song.coverUrl || "/assets/images/default-album.svg"}
+                                                alt={song.title}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => { e.currentTarget.src = "/assets/images/default-album.svg"; }}
+                                            />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-sm truncate">{song.title}</div>
+                                            <div className="text-[11px] text-white/50 truncate">
+                                                {song.artist || "Unknown Artist"}
+                                            </div>
                                         </div>
                                     </div>
-                                    <button className="text-[#ff7a3c] text-lg">♥</button>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-
-                    <section className="mb-5">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-xs uppercase tracking-wide text-white/40">
-                                Listen more often
-                            </h3>
-                            <button className="text-xs text-white/60">See all</button>
-                        </div>
-                        <div className="space-y-3">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-white/10 rounded-lg" />
-                                    <div className="flex-1">
-                                        <div className="text-sm">Track name</div>
-                                        <div className="text-[11px] text-white/50">
-                                            Artist | Album
-                                        </div>
-                                    </div>
-                                    <button className="text-[#ff7a3c] text-lg">♥</button>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <span className="text-white/40 text-xs">No songs yet</span>
+                            )}
                         </div>
                     </section>
 
                     <section>
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-xs uppercase tracking-wide text-white/40">
-                                Favourite artists
+                                Followed Artists
                             </h3>
-                            <button className="text-xs text-white/60">See all</button>
                         </div>
                         <div className="space-y-3">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-white/10 rounded-full" />
-                                    <div>
-                                        <div className="text-sm">Artist name</div>
-                                        <div className="text-[11px] text-white/50">
-                                            125k Subscribers
+                            {followedArtists.length > 0 ? (
+                                followedArtists.map((artist) => (
+                                    <div
+                                        key={artist.id}
+                                        onClick={() => navigate(`/artist/${artist.id}`)}
+                                        className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-lg p-1 -m-1 transition-colors"
+                                    >
+                                        <div className="w-8 h-8 bg-white/10 rounded-full overflow-hidden">
+                                            <img
+                                                src={artist.imageUrl || "/assets/images/default-avatar.svg"}
+                                                alt={artist.name}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => { e.currentTarget.src = "/assets/images/default-avatar.svg"; }}
+                                            />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="text-sm truncate">{artist.name}</div>
+                                            <div className="text-[11px] text-white/50">
+                                                {artist.followedByCount?.toLocaleString() || 0} followers
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <span className="text-white/40 text-xs">No followed artists</span>
+                            )}
                         </div>
                     </section>
                 </aside>

@@ -17,5 +17,9 @@ namespace Kita.Service.Interfaces
         Task<ApiResponse<string>> UploadArtistImageAsync(Guid userId, Guid artistId, IFormFile file);
         Task<ApiResponse<List<ArtistDto>>> GetArtistsByUserAsync(Guid userId);
         Task<ApiResponse<List<ArtistDto>>> SearchArtistsAsync(string query);
+        Task<ApiResponse<bool>> FollowArtistAsync(Guid userId, Guid artistId);
+        Task<ApiResponse<bool>> UnfollowArtistAsync(Guid userId, Guid artistId);
+        Task<ApiResponse<List<ArtistDto>>> GetFollowedArtistsAsync(Guid userId);
+        Task<ApiResponse<bool>> IsFollowingArtistAsync(Guid userId, Guid artistId);
     }
 }

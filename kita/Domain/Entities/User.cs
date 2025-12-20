@@ -20,5 +20,7 @@ namespace Kita.Domain.Entities
         public virtual ICollection<ServerMember> ServerMemberships { get; set; } = new List<ServerMember>();
         public virtual ICollection<Kita.Domain.Entities.Server.Server> OwnedServers { get; set; } = new List<Kita.Domain.Entities.Server.Server>();
         public virtual ICollection<Kita.Domain.Entities.Server.ServerInvite> CreatedInvites { get; set; } = new List<Kita.Domain.Entities.Server.ServerInvite>();
+        public virtual ICollection<Artist> FollowedArtists { get; set; } = new List<Artist>();
+        public virtual ICollection<Album> LikedAlbums { get; set; } = new List<Album>();
     }
 }

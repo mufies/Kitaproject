@@ -84,5 +84,41 @@ namespace Kita.Controllers
             var result = await _artistService.UploadArtistImageAsync(userId, id, uploadDto.File);
             return HandleResult(result);
         }
+
+        [Authorize]
+        [HttpPost("{id}/follow")]
+        public async Task<IActionResult> FollowArtist(Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _artistService.FollowArtistAsync(userId, id);
+            return HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpDelete("{id}/follow")]
+        public async Task<IActionResult> UnfollowArtist(Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _artistService.UnfollowArtistAsync(userId, id);
+            return HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpGet("followed")]
+        public async Task<IActionResult> GetFollowedArtists()
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _artistService.GetFollowedArtistsAsync(userId);
+            return HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpGet("{id}/is-following")]
+        public async Task<IActionResult> IsFollowingArtist(Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _artistService.IsFollowingArtistAsync(userId, id);
+            return HandleResult(result);
+        }
     }
 }
