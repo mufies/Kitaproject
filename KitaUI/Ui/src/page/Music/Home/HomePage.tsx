@@ -176,78 +176,8 @@ const HomePage: React.FC = () => {
 
             {/* Main content */}
             <div className="flex flex-1 overflow-hidden pt-4">
-                {/* Left sidebar */}
-                <aside className="w-60 bg-[#0d080f] border-r border-white/5 px-4 py-6 text-sm overflow-y-auto">
-                    {/* <section className="mb-6">
-                        <div className="uppercase text-[10px] text-white/40 mb-3 tracking-wide">
-                            Browse
-                        </div>
-                        <nav className="space-y-2">
-                            <button className="flex items-center gap-2 text-white">
-                                <span className="w-4 h-4 bg-red-500/60 rounded-sm" />
-                                Feed
-                            </button>
-                            <button className="flex items-center gap-2 text-white/70">
-                                <span className="w-4 h-4 bg-white/20 rounded-sm" />
-                                Playlists
-                            </button>
-                            <button className="flex items-center gap-2 text-white/70">
-                                <span className="w-4 h-4 bg-white/20 rounded-sm" />
-                                Statistics
-                            </button>
-                        </nav>
-                    </section> */}
-
-                    {/* <section className="mb-6">
-                        <div className="uppercase text-[10px] text-white/40 mb-3 tracking-wide">
-                            Your music
-                        </div>
-                        <nav className="space-y-2 text-white/70">
-                            <button>Favorites</button>
-                            <button>Listen later</button>
-                            <button>History</button>
-                            <button>Podcasts</button>
-                        </nav>
-                    </section> */}
-
-                    <section>
-                        <div className="uppercase text-[10px] text-white/40 mb-3 tracking-wide">
-                            Your playlists
-                        </div>
-                        <div className="space-y-2 text-white/80">
-                            {userPlaylists.length > 0 ? (
-                                userPlaylists.map((playlist) => (
-                                    <button
-                                        key={playlist.id}
-                                        onClick={() => navigate(`/music/playlist/${playlist.id}`)}
-                                        className="block w-full text-left truncate hover:text-white transition-colors"
-                                    >
-                                        {playlist.name}
-                                    </button>
-                                ))
-                            ) : (
-                                <span className="text-white/40 text-xs">No playlists yet</span>
-                            )}
-                        </div>
-                        <button
-                            onClick={() => setIsCreatePlaylistOpen(true)}
-                            className="mt-4 text-xs text-[#ff7a3c] hover:text-[#ff8c52] transition-colors flex items-center gap-1"
-                        >
-                            <Plus size={14} />
-                            Create new playlist
-                        </button>
-                        <button
-                            onClick={() => setIsImportPlaylistOpen(true)}
-                            className="mt-2 text-xs text-[#ff7a3c] hover:text-[#ff8c52] transition-colors flex items-center gap-1"
-                        >
-                            <Download size={14} />
-                            Import playlist
-                        </button>
-                    </section>
-                </aside>
-
                 {/* Center content */}
-                <main className="flex-1 px-3 py-3 overflow-y-auto">
+                <main className="flex-1 px-3 py-3 overflow-y-auto ml-4">
                     <div className="mb-6 relative z-40 max-w-xl mx-auto">
                         <div className="relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" size={20} />
@@ -402,13 +332,29 @@ const HomePage: React.FC = () => {
                                 Albums
                             </button>
                         </div>
-                        <button
-                            onClick={() => setIsUploadSongOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#ff7a3c] hover:bg-[#ff8c52] rounded-xl text-xs font-medium transition-all hover:scale-105"
-                        >
-                            <Upload size={14} />
-                            Upload Song
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setIsCreatePlaylistOpen(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-[#2a2a2a] hover:bg-[#333] text-white rounded-xl text-xs font-medium transition-all hover:scale-105 border border-white/10 cursor-pointer"
+                            >
+                                <Plus size={14} strokeWidth={2.5} />
+                                Create Playlist
+                            </button>
+                            <button
+                                onClick={() => setIsImportPlaylistOpen(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-[#2a2a2a] hover:bg-[#333] text-white rounded-xl text-xs font-medium transition-all hover:scale-105 border border-white/10 cursor-pointer"
+                            >
+                                <Download size={14} strokeWidth={2.5} />
+                                Import Playlist
+                            </button>
+                            <button
+                                onClick={() => setIsUploadSongOpen(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-[#ff7a3c] hover:bg-[#ff8c52] text-white rounded-xl text-xs font-medium transition-all hover:scale-105 shadow-lg shadow-[#ff7a3c]/20 cursor-pointer"
+                            >
+                                <Upload size={14} strokeWidth={2.5} />
+                                Upload Song
+                            </button>
+                        </div>
                     </div>
 
                     {/* Content Area */}

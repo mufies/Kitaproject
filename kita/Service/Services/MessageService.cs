@@ -1,25 +1,27 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Kita.Domain.Entities;
 using Kita.Domain.Entities.Server;
 using Kita.Infrastructure.Repositories;
 using Kita.Service.Common;
 using Kita.Service.DTOs.Server;
 using Kita.Service.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace Kita.Service.Services
 {
     public class MessageService : IMessageService
     {
-        private readonly IBaseRepository<Message> _messageRepository;
-        private readonly IBaseRepository<User> _userRepository;
+        private readonly IMessageRepository _messageRepository;
+        private readonly IConfiguration _configuration;
 
-        public MessageService(IBaseRepository<Message> messageRepository, IBaseRepository<User> userRepository)
+        public MessageService(IMessageRepository messageRepository, IConfiguration configuration)
         {
             _messageRepository = messageRepository;
-            _userRepository = userRepository;
+            _configuration = configuration;
         }
 
         public async Task<ApiResponse<MessageDto>> SendMessageAsync(CreateMessageDto createMessageDto, Guid senderId)
@@ -35,40 +37,140 @@ namespace Kita.Service.Services
             await _messageRepository.AddAsync(message);
             await _messageRepository.SaveChangesAsync();
 
-            var sender = await _userRepository.GetByIdAsync(senderId);
+            // Fetch with sender to get sender info
+            var savedMessage = await _messageRepository.GetMessageWithSenderAsync(message.Id);
 
-            return new ApiResponse<MessageDto>(new MessageDto
+            return new ApiResponse<MessageDto>(MapToDto(savedMessage!));
+        }
+
+        public async Task<ApiResponse<MessageDto>> SendImageMessageAsync(CreateImageMessageDto createImageMessageDto, IFormFile imageFile, Guid senderId)
+        {
+            if (imageFile == null || imageFile.Length == 0)
+            {
+                return ApiResponse<MessageDto>.Fail("No image file uploaded.");
+            }
+
+            var storagePath = _configuration["FileStorage:BasePath"];
+            var baseUrl = _configuration["FileStorage:BaseUrl"];
+
+            if (string.IsNullOrEmpty(storagePath) || string.IsNullOrEmpty(baseUrl))
+            {
+                return ApiResponse<MessageDto>.Fail("File storage is not configured.");
+            }
+
+            // Ensure messages folder exists
+            var messagesPath = Path.Combine(storagePath, "messages");
+            if (!Directory.Exists(messagesPath))
+            {
+                Directory.CreateDirectory(messagesPath);
+            }
+
+            // Save the image file
+            var fileExtension = Path.GetExtension(imageFile.FileName);
+            var fileName = $"{Guid.NewGuid()}{fileExtension}";
+            var filePath = Path.Combine(messagesPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(stream);
+            }
+
+            var imageUrl = $"{baseUrl}/messages/{fileName}";
+
+            var message = new Message
+            {
+                Content = createImageMessageDto.Caption ?? string.Empty,
+                ImageUrl = imageUrl,
+                ChannelId = createImageMessageDto.ChannelId,
+                SenderId = senderId,
+                SentAt = DateTime.UtcNow
+            };
+
+            await _messageRepository.AddAsync(message);
+            await _messageRepository.SaveChangesAsync();
+
+            var savedMessage = await _messageRepository.GetMessageWithSenderAsync(message.Id);
+
+            return new ApiResponse<MessageDto>(MapToDto(savedMessage!), "Image message sent successfully.");
+        }
+
+        public async Task<ApiResponse<List<MessageDto>>> GetChannelMessagesAsync(Guid channelId, int take = 50, int skip = 0)
+        {
+            var messages = await _messageRepository.GetMessagesByChannelIdAsync(channelId, take, skip);
+            var messageDtos = messages.Select(MapToDto).ToList();
+
+            return new ApiResponse<List<MessageDto>>(messageDtos);
+        }
+
+        public async Task<ApiResponse<MessageDto>> GetMessageByIdAsync(Guid messageId)
+        {
+            var message = await _messageRepository.GetMessageWithSenderAsync(messageId);
+            if (message == null)
+                return ApiResponse<MessageDto>.Fail("Message not found.");
+
+            return new ApiResponse<MessageDto>(MapToDto(message));
+        }
+
+        public async Task<ApiResponse<MessageDto>> UpdateMessageAsync(Guid messageId, UpdateMessageDto updateMessageDto, Guid userId)
+        {
+            var message = await _messageRepository.GetMessageWithSenderAsync(messageId);
+            if (message == null)
+                return ApiResponse<MessageDto>.Fail("Message not found.");
+
+            // Only the sender can edit their own message
+            if (message.SenderId != userId)
+                return ApiResponse<MessageDto>.Fail("You can only edit your own messages.");
+
+            message.Content = updateMessageDto.Content;
+            message.IsEdited = true;
+
+            await _messageRepository.UpdateAsync(message);
+            await _messageRepository.SaveChangesAsync();
+
+            return new ApiResponse<MessageDto>(MapToDto(message));
+        }
+
+        public async Task<ApiResponse<bool>> DeleteMessageAsync(Guid messageId, Guid userId)
+        {
+            var message = await _messageRepository.GetByIdAsync(messageId);
+            if (message == null)
+                return ApiResponse<bool>.Fail("Message not found.");
+
+            // Only the sender can delete their own message
+            if (message.SenderId != userId)
+                return ApiResponse<bool>.Fail("You can only delete your own messages.");
+
+            await _messageRepository.DeleteAsync(messageId);
+            await _messageRepository.SaveChangesAsync();
+
+            return new ApiResponse<bool>(true, "Message deleted successfully.");
+        }
+
+        private static MessageDto MapToDto(Message message)
+        {
+            return new MessageDto
             {
                 Id = message.Id,
                 Content = message.Content,
+                ImageUrl = message.ImageUrl,
                 SentAt = message.SentAt,
                 SenderId = message.SenderId,
-                SenderName = sender?.UserName ?? "Unknown",
-                ChannelId = message.ChannelId
-            });
+                SenderName = message.Sender?.UserName ?? "Unknown",
+                SenderAvatarUrl = message.Sender?.AvatarUrl,
+                ChannelId = message.ChannelId,
+                IsEdited = message.IsEdited
+            };
         }
 
-        public async Task<ApiResponse<List<MessageDto>>> GetChannelMessagesAsync(Guid channelId)
+        public async Task<ApiResponse<bool>> DeleteAllMessagesAsync(Guid channelId)
         {
-            var messages = await _messageRepository.FindAsync(m => m.ChannelId == channelId);
-            
+            await _messageRepository.DeleteAllMessagesAsync(channelId);
+            await _messageRepository.SaveChangesAsync();
 
-            var messageDtos = new List<MessageDto>();
-            foreach (var m in messages)
-            {
-                var sender = await _userRepository.GetByIdAsync(m.SenderId);
-                messageDtos.Add(new MessageDto
-                {
-                    Id = m.Id,
-                    Content = m.Content,
-                    SentAt = m.SentAt,
-                    SenderId = m.SenderId,
-                    SenderName = sender?.UserName ?? "Unknown",
-                    ChannelId = m.ChannelId
-                });
-            }
-
-            return new ApiResponse<List<MessageDto>>(messageDtos.OrderBy(m => m.SentAt).ToList());
+            return new ApiResponse<bool>(true, "All messages deleted successfully.");
         }
+
+        
+        
     }
 }

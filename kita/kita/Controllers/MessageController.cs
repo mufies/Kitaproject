@@ -1,6 +1,7 @@
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Kita.Service.DTOs;
 using Kita.Service.DTOs.Server;
 using Kita.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,14 @@ namespace Kita.Controllers
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var result = await _messageService.SendMessageAsync(createMessageDto, userId);
+            return HandleResult(result);
+        }
+
+        [HttpPost("image")]
+        public async Task<IActionResult> SendImageMessage([FromForm] CreateImageMessageDto createImageMessageDto, [FromForm] FileUploadDto uploadDto)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _messageService.SendImageMessageAsync(createImageMessageDto, uploadDto.File!, userId);
             return HandleResult(result);
         }
 

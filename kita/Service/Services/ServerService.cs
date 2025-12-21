@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Kita.Domain.Entities.Server;
@@ -7,18 +8,25 @@ using Kita.Infrastructure.Repositories;
 using Kita.Service.Common;
 using Kita.Service.DTOs.Server;
 using Kita.Service.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace Kita.Service.Services
 {
     public class ServerService : IServerService
     {
-        private readonly IBaseRepository<Server> _serverRepository;
+        private readonly IServerRepository _serverRepository;
         private readonly IBaseRepository<ServerMember> _serverMemberRepository;
+        private readonly IConfiguration _configuration;
 
-        public ServerService(IBaseRepository<Server> serverRepository, IBaseRepository<ServerMember> serverMemberRepository)
+        public ServerService(
+            IServerRepository serverRepository, 
+            IBaseRepository<ServerMember> serverMemberRepository,
+            IConfiguration configuration)
         {
             _serverRepository = serverRepository;
             _serverMemberRepository = serverMemberRepository;
+            _configuration = configuration;
         }
 
         public async Task<ApiResponse<ServerDto>> CreateServerAsync(CreateServerDto createServerDto, Guid ownerId)
@@ -54,14 +62,9 @@ namespace Kita.Service.Services
 
         public async Task<ApiResponse<List<ServerDto>>> GetUserServersAsync(Guid userId)
         {
-            var memberships = await _serverMemberRepository.FindAsync(sm => sm.UserId == userId);
-            var serverIds = memberships.Select(sm => sm.ServerId).ToList();
-            
-            // Note: This is N+1 if not careful, but for now generic repo FindAsync returns IEnumerable.
-            // A better approach would be to have a method in repo to get servers by user id with Include.
-            // For simplicity with generic repo:
-            var allServers = await _serverRepository.GetAllAsync();
-            var userServers = allServers.Where(s => serverIds.Contains(s.Id)).Select(s => new ServerDto
+            // Use optimized repository method that includes Server with Owner
+            var servers = await _serverRepository.GetServersByMemberIdAsync(userId);
+            var userServers = servers.Select(s => new ServerDto
             {
                 Id = s.Id,
                 Name = s.Name,
@@ -86,6 +89,96 @@ namespace Kita.Service.Services
             });
         }
 
+        public async Task<ApiResponse<List<ServerMemberDto>>> GetServerMembersAsync(Guid serverId)
+        {
+            var server = await _serverRepository.GetServerWithMembersAsync(serverId);
+            if (server == null) return ApiResponse<List<ServerMemberDto>>.Fail("Server not found.");
+
+            var memberDtos = server.Members.Select(m => new ServerMemberDto
+            {
+                Id = m.Id,
+                UserId = m.UserId,
+                Username = m.User?.UserName ?? "Unknown",
+                AvatarUrl = m.User?.AvatarUrl,
+                Nickname = m.Nickname,
+                Role = m.Role.ToString(),
+                JoinedAt = m.JoinedAt
+            }).OrderByDescending(m => m.Role == "Owner")
+              .ThenByDescending(m => m.Role == "Admin")
+              .ThenBy(m => m.Username)
+              .ToList();
+
+            return new ApiResponse<List<ServerMemberDto>>(memberDtos);
+        }
+
+        public async Task<ApiResponse<ServerDto>> UpdateServerAsync(Guid serverId, UpdateServerDto updateServerDto, Guid userId)
+        {
+            var server = await _serverRepository.GetByIdAsync(serverId);
+            if (server == null) return ApiResponse<ServerDto>.Fail("Server not found.");
+
+            // Only owner can update server
+            if (server.OwnerId != userId)
+                return ApiResponse<ServerDto>.Fail("Only the server owner can update server settings.");
+
+            server.Name = updateServerDto.Name;
+            if (updateServerDto.IconUrl != null)
+            {
+                server.IconUrl = updateServerDto.IconUrl;
+            }
+
+            await _serverRepository.UpdateAsync(server);
+            await _serverRepository.SaveChangesAsync();
+
+            return new ApiResponse<ServerDto>(new ServerDto
+            {
+                Id = server.Id,
+                Name = server.Name,
+                IconUrl = server.IconUrl,
+                OwnerId = server.OwnerId
+            });
+        }
+
+        public async Task<ApiResponse<string>> UploadServerIconAsync(Guid serverId, IFormFile file, Guid userId)
+        {
+            var server = await _serverRepository.GetByIdAsync(serverId);
+            if (server == null) return ApiResponse<string>.Fail("Server not found.", code: 404);
+
+            // Only owner can upload icon
+            if (server.OwnerId != userId)
+                return ApiResponse<string>.Fail("Only the server owner can change the server icon.", code: 403);
+
+            if (file == null || file.Length == 0)
+                return ApiResponse<string>.Fail("No file uploaded.");
+
+            var storagePath = _configuration["FileStorage:BasePath"];
+            var baseUrl = _configuration["FileStorage:BaseUrl"];
+
+            if (string.IsNullOrEmpty(storagePath) || string.IsNullOrEmpty(baseUrl))
+                return ApiResponse<string>.Fail("File storage not configured.");
+
+            var serverIconsPath = Path.Combine(storagePath, "servers");
+            if (!Directory.Exists(serverIconsPath))
+                Directory.CreateDirectory(serverIconsPath);
+
+            var fileExtension = Path.GetExtension(file.FileName);
+            var fileName = $"{serverId}_{Guid.NewGuid()}{fileExtension}";
+            var filePath = Path.Combine(serverIconsPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Update server icon URL
+            var iconUrl = $"{baseUrl}/servers/{fileName}";
+            server.IconUrl = iconUrl;
+
+            await _serverRepository.UpdateAsync(server);
+            await _serverRepository.SaveChangesAsync();
+
+            return new ApiResponse<string>(iconUrl, "Server icon uploaded successfully.");
+        }
+
         public async Task<ApiResponse<bool>> DeleteServerAsync(Guid serverId)
         {
             var server = await _serverRepository.GetByIdAsync(serverId);
@@ -98,3 +191,4 @@ namespace Kita.Service.Services
         }
     }
 }
+

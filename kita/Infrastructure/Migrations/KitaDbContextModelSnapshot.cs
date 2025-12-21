@@ -457,6 +457,12 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("boolean");
+
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uuid");
 
@@ -663,12 +669,12 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2025, 12, 19, 8, 17, 13, 778, DateTimeKind.Utc).AddTicks(197),
+                            CreatedAt = new DateTime(2025, 12, 21, 3, 50, 29, 754, DateTimeKind.Utc).AddTicks(8455),
                             Email = "admin@kita.com",
                             PasswordHash = "$2a$11$5glWJIvKFoXWFwYIKJVB5ONySehuC4cMyghaPfEdybGcBazIDZsmy",
                             Role = "Admin",
                             Subscription = 0,
-                            UpdatedAt = new DateTime(2025, 12, 19, 8, 17, 13, 778, DateTimeKind.Utc).AddTicks(198),
+                            UpdatedAt = new DateTime(2025, 12, 21, 3, 50, 29, 754, DateTimeKind.Utc).AddTicks(8455),
                             UserName = "Admin"
                         });
                 });

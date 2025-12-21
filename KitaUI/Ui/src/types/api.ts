@@ -112,8 +112,19 @@ export interface ServerDto {
     id: string;
     name: string;
     description?: string;
+    iconUrl?: string;
     ownerId: string;
-    createdAt: string;
+    createdAt?: string;
+}
+
+export interface ServerMemberDto {
+    id: string;
+    userId: string;
+    username: string;
+    avatarUrl?: string;
+    nickname?: string;
+    role: string;
+    joinedAt: string;
 }
 
 // Channel DTOs
@@ -123,27 +134,44 @@ export interface CreateChannelDto {
     type?: number;
 }
 
+export interface UpdateChannelDto {
+    name: string;
+}
+
 export interface ChannelDto {
     id: string;
     name: string;
+    type: 'text' | 'voice' | number;
     serverId: string;
-    type: string;
-    createdAt: string;
 }
 
 // Message DTOs
+export interface MessageDto {
+    id: string;
+    content: string;
+    imageUrl?: string;
+    sentAt: string;
+    createdAt?: string; // alias for compatibility
+    senderName: string;
+    username?: string; // alias for compatibility
+    senderId: string;
+    senderAvatarUrl?: string;
+    channelId: string;
+    isEdited: boolean;
+}
+
 export interface CreateMessageDto {
     content: string;
     channelId: string;
 }
 
-export interface MessageDto {
-    id: string;
-    content: string;
+export interface CreateImageMessageDto {
     channelId: string;
-    userId: string;
-    username: string;
-    createdAt: string;
+    caption?: string;
+}
+
+export interface UpdateMessageDto {
+    content: string;
 }
 
 // Server Invite DTOs

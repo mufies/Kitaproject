@@ -10,5 +10,8 @@ namespace Kita.Service.Interfaces
     {
         Task<ApiResponse<ChannelDto>> CreateChannelAsync(CreateChannelDto createChannelDto);
         Task<ApiResponse<List<ChannelDto>>> GetServerChannelsAsync(Guid serverId);
+        Task<ApiResponse<ChannelDto>> GetChannelByIdAsync(Guid channelId);
+        Task<ApiResponse<ChannelDto>> UpdateChannelAsync(Guid channelId, UpdateChannelDto updateChannelDto);
+        Task<ApiResponse<bool>> DeleteChannelAsync(Guid channelId);
     }
 }

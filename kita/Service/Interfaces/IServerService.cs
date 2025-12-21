@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Kita.Service.Common;
 using Kita.Service.DTOs.Server;
+using Microsoft.AspNetCore.Http;
 
 namespace Kita.Service.Interfaces
 {
@@ -11,6 +12,9 @@ namespace Kita.Service.Interfaces
         Task<ApiResponse<ServerDto>> CreateServerAsync(CreateServerDto createServerDto, Guid ownerId);
         Task<ApiResponse<List<ServerDto>>> GetUserServersAsync(Guid userId);
         Task<ApiResponse<ServerDto>> GetServerByIdAsync(Guid serverId);
+        Task<ApiResponse<List<ServerMemberDto>>> GetServerMembersAsync(Guid serverId);
+        Task<ApiResponse<ServerDto>> UpdateServerAsync(Guid serverId, UpdateServerDto updateServerDto, Guid userId);
+        Task<ApiResponse<string>> UploadServerIconAsync(Guid serverId, IFormFile file, Guid userId);
         Task<ApiResponse<bool>> DeleteServerAsync(Guid serverId);
     }
 }

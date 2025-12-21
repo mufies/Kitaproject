@@ -5,8 +5,10 @@ import Home from './page/Home'
 import PlaylistPage from './page/Music/PlaylistPage'
 import ProfilePage from './page/ProfilePage'
 import LoginPage from './page/LoginPage'
+import RegisterPage from './page/RegisterPage'
 // import ChatDemo from './pages/ChatDemo'
 // import VoiceRoom from './pages/VoiceRoom'
+import KitaChatPage from './page/Communicate/KitaChatPage'
 import Navigator from './components/navigator'
 import { AuthProvider } from './context/AuthContext'
 import { PlayProvider } from './context/PlayContext'
@@ -22,7 +24,7 @@ import UserProfilePage from './page/UserProfilePage'
 function AppContent() {
   const location = useLocation();
 
-  const showNavigator = location.pathname !== '/login' && location.pathname !== '/chat' && location.pathname !== '/voice';
+  const showNavigator = location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/chat' && location.pathname !== '/voice';
 
   // AudioControl overlays content, so we remove global bottom padding to avoid "gap" visuals
   // Individual pages can add padding if needed to avoid content being hidden
@@ -35,8 +37,9 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
-          {/* <Route path="/chat" element={<ChatDemo />} />
-          <Route path="/voice" element={<VoiceRoom channelId="52bfcf4b-c2fc-4941-9558-623a98f52c3b" channelName="Voice Chat" />} /> */}
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/chat" element={<KitaChatPage />} />
+          {/* <Route path="/voice" element={<VoiceRoom ... />} /> */}
           <Route path="/music" element={
             <ProtectedRoute>
               <HomePage />

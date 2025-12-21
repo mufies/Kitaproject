@@ -38,6 +38,9 @@ builder.Services.AddScoped<IListenHistoryRepository, ListenHistoryRepository>();
 builder.Services.AddScoped<IListenWrappedRepository, ListenWrappedRepository>();
 builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
+builder.Services.AddScoped<IChannelRepository, ChannelRepository>();
+builder.Services.AddScoped<IServerRepository, ServerRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 // Add Services
 builder.Services.AddScoped<IAuthService, AuthService>();

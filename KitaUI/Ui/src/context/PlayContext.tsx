@@ -74,7 +74,7 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Initialize audio element only once
     useEffect(() => {
         audioRef.current = new Audio();
-        audioRef.current.volume = 0.3;
+        audioRef.current.volume = 0;
 
         const audio = audioRef.current;
 

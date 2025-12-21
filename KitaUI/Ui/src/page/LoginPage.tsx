@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Music } from 'lucide-react';
 
@@ -47,30 +47,29 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="fixed inset-0 w-screen h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center px-4 overflow-hidden">
+        <div className="min-h-screen bg-[#120c12] flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full mb-4">
-                        <Music className="w-8 h-8 text-white" />
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#ff7a3c]/10 rounded-full mb-4 ring-1 ring-[#ff7a3c]/30">
+                        <Music className="w-8 h-8 text-[#ff7a3c]" />
                     </div>
-                    <h1 className="text-4xl font-bold text-white mb-2">
-                        <span className="text-red-600">Kita</span>
-                        <span>Music</span>
+                    <h1 className="text-3xl font-bold text-white mb-2">
+                        Welcome Back
                     </h1>
-                    <p className="text-gray-400">Sign in to access your music library</p>
+                    <p className="text-white/50">Sign in to access your library</p>
                 </div>
 
-                <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 shadow-2xl">
+                <div className="bg-[#1a141a] border border-white/5 rounded-2xl p-8 shadow-xl">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
-                            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 text-sm">
+                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm">
                                 {error}
                             </div>
                         )}
 
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                                email
+                            <label htmlFor="email" className="block text-xs font-medium text-white/70 mb-2">
+                                Email
                             </label>
                             <input
                                 id="email"
@@ -79,12 +78,12 @@ export default function LoginPage() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter your email"
                                 disabled={isLoading}
-                                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full px-4 py-3 bg-[#0d080f] border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#ff7a3c] focus:ring-1 focus:ring-[#ff7a3c] transition-all disabled:opacity-50 text-sm"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                            <label htmlFor="password" className="block text-xs font-medium text-white/70 mb-2">
                                 Password
                             </label>
                             <input
@@ -94,20 +93,20 @@ export default function LoginPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Enter your password"
                                 disabled={isLoading}
-                                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full px-4 py-3 bg-[#0d080f] border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#ff7a3c] focus:ring-1 focus:ring-[#ff7a3c] transition-all disabled:opacity-50 text-sm"
                             />
                         </div>
 
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium rounded-lg transition-all duration-300 shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            className="w-full py-3 bg-[#ff7a3c] hover:bg-[#ff8c52] text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-[#ff7a3c]/20 hover:shadow-[#ff7a3c]/40 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
                         >
                             {isLoading ? (
-                                <span className="flex items-center justify-center gap-2">
+                                <>
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                    Signing in...
-                                </span>
+                                    <span>Signing in...</span>
+                                </>
                             ) : (
                                 'Sign In'
                             )}
@@ -115,9 +114,14 @@ export default function LoginPage() {
                     </form>
                 </div>
 
-                <p className="text-center text-gray-500 text-sm mt-6">
-                    Don't have an account? Contact your administrator
-                </p>
+                <div className="text-center mt-6">
+                    <p className="text-white/50 text-sm">
+                        Don't have an account?{' '}
+                        <Link to="/register" className="text-[#ff7a3c] hover:text-[#ff8c52] font-medium transition-colors">
+                            Sign Up
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );

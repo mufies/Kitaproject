@@ -17,5 +17,10 @@ namespace Kita.Service.DTOs.Server
         public ChannelType Type { get; set; }
         public Guid ServerId { get; set; }
     }
+
+    public class UpdateChannelDto
+    {
+        public string Name { get; set; } = string.Empty;
+    }
     
 }
