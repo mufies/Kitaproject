@@ -39,6 +39,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
 
             if (response.ok && data.success) {
                 login(data.data.token);
+                console.log(data.data.user.userAgent);
                 onClose();
                 setEmail('');
                 setPassword('');

@@ -8,6 +8,7 @@ namespace Kita.Service.DTOs.Auth
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? AvatarUrl { get; set; }
+        public string UserAgent { get; set; } = string.Empty;
     }
 
     public class AuthResponseDto

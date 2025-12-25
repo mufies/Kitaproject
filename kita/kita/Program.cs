@@ -11,6 +11,7 @@ using Microsoft.Extensions.FileProviders;
 using System.Text;
 using Kita.Hubs;
 using DotNetEnv;
+using Microsoft.AspNetCore.Http;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -58,6 +59,17 @@ builder.Services.AddScoped<IListenHistoryService, ListenHistoryService>();
 builder.Services.AddScoped<IListenWrappedService, ListenWrappedService>();
 builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<IAlbumService, AlbumService>();
+builder.Services.AddHttpContextAccessor();
+
+// Add Redis
+builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var redisConnectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
+    return StackExchange.Redis.ConnectionMultiplexer.Connect(redisConnectionString);
+});
+builder.Services.AddSingleton<IRedisService, RedisService>();
+
 
 // Configure Spotify Options
 builder.Services.Configure<SpotifyOptions>(builder.Configuration.GetSection("Spotify"));
@@ -175,5 +187,6 @@ app.MapControllers();
 // Map SignalR Hub
 app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<VoiceHub>("/hubs/voice");
+app.MapHub<MusicControlHub>("/hubs/music-control");
 
 app.Run();

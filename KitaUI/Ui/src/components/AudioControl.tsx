@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { usePlay } from '../context/PlayContext';
 import { SongInteractionBar } from './SongInteractionBar';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Mic2, ListMusic, MonitorSpeaker } from 'lucide-react';
+import { DeviceSelector } from './DeviceSelector';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Mic2, ListMusic } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Generate a static waveform pattern (45 bars for better density)
@@ -26,6 +27,7 @@ export const AudioControl: React.FC = () => {
         seekTo,
         setVolume,
         toggleMute,
+        musicControlService,
     } = usePlay();
 
     const [isHoveringSeek, setIsHoveringSeek] = useState(false);
@@ -190,9 +192,9 @@ export const AudioControl: React.FC = () => {
                 <button className="text-zinc-400 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors hidden sm:block" title="Lyrics">
                     <Mic2 size={18} />
                 </button>
-                <button className="text-zinc-400 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors hidden md:block" title="Devices">
-                    <MonitorSpeaker size={18} />
-                </button>
+                <div className="hidden md:block">
+                    <DeviceSelector musicControlService={musicControlService} />
+                </div>
 
                 <div className="flex items-center gap-2 ml-2 group"
                     onMouseEnter={() => setIsHoveringVolume(true)}

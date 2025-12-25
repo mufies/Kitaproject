@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useRef, useCallback, useEff
 import type { SongDto } from '../types/api';
 import { incrementPlayCount } from '../utils/songStaticsAPI';
 import { addToListenHistory } from '../utils/fetchAPI';
+import { MusicControlService } from '../services/musicControlService';
 
 // Helper to handle play() promise - ignores AbortError which occurs when play is interrupted
 const safePlay = (audio: HTMLAudioElement): Promise<void> => {
@@ -31,6 +32,9 @@ interface PlayContextType {
     seekTo: (time: number) => void;
     setVolume: (volume: number) => void;
     toggleMute: () => void;
+
+    // MusicControl Service
+    musicControlService: MusicControlService;
 }
 
 const PlayContext = createContext<PlayContextType | undefined>(undefined);
@@ -38,6 +42,9 @@ const PlayContext = createContext<PlayContextType | undefined>(undefined);
 export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     // Audio element ref
     const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // MusicControl Service (singleton instance)
+    const musicControlServiceRef = useRef<MusicControlService>(new MusicControlService());
 
     // State
     const [currentSong, setCurrentSong] = useState<SongDto | null>(null);
@@ -48,6 +55,9 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [duration, setDuration] = useState(0);
     const [volume, setVolumeState] = useState(0.7);
     const [isMuted, setIsMuted] = useState(false);
+
+    // Flag to prevent loops when syncing with other devices
+    const isSyncingRef = useRef(false);
 
     // Track if play count has been incremented for current song
     const hasCountedPlayRef = useRef(false);
@@ -152,6 +162,115 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
     }, []); // Empty deps - only run on mount
 
+    // Initialize MusicControl Hub connection
+    useEffect(() => {
+        const musicService = musicControlServiceRef.current;
+
+        const initMusicControl = async () => {
+            try {
+                await musicService.connect();
+                console.log("Connected to MusicControl Hub");
+
+                // Register this device
+                const deviceName = `Web - ${navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'}`;
+                const deviceType = navigator.userAgent.includes('Mobile') ? 'mobile' : 'web';
+                await musicService.registerDevice(deviceName, deviceType);
+
+                // Listen to playback commands from other devices
+                musicService.onPlay(() => {
+                    if (!isSyncingRef.current && audioRef.current) {
+                        isSyncingRef.current = true;
+                        safePlay(audioRef.current).finally(() => {
+                            isSyncingRef.current = false;
+                        });
+                    }
+                });
+
+                musicService.onPause(() => {
+                    if (!isSyncingRef.current && audioRef.current) {
+                        isSyncingRef.current = true;
+                        audioRef.current.pause();
+                        setTimeout(() => { isSyncingRef.current = false; }, 100);
+                    }
+                });
+
+                musicService.onNext(() => {
+                    if (!isSyncingRef.current) {
+                        // Call next song handler
+                        const currentIdx = currentIndexRef.current;
+                        const currentPlaylist = playlistRef.current;
+                        if (currentPlaylist.length > 0 && currentIdx < currentPlaylist.length - 1) {
+                            const nextIndex = currentIdx + 1;
+                            const song = currentPlaylist[nextIndex];
+                            if (song && audioRef.current) {
+                                hasCountedPlayRef.current = false;
+                                setCurrentIndex(nextIndex);
+                                setCurrentSong(song);
+                                audioRef.current.src = song.streamUrl;
+                                audioRef.current.load();
+                                safePlay(audioRef.current).then(() => {
+                                    setIsPlaying(true);
+                                    addToListenHistory(song.id).catch(console.error);
+                                });
+                            }
+                        }
+                    }
+                });
+
+                musicService.onPrevious(() => {
+                    if (!isSyncingRef.current && audioRef.current) {
+                        const audio = audioRef.current;
+                        // If more than 3 seconds into song, restart it
+                        if (audio.currentTime > 3) {
+                            audio.currentTime = 0;
+                            return;
+                        }
+
+                        const currentIdx = currentIndexRef.current;
+                        const currentPlaylist = playlistRef.current;
+                        if (currentPlaylist.length > 0 && currentIdx > 0) {
+                            const prevIndex = currentIdx - 1;
+                            const song = currentPlaylist[prevIndex];
+                            if (song) {
+                                hasCountedPlayRef.current = false;
+                                setCurrentIndex(prevIndex);
+                                setCurrentSong(song);
+                                audio.src = song.streamUrl;
+                                audio.load();
+                                safePlay(audio).then(() => {
+                                    setIsPlaying(true);
+                                    addToListenHistory(song.id).catch(console.error);
+                                });
+                            }
+                        }
+                    }
+                });
+
+                musicService.onSetVolume((vol: number) => {
+                    if (!isSyncingRef.current) {
+                        isSyncingRef.current = true;
+                        setVolumeState(vol);
+                        setTimeout(() => { isSyncingRef.current = false; }, 100);
+                    }
+                });
+
+                musicService.onPlaySong((songId: string, startTime: number) => {
+                    console.log("Received PlaySong command:", songId, startTime);
+                    // TODO: Load and play the specific song
+                });
+
+            } catch (error) {
+                console.error("Failed to connect to MusicControl Hub:", error);
+            }
+        };
+
+        initMusicControl();
+
+        return () => {
+            musicService.disconnect();
+        };
+    }, []); // Empty deps - handlers use refs
+
     // Update volume when changed
     useEffect(() => {
         if (audioRef.current) {
@@ -196,8 +315,16 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (isPlaying) {
             audio.pause();
+            // Sync pause to other devices
+            if (!isSyncingRef.current) {
+                musicControlServiceRef.current.pause().catch(console.error);
+            }
         } else {
             safePlay(audio);
+            // Sync play to other devices
+            if (!isSyncingRef.current) {
+                musicControlServiceRef.current.play().catch(console.error);
+            }
         }
     }, [isPlaying, currentSong]);
 
@@ -261,6 +388,7 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (audio) {
             audio.currentTime = time;
             setCurrentTime(time);
+            // TODO: Sync seek position to other devices if needed
         }
     }, []);
 
@@ -268,6 +396,10 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const setVolume = useCallback((vol: number) => {
         setVolumeState(vol);
         setIsMuted(false);
+        // Sync volume to other devices
+        if (!isSyncingRef.current) {
+            musicControlServiceRef.current.setVolume(vol).catch(console.error);
+        }
     }, []);
 
     // Toggle mute
@@ -291,6 +423,7 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         seekTo,
         setVolume,
         toggleMute,
+        musicControlService: musicControlServiceRef.current,
     };
 
     return (

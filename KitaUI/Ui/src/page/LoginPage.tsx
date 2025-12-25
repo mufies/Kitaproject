@@ -35,6 +35,8 @@ export default function LoginPage() {
 
             if (response.ok && data.success) {
                 login(data.data.token);
+                console.log(data.data.user.userAgent);
+
                 navigate('/music');
             } else {
                 setError(data.message || 'Login failed');

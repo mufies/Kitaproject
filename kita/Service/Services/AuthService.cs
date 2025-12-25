@@ -10,6 +10,7 @@ using Kita.Infrastructure.Repositories;
 using Kita.Service.Common;
 using Kita.Service.DTOs.Auth;
 using Kita.Service.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -19,11 +20,13 @@ namespace Kita.Service.Services
     {
         private readonly IBaseRepository<User> _userRepository;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthService(IBaseRepository<User> userRepository, IConfiguration configuration)
+        public AuthService(IBaseRepository<User> userRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _userRepository = userRepository;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ApiResponse<AuthResponseDto>> RegisterAsync(RegisterDto registerDto)
@@ -76,7 +79,7 @@ namespace Kita.Service.Services
             }
 
             var token = GenerateJwtToken(user);
-
+            string userAgent = _httpContextAccessor.HttpContext?.Request?.Headers["User-Agent"];
             return new ApiResponse<AuthResponseDto>(new AuthResponseDto
             {
                 Token = token,
@@ -85,7 +88,8 @@ namespace Kita.Service.Services
                     Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
-                    AvatarUrl = user.AvatarUrl
+                    AvatarUrl = user.AvatarUrl,
+                    UserAgent = userAgent
                 }
             }, "Login successful.");
         }
