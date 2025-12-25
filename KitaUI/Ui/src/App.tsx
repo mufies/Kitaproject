@@ -3,6 +3,7 @@ import './App.css'
 import Home from './page/Home'
 // import { MusicDashboard } from './page/Music/MusicDas'
 import PlaylistPage from './page/Music/PlaylistPage'
+import SongPage from './page/Music/SongPage'
 import ProfilePage from './page/ProfilePage'
 import LoginPage from './page/LoginPage'
 import RegisterPage from './page/RegisterPage'
@@ -48,6 +49,11 @@ function AppContent() {
           <Route path="/music/playlist/:id" element={
             <ProtectedRoute>
               <PlaylistPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/music/song/:id" element={
+            <ProtectedRoute>
+              <SongPage />
             </ProtectedRoute>
           } />
           <Route path="/profile" element={

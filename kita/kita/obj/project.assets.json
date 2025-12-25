@@ -2850,6 +2850,18 @@
           }
         }
       },
+      "VideoLibrary/3.2.9": {
+        "type": "package",
+        "dependencies": {
+          "System.Text.Json": "9.0.1"
+        },
+        "compile": {
+          "lib/netstandard2.0/libvideo.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/libvideo.dll": {}
+        }
+      },
       "YoutubeExplode/6.5.6": {
         "type": "package",
         "dependencies": {
@@ -8585,6 +8597,21 @@
         "taglibsharp.nuspec"
       ]
     },
+    "VideoLibrary/3.2.9": {
+      "sha512": "LqOv8PRxQcj1oDZxh1fcV5bRNM332AcNIax48xKDl9Sl7K2+gBO29Z1j8QV0RqPQ2o5EtdDTWQ66MbzwwULhCg==",
+      "type": "package",
+      "path": "videolibrary/3.2.9",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "README.md",
+        "icon_586.png",
+        "lib/netstandard2.0/libvideo.dll",
+        "videolibrary.3.2.9.nupkg.sha512",
+        "videolibrary.nuspec"
+      ]
+    },
     "YoutubeExplode/6.5.6": {
       "sha512": "W0iR/zLll4UwgsfPvgGkNtn+f01ut8Mm3lDrU2V3iujRmQSnelKUXWsFvZYojw/gPD+pvTS4/MMYNkDvwocbvg==",
       "type": "package",
@@ -8625,7 +8652,8 @@
       "Microsoft.EntityFrameworkCore.Design >= 8.0.0",
       "SIPSorcery >= 8.0.23",
       "Service >= 1.0.0",
-      "TagLibSharp >= 2.3.0"
+      "TagLibSharp >= 2.3.0",
+      "VideoLibrary >= 3.2.9"
     ]
   },
   "packageFolders": {
@@ -8699,6 +8727,10 @@
           "TagLibSharp": {
             "target": "Package",
             "version": "[2.3.0, )"
+          },
+          "VideoLibrary": {
+            "target": "Package",
+            "version": "[3.2.9, )"
           }
         },
         "imports": [

@@ -38,15 +38,14 @@ namespace Kita.Service.Services
 
             var createdComment = await _commentRepository.CreateCommentAsync(comment);
             
-            // Reload with user info
-            var commentWithUser = await _commentRepository.GetByIdAsync(createdComment.Id);
-            
             var dto = new CommentDto
             {
                 Id = createdComment.Id,
                 SongId = createdComment.SongId,
                 UserId = createdComment.UserId,
                 Content = createdComment.Content,
+                UserName = createdComment.User?.UserName,
+                UserAvatar = createdComment.User?.AvatarUrl,
                 CreatedAt = createdComment.CreatedAt,
                 UpdatedAt = createdComment.UpdatedAt
             };
@@ -54,12 +53,18 @@ namespace Kita.Service.Services
             return new ApiResponse<CommentDto>(dto, "Comment created successfully");
         }
 
-        public async Task<ApiResponse<CommentDto>> UpdateCommentAsync(Guid commentId, string content)
+        public async Task<ApiResponse<CommentDto>> UpdateCommentAsync(Guid userId, Guid commentId, string content)
         {
-            var comment = await _commentRepository.GetByIdAsync(commentId);
+            var comment = await _commentRepository.GetCommentWithUserAsync(commentId);
             if (comment == null)
             {
                 return ApiResponse<CommentDto>.Fail("Comment not found", null, 404);
+            }
+
+            // Check authorization - only comment owner can update
+            if (comment.UserId != userId)
+            {
+                return ApiResponse<CommentDto>.Fail("You are not authorized to update this comment", null, 403);
             }
 
             comment.Content = content;
@@ -71,6 +76,8 @@ namespace Kita.Service.Services
                 SongId = updatedComment.SongId,
                 UserId = updatedComment.UserId,
                 Content = updatedComment.Content,
+                UserName = updatedComment.User?.UserName,
+                UserAvatar = updatedComment.User?.AvatarUrl,
                 CreatedAt = updatedComment.CreatedAt,
                 UpdatedAt = updatedComment.UpdatedAt
             };
@@ -78,12 +85,18 @@ namespace Kita.Service.Services
             return new ApiResponse<CommentDto>(dto, "Comment updated successfully");
         }
 
-        public async Task<ApiResponse<string>> DeleteCommentAsync(Guid commentId)
+        public async Task<ApiResponse<string>> DeleteCommentAsync(Guid userId, Guid commentId)
         {
-            var comment = await _commentRepository.GetByIdAsync(commentId);
+            var comment = await _commentRepository.GetCommentWithUserAsync(commentId);
             if (comment == null)
             {
                 return ApiResponse<string>.Fail("Comment not found", null, 404);
+            }
+
+            // Check authorization - only comment owner can delete
+            if (comment.UserId != userId)
+            {
+                return ApiResponse<string>.Fail("You are not authorized to delete this comment", null, 403);
             }
 
             await _commentRepository.DeleteCommentAsync(commentId);
@@ -102,6 +115,7 @@ namespace Kita.Service.Services
                 UserId = c.UserId,
                 Content = c.Content,
                 UserName = c.User?.UserName,
+                UserAvatar = c.User?.AvatarUrl,
                 CreatedAt = c.CreatedAt,
                 UpdatedAt = c.UpdatedAt
             }).ToList();

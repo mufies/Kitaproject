@@ -18,6 +18,19 @@ namespace Kita.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Title == name && x.Artist!.Name == artist);
         }
 
+        public async Task<Song?> FindByTitleOrArtistContainsAsync(string title, string artist)
+        {
+            // First check if artist name contains the search artist (to handle "Artist - Topic" channels)
+            // Then check if title contains the search title
+            return await _dbSet
+                .Include(x => x.Artist)
+                .Include(x => x.Album)
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => 
+                    (x.Artist != null && x.Artist.Name.Contains(artist)) || 
+                    x.Title == title);
+        }
+
         public async Task<List<Song>> FilterSongByName(string name)
         {
             return await _dbSet.Where(x => x.Title!.Contains(name)).ToListAsync();
@@ -73,7 +86,7 @@ namespace Kita.Infrastructure.Repositories
                 .Include(s => s.Artist)
                 .Include(s => s.Album)
                 .Include(s => s.User)
-                .Where(s => s.UserId == userId)
+                .Where(s => s.UserId == userId && s.ArtistId == null)
                 .ToListAsync();
         }
 
@@ -129,12 +142,13 @@ namespace Kita.Infrastructure.Repositories
             
             // Sanitize input
             var sanitized = query.Trim().Replace("'", "''");
+            sanitized = sanitized.ToLower();
             
             // Primary search: ILIKE partial match (SearchVector temporarily disabled)
             var results = await _dbSet
                 .Include(s => s.Artist)
                 .Include(s => s.User)
-                .Where(s => s.Title.Contains(sanitized) || (s.Artist != null && s.Artist.Name.Contains(sanitized)))
+                .Where(s => s.Title.ToLower().Contains(sanitized) || (s.Artist != null && s.Artist.Name.ToLower().Contains(sanitized)))
                 .Take(50)
                 .ToListAsync();
             
@@ -146,7 +160,7 @@ namespace Kita.Infrastructure.Repositories
                 results = await _dbSet
                     .Include(s => s.Artist)
                     .Include(s => s.User)
-                    .Where(s => s.Title.Contains(sanitized) || s.Album!.Name.Contains(sanitized))
+                    .Where(s => s.Title.ToLower().Contains(sanitized) || s.Album!.Name.ToLower().Contains(sanitized))
                     .Take(20)
                     .ToListAsync();
             }

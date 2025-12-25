@@ -16,6 +16,7 @@ namespace Kita.Service.DTOs.YouTube
         public string? ThumbnailUrl { get; set; }
         public string? ChannelName { get; set; }
         public DateTime? PublishedAt { get; set; }
+        public TimeSpan? Duration { get; set; }
         public string VideoUrl => $"https://www.youtube.com/watch?v={VideoId}";
     }
 

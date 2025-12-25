@@ -85,7 +85,9 @@ export default function ProfilePage() {
             setLoadingHistory(true);
             const result = await fetchRecentlyPlayed(10);
             if (result.success) {
-                setRecentActivity(result.data || []);
+                const limit = 5;
+                const truncatedData = result.data.slice(0, limit);
+                setRecentActivity(truncatedData);
             }
         } catch (err) {
             console.error('Error loading listen history:', err);

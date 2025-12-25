@@ -223,7 +223,7 @@ const HomePage: React.FC = () => {
                                                             className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group"
                                                             onClick={() => {
                                                                 setShowSearchResults(false);
-                                                                // TODO: Play song or navigate
+                                                                navigate(`/music/song/${song.id}`);
                                                             }}
                                                         >
                                                             <div className="w-10 h-10 bg-[#333] rounded overflow-hidden flex-shrink-0">
@@ -421,7 +421,11 @@ const HomePage: React.FC = () => {
                         <div className="space-y-3">
                             {recentSongs.length > 0 ? (
                                 recentSongs.map((song) => (
-                                    <div key={song.id} className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-lg p-1 -m-1 transition-colors">
+                                    <div
+                                        key={song.id}
+                                        className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-lg p-1 -m-1 transition-colors"
+                                        onClick={() => navigate(`/music/song/${song.id}`)}
+                                    >
                                         <div className="w-10 h-10 bg-white/10 rounded-lg overflow-hidden">
                                             <img
                                                 src={song.coverUrl || "/assets/images/default-album.svg"}

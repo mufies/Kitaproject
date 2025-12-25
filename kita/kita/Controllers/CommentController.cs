@@ -36,14 +36,16 @@ namespace Kita.Controllers
         [HttpPut("comments/{commentId}")]
         public async Task<IActionResult> UpdateComment(Guid commentId, [FromBody] string content)
         {
-            var result = await _commentService.UpdateCommentAsync(commentId, content);
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _commentService.UpdateCommentAsync(userId, commentId, content);
             return HandleResult(result);
         }
 
         [HttpDelete("comments/{commentId}")]
         public async Task<IActionResult> DeleteComment(Guid commentId)
         {
-            var result = await _commentService.DeleteCommentAsync(commentId);
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _commentService.DeleteCommentAsync(userId, commentId);
             return HandleResult(result);
         }
     }

@@ -37,6 +37,8 @@ namespace Kita.Service.Services
                 var playlistName = playlistInfo.Title;
                 await foreach (var video in _youtubeClient.Playlists.GetVideosAsync(playlistId))
                 {
+                    var fullVideo = await _youtubeClient.Videos.GetAsync(video.Id);
+                    
                     var videoDto = new YouTubeVideoDto
                     {
                         VideoId = video.Id,
@@ -44,7 +46,8 @@ namespace Kita.Service.Services
                         Description = null,
                         ThumbnailUrl = video.Thumbnails.OrderByDescending(t => t.Resolution.Area).FirstOrDefault()?.Url,
                         ChannelName = video.Author.ChannelTitle,
-                        PublishedAt = null
+                        PublishedAt = null,
+                        Duration = fullVideo?.Duration
                     };
 
                     videos.Add(videoDto);
@@ -79,7 +82,6 @@ namespace Kita.Service.Services
                 var video = await _youtubeClient.Videos.GetAsync(videoUrl);
                 var streamManifest = await _youtubeClient.Videos.Streams.GetManifestAsync(videoUrl);
                 
-                // Get the highest quality muxed stream (video + audio)
                 var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
                 
                 if (streamInfo == null)
@@ -219,7 +221,8 @@ namespace Kita.Service.Services
                     Description = video.Description,
                     ThumbnailUrl = video.Thumbnails.OrderByDescending(t => t.Resolution.Area).FirstOrDefault()?.Url,
                     ChannelName = video.Author.ChannelTitle,
-                    PublishedAt = video.UploadDate.DateTime
+                    PublishedAt = video.UploadDate.DateTime,
+                    Duration = video.Duration
                 };
 
                 return videoDto;

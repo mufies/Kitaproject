@@ -19,6 +19,7 @@ namespace Kita.Service.Services
         private readonly IYouTubeService _youTubeService;
         private readonly ISpotifyService _spotifyService;
         private readonly IUserRepository _userRepository;
+        private readonly IArtistRepository _artistRepository;
 
         public PlaylistService(
             IBaseRepository<Playlist> playlistRepository, 
@@ -27,7 +28,8 @@ namespace Kita.Service.Services
             IConfiguration configuration,
             IYouTubeService youTubeService,
             ISpotifyService spotifyService,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IArtistRepository artistRepository)
         {
             _playlistRepository = playlistRepository;
             this._songRepository = _songRepository;
@@ -36,26 +38,30 @@ namespace Kita.Service.Services
             _youTubeService = youTubeService;
             _spotifyService = spotifyService;
             _userRepository = userRepository;
+            _artistRepository = artistRepository;
         }
 
-        private async Task<Guid?> GetOrCreateArtistIdAsync(string artistName)
+
+
+        private async Task<Guid?> GetOrCreateArtistAsync(string artistName)
         {
             if (string.IsNullOrWhiteSpace(artistName))
                 return null;
 
-            var artist = await _userRepository.GetByUserNameAsync(artistName);
-            if (artist != null)
-                return artist.Id;
+            // Check if artist already exists
+            var existingArtist = await _artistRepository.GetByNameAsync(artistName);
+            if (existingArtist != null)
+                return existingArtist.Id;
 
-            var newArtist = new User
+            // Create new artist with null ManagedByUsers list
+            var newArtist = new Artist
             {
-                UserName = artistName,
-                Email = $"{artistName.ToLower().Replace(" ", "")}@artist.placeholder",
-                PasswordHash = string.Empty,
+                Name = artistName,
+                Description = $"Auto-created artist from playlist import",
                 Role = "Artist"
             };
-            await _userRepository.AddAsync(newArtist);
-            await _userRepository.SaveChangesAsync();
+            await _artistRepository.AddAsync(newArtist);
+            await _artistRepository.SaveChangesAsync();
             return newArtist.Id;
         }
 
@@ -512,7 +518,6 @@ namespace Kita.Service.Services
                 // Fetch playlist data based on source
                 if (isYouTube)
                 {
-                    // Extract playlist ID from URL
                     var playlistId = ExtractYouTubePlaylistId(request.PlaylistUrl);
                     if (string.IsNullOrEmpty(playlistId))
                     {
@@ -595,8 +600,16 @@ namespace Kita.Service.Services
 
                     try
                     {
-                        // Check if song exists in DB
-                        var existingSong = await _songRepository.GetByNameAndArtistAsync(title, artist);
+                        // For Spotify imports, create artist if it doesn't exist
+                        if (isSpotify)
+                        {
+                            await GetOrCreateArtistAsync(artist);
+                        }
+
+                        // Check if song exists in DB using fuzzy matching
+                        // First check if artist name contains the search artist (handles "Artist - Topic" channels)
+                        // Then check if title contains the search title
+                        var existingSong = await _songRepository.FindByTitleOrArtistContainsAsync(title, artist);
 
                         if (existingSong != null)
                         {
@@ -643,27 +656,23 @@ namespace Kita.Service.Services
                             var baseUrl = _configuration["FileStorage:BaseUrl"];
                             var musicFolder = Path.Combine(storagePath!, "Music");
                             var fileName = downloadResult.Data.FileName;
-                            var filePath = Path.Combine(musicFolder, fileName);
                             var streamUrl = $"{baseUrl}/Music/{fileName}";
 
-                            // Extract duration from audio file
-                            int durationInSeconds = 0;
-                            try
-                            {
-                                using (var tfile = TagLib.File.Create(filePath))
-                                {
-                                    durationInSeconds = (int)tfile.Properties.Duration.TotalSeconds;
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                durationInSeconds = 0;
-                            }
+                            // Use duration from YouTube DTO instead of TagLib
+                            int durationInSeconds = videoInfo.Duration.HasValue 
+                                ? (int)videoInfo.Duration.Value.TotalSeconds 
+                                : 0;
+
+                            // Get or create artist
+                            Guid? artistId = isSpotify 
+                                ? await GetOrCreateArtistAsync(artist) 
+                                : null;
 
                             var newSong = new Song
                             {
                                 Title = title,
-                                ArtistId = await GetOrCreateArtistIdAsync(artist),
+                                ArtistId = artistId,
+                                UserId = userId, // Set uploader as the user importing the playlist
                                 Duration = durationInSeconds,
                                 StreamUrl = streamUrl,
                                 CoverUrl = videoInfo.ThumbnailUrl,

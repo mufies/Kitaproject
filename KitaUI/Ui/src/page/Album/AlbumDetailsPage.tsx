@@ -371,17 +371,18 @@ const AlbumDetailsPage: React.FC = () => {
                                     {album.songs.map((song, index) => (
                                         <div
                                             key={song.id}
-                                            className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-4 py-3 hover:bg-[#ffffff10] rounded-md group transition-colors items-center cursor-default"
+                                            className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-4 py-3 hover:bg-[#ffffff10] rounded-md group transition-colors items-center cursor-pointer"
+                                            onClick={() => navigate(`/music/song/${song.id}`)}
                                         >
                                             <div className="relative text-center text-[#a7a7a7] font-medium w-4 flex justify-center">
                                                 {currentSong?.id === song.id && isPlaying ? (
-                                                    <button onClick={() => handlePlaySong(index)} className="text-[#ff7a3c]">
+                                                    <button onClick={(e) => { e.stopPropagation(); handlePlaySong(index); }} className="text-[#ff7a3c]">
                                                         <Pause className="w-4 h-4 fill-current" />
                                                     </button>
                                                 ) : (
                                                     <>
                                                         <span className="group-hover:hidden">{currentSong?.id === song.id ? <Play className="w-4 h-4 fill-current text-[#ff7a3c]" /> : index + 1}</span>
-                                                        <button onClick={() => handlePlaySong(index)} className="hidden group-hover:block text-white">
+                                                        <button onClick={(e) => { e.stopPropagation(); handlePlaySong(index); }} className="hidden group-hover:block text-white">
                                                             <Play className="w-4 h-4 fill-current" />
                                                         </button>
                                                     </>

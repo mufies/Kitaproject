@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Play, Pause, Music, Trash2, Edit2, Search, Clock, MoreHorizontal, Download, X, Upload, Camera } from 'lucide-react';
+import { ArrowLeft, Plus, Play, Pause, Music, Trash2, Edit2, Clock, X, Upload, Camera } from 'lucide-react';
 import type { PlaylistDto, SongDto } from '../../types/api';
-import { getPlaylistById, getSongsInPlaylist, addSongToPlaylist, removeSongFromPlaylist, deletePlaylist, updatePlaylist } from '../../utils/musicAPI';
-import { getAllSongs } from '../../utils/musicAPI';
+import { getPlaylistById, getSongsInPlaylist, removeSongFromPlaylist, deletePlaylist, updatePlaylist } from '../../utils/musicAPI';
 import { usePlay } from '../../context/PlayContext';
+import AddSongModal from '../../components/Music/AddSongModal';
 
 export default function PlaylistPage() {
     const { id } = useParams<{ id: string }>();
@@ -12,10 +12,8 @@ export default function PlaylistPage() {
     const { playSong, currentSong, isPlaying, togglePlayPause } = usePlay();
     const [playlist, setPlaylist] = useState<PlaylistDto | null>(null);
     const [songs, setSongs] = useState<SongDto[]>([]);
-    const [availableSongs, setAvailableSongs] = useState<SongDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddSongModalOpen, setIsAddSongModalOpen] = useState(false);
-    const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [editedName, setEditedName] = useState('');
@@ -23,7 +21,6 @@ export default function PlaylistPage() {
     const [editedIsPublic, setEditedIsPublic] = useState(false);
     const [editedCoverFile, setEditedCoverFile] = useState<File | null>(null);
     const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         if (id) {
@@ -36,10 +33,9 @@ export default function PlaylistPage() {
 
         try {
             setIsLoading(true);
-            const [playlistResponse, songsResponse, allSongsResponse] = await Promise.all([
+            const [playlistResponse, songsResponse] = await Promise.all([
                 getPlaylistById(id),
-                getSongsInPlaylist(id),
-                getAllSongs()
+                getSongsInPlaylist(id)
             ]);
 
             if (playlistResponse.success) {
@@ -51,12 +47,6 @@ export default function PlaylistPage() {
             if (songsResponse.success) {
                 setSongs(songsResponse.data);
             }
-
-            if (allSongsResponse.success) {
-                const playlistSongIds = songsResponse.success ? songsResponse.data.map(s => s.id) : [];
-                const available = allSongsResponse.data.filter(s => !playlistSongIds.includes(s.id));
-                setAvailableSongs(available);
-            }
         } catch (error) {
             console.error('Error loading playlist:', error);
             navigate('/music');
@@ -65,20 +55,6 @@ export default function PlaylistPage() {
         }
     };
 
-    const handleAddSongs = async () => {
-        if (!id || selectedSongs.length === 0) return;
-
-        try {
-            await Promise.all(
-                selectedSongs.map(songId => addSongToPlaylist(id, songId))
-            );
-            await loadPlaylistData();
-            setSelectedSongs([]);
-            setIsAddSongModalOpen(false);
-        } catch (error) {
-            console.error('Error adding songs:', error);
-        }
-    };
 
     const handleRemoveSong = async (songId: string) => {
         if (!id) return;
@@ -92,13 +68,7 @@ export default function PlaylistPage() {
         }
     };
 
-    const toggleSongSelection = (songId: string) => {
-        setSelectedSongs(prev =>
-            prev.includes(songId)
-                ? prev.filter(id => id !== songId)
-                : [...prev, songId]
-        );
-    };
+
 
     const handleOpenEditModal = () => {
         setEditedName(playlist?.name || '');
@@ -166,16 +136,7 @@ export default function PlaylistPage() {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // Filter available songs based on search query
-    const filteredAvailableSongs = useMemo(() => {
-        if (!searchQuery.trim()) return availableSongs;
-        const query = searchQuery.toLowerCase();
-        return availableSongs.filter(song =>
-            song.title.toLowerCase().includes(query) ||
-            song.artist?.toLowerCase().includes(query) ||
-            song.uploader?.toLowerCase().includes(query)
-        );
-    }, [availableSongs, searchQuery]);
+
 
     if (isLoading || !playlist) {
         return (
@@ -362,11 +323,12 @@ export default function PlaylistPage() {
                                     {songs.map((song, index) => (
                                         <div
                                             key={song.id}
-                                            className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-4 py-3 hover:bg-[#ffffff10] rounded-md group transition-colors items-center cursor-default"
+                                            className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-4 py-3 hover:bg-[#ffffff10] rounded-md group transition-colors items-center cursor-pointer"
+                                            onClick={() => navigate(`/music/song/${song.id}`)}
                                         >
                                             <div className="relative text-center text-[#a7a7a7] font-medium w-4 flex justify-center">
                                                 {currentSong?.id === song.id && isPlaying ? (
-                                                    <button onClick={() => togglePlayPause()} className="text-[#ff7a3c]">
+                                                    <button onClick={(e) => { e.stopPropagation(); togglePlayPause(); }} className="text-[#ff7a3c]">
                                                         <Pause size={14} fill="currentColor" />
                                                     </button>
                                                 ) : (
@@ -380,7 +342,7 @@ export default function PlaylistPage() {
                                                         </span>
                                                         <button
                                                             className="hidden group-hover:block text-white"
-                                                            onClick={() => playSong(song, songs)}
+                                                            onClick={(e) => { e.stopPropagation(); playSong(song, songs); }}
                                                         >
                                                             <Play size={14} fill="currentColor" />
                                                         </button>
@@ -432,99 +394,14 @@ export default function PlaylistPage() {
                 </div>
             </div>
 
-            {/* Add Song Modal - Improved Design same as Album */}
-            {isAddSongModalOpen && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={() => { setIsAddSongModalOpen(false); setSearchQuery(''); }}>
-                    <div className="bg-[#1e1e1e] rounded-xl w-full max-w-2xl max-h-[80vh] border border-[#333] shadow-2xl flex flex-col animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between p-5 border-b border-[#333]">
-                            <h2 className="text-xl font-bold text-white">Add Songs to Playlist</h2>
-                            <button onClick={() => { setIsAddSongModalOpen(false); setSearchQuery(''); }} className="text-[#a7a7a7] hover:text-white transition-colors">
-                                <div className="p-1 rounded-full hover:bg-white/10"><X size={20} /></div>
-                            </button>
-                        </div>
-
-                        {/* Search Input */}
-                        <div className="p-4 border-b border-[#333]">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a7a7a7]" size={18} />
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search for songs..."
-                                    className="w-full bg-[#2a2a2a] border border-[#333] rounded-full px-10 py-2 text-white placeholder-[#a7a7a7] focus:outline-none focus:border-[#ff7a3c] transition-colors"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                            {filteredAvailableSongs.length === 0 ? (
-                                <p className="text-center text-[#a7a7a7] py-8 text-sm">
-                                    {searchQuery ? 'No songs found' : 'No more songs available to add'}
-                                </p>
-                            ) : (
-                                <div className="space-y-2">
-                                    {filteredAvailableSongs.map((song) => (
-                                        <div
-                                            key={song.id}
-                                            onClick={() => toggleSongSelection(song.id)}
-                                            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${selectedSongs.includes(song.id) ? 'bg-[#ff7a3c]/20 border border-[#ff7a3c]/50' : 'hover:bg-[#333] border border-transparent'
-                                                }`}
-                                        >
-                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${selectedSongs.includes(song.id)
-                                                ? 'bg-[#ff7a3c] border-[#ff7a3c]'
-                                                : 'border-[#666]'
-                                                }`}>
-                                                {selectedSongs.includes(song.id) && (
-                                                    <svg className="w-3 h-3 text-black font-bold" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
-                                                    </svg>
-                                                )}
-                                            </div>
-
-                                            <div className="w-10 h-10 bg-[#333] rounded overflow-hidden flex-shrink-0">
-                                                {song.coverUrl ? (
-                                                    <img src={song.coverUrl} alt={song.title} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full bg-[#ff7a3c] flex items-center justify-center text-xs font-bold text-black">
-                                                        {song.title.charAt(0).toUpperCase()}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="flex-1 min-w-0">
-                                                <div className="text-white font-medium truncate">{song.title}</div>
-                                                <div className="text-[#a7a7a7] text-sm truncate">
-                                                    {song.artist || song.uploader || 'Unknown'}
-                                                </div>
-                                            </div>
-                                            <div className="text-[#a7a7a7] text-sm font-mono">
-                                                {formatSongDuration(song.duration)}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="flex justify-end gap-3 p-4 border-t border-[#333]">
-                            <button
-                                onClick={() => { setIsAddSongModalOpen(false); setSearchQuery(''); }}
-                                className="px-5 py-2 text-white border border-[#555] rounded-full hover:border-white transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleAddSongs}
-                                disabled={selectedSongs.length === 0}
-                                className="px-5 py-2 bg-[#ff7a3c] hover:bg-[#ff8c52] text-white rounded-full font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                            >
-                                Add {selectedSongs.length > 0 && `(${selectedSongs.length})`}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Add Song Modal */}
+            <AddSongModal
+                playlistId={id!}
+                playlistSongs={songs}
+                isOpen={isAddSongModalOpen}
+                onClose={() => setIsAddSongModalOpen(false)}
+                onSongAdded={loadPlaylistData}
+            />
 
             {/* Edit Playlist Modal */}
             {isEditModalOpen && (

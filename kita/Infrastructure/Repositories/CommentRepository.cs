@@ -11,11 +11,22 @@ namespace Infrastructure.Repositories
         {
         }
 
+        public new async Task<List<Comment>> GetAllAsync()
+        {
+            return await _dbSet.Include(c => c.User).ToListAsync();
+        }
+
+        public async Task<Comment?> GetCommentWithUserAsync(Guid commentId)
+        {
+            return await _dbSet.Include(c => c.User).FirstOrDefaultAsync(c => c.Id == commentId);
+        }
+
         public async Task<Comment> CreateCommentAsync(Comment comment)
         {
             await _dbSet.AddAsync(comment);
             await _context.SaveChangesAsync();
-            return comment;
+            // Reload with user info
+            return await GetCommentWithUserAsync(comment.Id) ?? comment;
         }
 
         public async Task<Comment> UpdateCommentAsync(Guid commentId, Comment comment)

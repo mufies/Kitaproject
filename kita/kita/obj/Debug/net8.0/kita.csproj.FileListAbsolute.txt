@@ -391,3 +391,4 @@ A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.pdb
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/kita.genruntimeconfig.cache
 /home/mufies/Code/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/libvideo.dll

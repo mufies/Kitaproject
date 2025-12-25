@@ -7,6 +7,7 @@ namespace Kita.Infrastructure.Repositories
     public interface ISongRepository : IBaseRepository<Song>
     {
         Task<Song?> GetByNameAndArtistAsync(string name, string artist);
+        Task<Song?> FindByTitleOrArtistContainsAsync(string title, string artist);
         Task<List<Song>> FilterSongByName(string name);
         Task<List<Song>> FilterSongByArtist(string artist);
         Task<List<Song>> FilterSongByAlbum(string album);

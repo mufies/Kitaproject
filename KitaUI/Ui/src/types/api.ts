@@ -218,10 +218,13 @@ export interface SongStaticsDto {
 
 export interface CommentDto {
     id: string;
+    songId: string;
     content: string;
     userId: string;
-    username: string;
+    userName?: string;
+    userAvatar?: string;
     createdAt: string;
+    updatedAt?: string;
 }
 
 // Import Playlist DTOs
