@@ -17,140 +17,54 @@ KitaUI/
 └── Ui/             # React + TypeScript frontend
 ```
 
-### 🚧 Microservice Migration (In Progress)
-
-The project is currently transitioning from a monolithic architecture to a microservices-based architecture for better scalability and maintainability.
-
-**Planned Microservices:**
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                     API Gateway                         │
-│                  (Ocelot / YARP)                       │
-└─────────────────────────────────────────────────────────┘
-                          │
-        ┌─────────────────┼─────────────────┐
-        │                 │                 │
-┌───────▼────────┐ ┌──────▼──────┐ ┌───────▼────────┐
-│  Auth Service  │ │ Chat Service│ │ Music Service  │
-│   (Port 5001)  │ │ (Port 5002) │ │  (Port 5003)   │
-└────────────────┘ └─────────────┘ └────────────────┘
-        │                 │                 │
-        └─────────────────┼─────────────────┘
-                          │
-                ┌─────────▼─────────┐
-                │   Message Queue   │
-                │  (RabbitMQ/Kafka) │
-                └───────────────────┘
-```
-
-**Service Breakdown:**
-
-1. **Auth Service**
-   - User authentication and authorization
-   - JWT token management
-   - User profile management
-   - Role and permission handling
-
-2. **Chat Service**
-   - Server and channel management
-   - Real-time messaging via SignalR
-   - Message persistence
-   - Server invitations
-
-3. **Music Service**
-   - Song and playlist management
-   - File upload and streaming
-   - Music metadata handling
-   - Audio quality processing
-
-**Inter-Service Communication:**
-- **Synchronous**: REST APIs for direct service-to-service calls
-- **Asynchronous**: Message queue for event-driven communication
-- **Real-time**: SignalR for WebSocket connections
-
 ## ✨ Features
 
 ### 🎵 Music Management
-- Upload and stream music files
-- Create and manage playlists
-- Support for multiple audio qualities (Normal, High, Lossless)
-- Music categorization by genres, types, and albums
-- Cover art support
+- **Song Upload & Streaming**: Upload and stream music files with support for multiple audio qualities (Normal, High, Lossless)
+- **Playlist Management**: Create, edit, and organize personal playlists
+- **Music Organization**: Categorize songs by genres, types, albums, and artists
+- **Artist Management**: Manage artists and their discographies
+- **Playlist Import**: Import playlists from Spotify and YouTube
+- **Favorite System**: Mark songs as favorites with automatic playlist management
+- **Song Comments**: Comment on songs and interact with other users
+- **Cover Art**: Upload and display cover images for songs, albums, and playlists
+- **Music Discovery**: Browse recent songs and explore music by genre or artist
 
-### 💬 Real-time Chat
-- Discord-like server and channel system
-- Real-time messaging via SignalR
-- Channel-based conversations
-- Server invitations system
+### 💬 Real-time Chat & Communication
+- **Server System**: Create and manage Discord-like servers with custom names and icons
+- **Text Channels**: Organize conversations into separate text channels
+- **Voice Channels**: Join voice channels for group voice chat
+- **Real-time Messaging**: Send and receive messages instantly via SignalR
+- **Server Invitations**: Generate and share invite codes to join servers
+- **Music Control**: Control music playback across devices using SignalR
 
-### 👥 User Management
-- JWT-based authentication
-- Role-based authorization (Admin, Moderator, User)
-- User profiles with avatar support
-- Default admin account setup
+### 👥 User & Social Features
+- **User Authentication**: Secure login and registration with JWT tokens
+- **User Profiles**: Customize profiles with avatars, display names, and bios
+- **Public Profiles**: View other users' public profiles and playlists
+- **Role-based Access**: Admin, Moderator, and User roles with different permissions
+- **Cross-device Sync**: Control music playback from multiple devices
 
-### 📁 File Storage
-- Local file storage for music and images
-- Nginx-based static file serving
-- Organized asset management
+### 🎧 Advanced Music Features
+- **YouTube Integration**: Download and import songs from YouTube
+- **Spotify Integration**: Import playlists from Spotify
+- **Audio Quality Options**: Choose from Normal, High, and Lossless audio quality
+- **Music Metadata**: Automatic extraction of song information (title, artist, album, duration)
+- **Song Previews**: Preview songs before adding to playlists
 
 ## 🛠️ Tech Stack
 
 ### Backend
 - **Framework**: ASP.NET Core 8.0
-- **Database**: PostgreSQL
-- **ORM**: Entity Framework Core
-- **Real-time**: SignalR
+- **Database**: PostgreSQL with Entity Framework Core
+- **Real-time Communication**: SignalR for chat and music control
 - **Authentication**: JWT Bearer Tokens
-- **File Server**: Nginx
-
-### Additional Technical Requirements
-
-#### Message Queue & Event Streaming
-- **RabbitMQ** or **Apache Kafka** - For asynchronous inter-service communication
-- **MassTransit** - .NET service bus abstraction layer
-- Use cases: Event-driven architecture, background jobs, notifications
-
-#### Caching Layer
-- **Redis** - Distributed caching and session management
-- **In-Memory Cache** - For frequently accessed data
-- Use cases: JWT token blacklist, user sessions, frequently accessed playlists
-
-#### API Gateway
-- **Ocelot** or **YARP (Yet Another Reverse Proxy)** - API Gateway for microservices
-- Features: Routing, load balancing, authentication, rate limiting
-
-#### Containerization & Orchestration
-- **Docker** - Container platform for all services
-- **Docker Compose** - Multi-container orchestration for development
-- **Kubernetes** (Future) - Production-grade container orchestration
-
-#### Monitoring & Logging
-- **Serilog** - Structured logging framework
-- **Seq** or **ELK Stack** - Log aggregation and analysis
-- **Prometheus** + **Grafana** - Metrics and monitoring
-- **Health Checks** - ASP.NET Core health check endpoints
-
-#### Service Discovery
-- **Consul** or **Eureka** - Service registry and discovery
-- Required for dynamic service location in microservices
-
-#### Resilience & Fault Tolerance
-- **Polly** - Resilience and transient-fault-handling library
-- Patterns: Retry, Circuit Breaker, Timeout, Bulkhead Isolation
-
-#### Cloud Storage (Future)
-- **AWS S3** / **Azure Blob Storage** / **MinIO** - Object storage for music files
-- Replace local file storage for production scalability
-
-#### CI/CD Pipeline
-- **GitHub Actions** or **GitLab CI** - Automated build and deployment
-- **SonarQube** - Code quality and security analysis
+- **File Storage**: Local file system + Nginx for static file serving
+- **External APIs**: Spotify API, YouTube API
+- **Voice Chat**: LiveKit integration
 
 ### Frontend
-- **Framework**: React 19.2
-- **Language**: TypeScript
+- **Framework**: React 19.2 with TypeScript
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS 4.1
 - **Routing**: React Router DOM
@@ -170,7 +84,7 @@ The project is currently transitioning from a monolithic architecture to a micro
 
 1. **Clone the repository**
    ```bash
-   cd "a:\Code project\Kitaproject\kita"
+   cd "/home/mufies/Code/Kitaproject/kita"
    ```
 
 2. **Configure database connection**
@@ -190,7 +104,7 @@ The project is currently transitioning from a monolithic architecture to a micro
    ```json
    {
      "FileStorage": {
-       "BasePath": "a:/Code project/Kitaproject/kita/Assets",
+       "BasePath": "/home/mufies/Code/Kitaproject/kita/Assets",
        "BaseUrl": "http://localhost:8080/assets"
      }
    }
@@ -212,7 +126,7 @@ The project is currently transitioning from a monolithic architecture to a micro
 
 1. **Navigate to UI directory**
    ```bash
-   cd "a:\Code project\Kitaproject\KitaUI\Ui"
+   cd "/home/mufies/Code/Kitaproject/KitaUI/Ui"
    ```
 
 2. **Install dependencies**
@@ -238,12 +152,12 @@ The project is currently transitioning from a monolithic architecture to a micro
        server_name localhost;
 
        location /assets/images/ {
-           alias "a:/Code project/Kitaproject/kita/Assets/Images/";
+           alias "/home/mufies/Code/Kitaproject/kita/Assets/Images/";
            autoindex on;
        }
 
        location /assets/music/ {
-           alias "a:/Code project/Kitaproject/kita/Assets/Music/";
+           alias "/home/mufies/Code/Kitaproject/kita/Assets/Music/";
            autoindex on;
        }
    }
@@ -251,8 +165,9 @@ The project is currently transitioning from a monolithic architecture to a micro
 
 2. **Start Nginx**
    ```bash
-   nginx -c "a:/Code project/Kitaproject/kita/nginx.conf"
+   nginx -c "/home/mufies/Code/Kitaproject/kita/nginx.conf"
    ```
+
 
 ## 📡 API Endpoints
 
@@ -260,92 +175,31 @@ The project is currently transitioning from a monolithic architecture to a micro
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 
-### Music
+### Music & Playlists
 - `GET /api/music/songs` - Get all songs
-- `GET /api/music/songs/{id}` - Get song by ID
-- `POST /api/music/songs` - Create song
 - `POST /api/music/songs/upload` - Upload song with file
-- `PUT /api/music/songs/{id}` - Update song
-- `PATCH /api/music/songs/{id}/status` - Change song status
-
-### Playlists
 - `GET /api/music/playlists` - Get user playlists
-- `GET /api/music/playlists/{id}` - Get playlist by ID
-- `POST /api/music/playlists` - Create playlist
-- `PUT /api/music/playlists/{id}` - Update playlist
-- `DELETE /api/music/playlists/{id}` - Delete playlist
+- `POST /api/music/playlists/import/spotify` - Import from Spotify
+- `POST /api/music/playlists/import/youtube` - Import from YouTube
 - `POST /api/music/playlists/{id}/songs` - Add song to playlist
-- `DELETE /api/music/playlists/{playlistId}/songs/{songId}` - Remove song from playlist
+- `POST /api/music/songs/{id}/favorite` - Toggle favorite
 
-### Servers
+### Social & Communication
 - `GET /api/server` - Get user servers
-- `GET /api/server/{id}` - Get server by ID
 - `POST /api/server` - Create server
-- `PUT /api/server/{id}` - Update server
-- `DELETE /api/server/{id}` - Delete server
-
-### Channels
 - `GET /api/channel/server/{serverId}` - Get server channels
-- `GET /api/channel/{id}` - Get channel by ID
 - `POST /api/channel` - Create channel
-- `PUT /api/channel/{id}` - Update channel
-- `DELETE /api/channel/{id}` - Delete channel
-
-### Messages
 - `GET /api/message/channel/{channelId}` - Get channel messages
-- `POST /api/message` - Send message
-- `PUT /api/message/{id}` - Update message
-- `DELETE /api/message/{id}` - Delete message
-
-### Users
-- `GET /api/user/profile` - Get user profile
-- `PUT /api/user/profile` - Update user profile
-- `POST /api/user/avatar` - Upload avatar
-
-### Server Invites
-- `POST /api/serverinvite` - Create invite
 - `POST /api/serverinvite/join/{code}` - Join server via invite
-- `GET /api/serverinvite/{code}` - Get invite details
 
-### SignalR Hub
-- `/hubs/chat` - Real-time chat hub
-  - `JoinChannel(channelId)` - Join a channel
-  - `SendMessage(channelId, content)` - Send message to channel
+### SignalR Hubs
+- `/hubs/chat` - Real-time chat
+- `/hubs/voice` - Voice channel communication
+- `/hubs/musiccontrol` - Cross-device music control
 
-## 🗂️ Database Schema
-
-### Core Entities
-
-**User**
-- Id, Username, Email, PasswordHash
-- DisplayName, AvatarUrl, Bio
-- Role (Admin, Moderator, User)
-
-**Song**
-- Id, Title, Artist, Album, Duration
-- StreamUrl, CoverUrl
-- Status, Type, Genres, AudioQuality
-
-**Playlist**
-- Id, Name, Description
-- IsPublic, OwnerId
-
-**Server**
-- Id, Name, Description
-- OwnerId, IconUrl
-
-**Channel**
-- Id, Name, Description
-- ServerId, Type (Text, Voice)
-
-**Message**
-- Id, Content, SenderId
-- ChannelId, Timestamp
-
-## 🔐 Authentication
+## 🔧 Configuration
 
 The API uses JWT Bearer tokens for authentication. Include the token in requests:
-
 ```
 Authorization: Bearer <your_token>
 ```
@@ -355,41 +209,38 @@ For SignalR connections, pass the token as a query parameter:
 /hubs/chat?access_token=<your_token>
 ```
 
-## 📝 Default Roles
+### Required Settings in appsettings.json
 
-- **Admin**: Full system access
-- **Moderator**: Content moderation capabilities
-- **User**: Standard user permissions
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=kita_db;Username=postgres;Password=your_password"
+  },
+  "JwtSettings": {
+    "Key": "your-secret-key-min-32-characters",
+    "Issuer": "KitaApi",
+    "Audience": "KitaClient"
+  },
+  "FileStorage": {
+    "BasePath": "/path/to/your/Assets",
+    "BaseUrl": "http://localhost:8080/assets"
+  },
+  "Spotify": {
+    "ClientId": "your_spotify_client_id",
+    "ClientSecret": "your_spotify_client_secret"
+  }
+}
+```
 
 ## 🎨 Frontend Structure
 
 ```
 src/
 ├── components/     # Reusable UI components
-├── pages/         # Page components
+├── pages/         # Page components (Home, Chat, Music, etc.)
 ├── services/      # API service layer
-├── contexts/      # React contexts (Auth, etc.)
+├── contexts/      # React contexts (Auth, Player, etc.)
 └── types/         # TypeScript type definitions
-```
-
-## 🔧 Configuration
-
-### JWT Settings
-Configure in `appsettings.json`:
-```json
-{
-  "JwtSettings": {
-    "Key": "your-secret-key-min-32-characters",
-    "Issuer": "KitaApi",
-    "Audience": "KitaClient"
-  }
-}
-```
-
-### CORS Settings
-Frontend origins are configured in `Program.cs`:
-```csharp
-policy.WithOrigins("http://localhost:5173", "http://localhost:5174")
 ```
 
 ## 📦 Build for Production
@@ -406,38 +257,28 @@ npm run build
 
 The built files will be in the `dist/` directory.
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
-## 📄 License
-
-This project is private and proprietary.
-
 ## 🐛 Troubleshooting
 
 ### Database Connection Issues
-- Ensure PostgreSQL is running
+- Ensure PostgreSQL is running on port 5432
 - Verify connection string in `appsettings.json`
-- Check database exists: `CREATE DATABASE kita_db;`
+- Create database if it doesn't exist: `CREATE DATABASE kita_db;`
+- Run migrations: `dotnet ef database update`
 
-### File Upload Issues
+### File Upload & Streaming Issues
 - Verify `Assets/Images` and `Assets/Music` directories exist
-- Check Nginx is running and configured correctly
+- Check Nginx is running: `nginx -t` to test configuration
 - Ensure file paths in `appsettings.json` match your system
 
-### SignalR Connection Issues
+### SignalR/Real-time Connection Issues
 - Verify CORS settings allow your frontend origin
 - Check JWT token is valid and not expired
-- Ensure SignalR hub is mapped in `Program.cs`
+- Ensure all SignalR hubs are mapped in `Program.cs`
 
-## 📞 Support
-
-For issues and questions, please open an issue in the repository.
+### External API Issues
+- Verify Spotify credentials are correct in `appsettings.json`
+- Check internet connection for YouTube downloads
+- Ensure API rate limits are not exceeded
 
 ---
 
