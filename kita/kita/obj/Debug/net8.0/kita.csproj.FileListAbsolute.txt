@@ -394,3 +394,5 @@ A:/Code project/Kitaproject/kita/kita/obj/Debug/net8.0/ref/kita.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/libvideo.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Pipelines.Sockets.Unofficial.dll
 /home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/StackExchange.Redis.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/Google.Protobuf.dll
+/home/mufies/Code/Kitaproject/kita/kita/bin/Debug/net8.0/LivekitApi.dll

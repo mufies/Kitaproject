@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Play, Pause, Music, Trash2, Edit2, Clock, X, Upload, Camera } from 'lucide-react';
+import { ArrowLeft, Plus, Play, Pause, Music, Trash2, Edit2, Clock, X, Upload, Camera, Heart } from 'lucide-react';
 import type { PlaylistDto, SongDto } from '../../types/api';
 import { getPlaylistById, getSongsInPlaylist, removeSongFromPlaylist, deletePlaylist, updatePlaylist } from '../../utils/musicAPI';
 import { usePlay } from '../../context/PlayContext';
 import AddSongModal from '../../components/Music/AddSongModal';
+import { toggleFavorite, getUserInteractionStatus } from '../../services/songStaticsService';
 
 export default function PlaylistPage() {
     const { id } = useParams<{ id: string }>();
@@ -21,6 +22,7 @@ export default function PlaylistPage() {
     const [editedIsPublic, setEditedIsPublic] = useState(false);
     const [editedCoverFile, setEditedCoverFile] = useState<File | null>(null);
     const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
+    const [favoritedSongs, setFavoritedSongs] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         if (id) {
@@ -46,12 +48,57 @@ export default function PlaylistPage() {
 
             if (songsResponse.success) {
                 setSongs(songsResponse.data);
+                // Load favorite status for all songs
+                await loadFavoriteStatus(songsResponse.data);
             }
         } catch (error) {
             console.error('Error loading playlist:', error);
             navigate('/music');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const loadFavoriteStatus = async (songList: SongDto[]) => {
+        try {
+            const favoriteStatuses = await Promise.all(
+                songList.map(song => getUserInteractionStatus(song.id))
+            );
+            const favorited = new Set<string>();
+            songList.forEach((song, index) => {
+                if (favoriteStatuses[index].hasFavorited) {
+                    favorited.add(song.id);
+                }
+            });
+            setFavoritedSongs(favorited);
+        } catch (error) {
+            console.error('Error loading favorite status:', error);
+        }
+    };
+
+    const handleToggleFavorite = async (songId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        try {
+            const isFavorited = favoritedSongs.has(songId);
+            await toggleFavorite(songId, isFavorited);
+
+            // Update local state
+            setFavoritedSongs(prev => {
+                const newSet = new Set(prev);
+                if (isFavorited) {
+                    newSet.delete(songId);
+                } else {
+                    newSet.add(songId);
+                }
+                return newSet;
+            });
+
+            // If unfavoriting from the Favorite playlist, reload to remove the song
+            if (playlist?.name === 'Favorite' && isFavorited) {
+                await loadPlaylistData();
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
         }
     };
 
@@ -310,11 +357,12 @@ export default function PlaylistPage() {
                         ) : (
                             <div className="w-full">
                                 {/* Header Row */}
-                                <div className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-4 py-3 border-b border-white/10 text-[#a7a7a7] text-sm font-medium uppercase tracking-wider sticky top-0 bg-[#121212] z-10">
+                                <div className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px_60px] gap-4 px-4 py-3 border-b border-white/10 text-[#a7a7a7] text-sm font-medium uppercase tracking-wider sticky top-0 bg-[#121212] z-10">
                                     <div className="text-center">#</div>
                                     <div>Title</div>
                                     <div className="hidden md:block text-left">Date Added</div>
                                     <div className="text-right hidden sm:block"><Clock size={16} className="ml-auto" /></div>
+                                    <div></div>
                                     <div></div>
                                 </div>
 
@@ -323,7 +371,7 @@ export default function PlaylistPage() {
                                     {songs.map((song, index) => (
                                         <div
                                             key={song.id}
-                                            className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-4 py-3 hover:bg-[#ffffff10] rounded-md group transition-colors items-center cursor-pointer"
+                                            className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px_60px] gap-4 px-4 py-3 hover:bg-[#ffffff10] rounded-md group transition-colors items-center cursor-pointer"
                                             onClick={() => navigate(`/music/song/${song.id}`)}
                                         >
                                             <div className="relative text-center text-[#a7a7a7] font-medium w-4 flex justify-center">
@@ -378,13 +426,26 @@ export default function PlaylistPage() {
 
                                             <div className="text-right opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
-                                                    onClick={(e) => { e.stopPropagation(); handleRemoveSong(song.id); }}
-                                                    className="text-[#a7a7a7] hover:text-white hover:scale-110 transition-all p-2"
-                                                    title="Remove from playlist"
+                                                    onClick={(e) => handleToggleFavorite(song.id, e)}
+                                                    className={`${favoritedSongs.has(song.id) ? 'text-[#ff7a3c]' : 'text-[#a7a7a7]'} hover:text-[#ff7a3c] hover:scale-110 transition-all p-2`}
+                                                    title={favoritedSongs.has(song.id) ? "Remove from favorites" : "Add to favorites"}
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Heart size={16} fill={favoritedSongs.has(song.id) ? 'currentColor' : 'none'} />
                                                 </button>
                                             </div>
+
+                                            {/* Delete button - hidden for Favorite playlist */}
+                                            {playlist?.name !== 'Favorite' && (
+                                                <div className="text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); handleRemoveSong(song.id); }}
+                                                        className="text-[#a7a7a7] hover:text-white hover:scale-110 transition-all p-2"
+                                                        title="Remove from playlist"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>

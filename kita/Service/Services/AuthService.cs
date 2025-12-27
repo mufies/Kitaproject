@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BCrypt.Net;
 using Kita.Domain.Entities;
+using Kita.Domain.Entities.Music;
 using Kita.Infrastructure.Repositories;
 using Kita.Service.Common;
 using Kita.Service.DTOs.Auth;
@@ -19,12 +20,18 @@ namespace Kita.Service.Services
     public class AuthService : IAuthService
     {
         private readonly IBaseRepository<User> _userRepository;
+        private readonly IBaseRepository<Playlist> _playlistRepository;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthService(IBaseRepository<User> userRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public AuthService(
+            IBaseRepository<User> userRepository, 
+            IBaseRepository<Playlist> playlistRepository,
+            IConfiguration configuration, 
+            IHttpContextAccessor httpContextAccessor)
         {
             _userRepository = userRepository;
+            _playlistRepository = playlistRepository;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -52,6 +59,18 @@ namespace Kita.Service.Services
 
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
+            
+            // Automatically create a "favorite" playlist for the new user
+            var favoritePlaylist = new Playlist
+            {
+                Name = "Favorite",
+                Description = "Your favorite songs",
+                IsPublic = false,
+                OwnerId = user.Id
+            };
+
+            await _playlistRepository.AddAsync(favoritePlaylist);
+            await _playlistRepository.SaveChangesAsync();
 
             var token = GenerateJwtToken(user);
 

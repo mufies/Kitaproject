@@ -61,6 +61,9 @@ builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<IAlbumService, AlbumService>();
 builder.Services.AddHttpContextAccessor();
 
+// Add LiveKit Service
+builder.Services.AddScoped<ILiveKitService, LiveKitService>();
+
 // Add Redis
 builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
 {

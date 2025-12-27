@@ -20,6 +20,7 @@ namespace Kita.Service.Services
         private readonly ISpotifyService _spotifyService;
         private readonly IUserRepository _userRepository;
         private readonly IArtistRepository _artistRepository;
+        private readonly ISongStaticsService _songStaticsService;
 
         public PlaylistService(
             IBaseRepository<Playlist> playlistRepository, 
@@ -29,7 +30,8 @@ namespace Kita.Service.Services
             IYouTubeService youTubeService,
             ISpotifyService spotifyService,
             IUserRepository userRepository,
-            IArtistRepository artistRepository)
+            IArtistRepository artistRepository,
+            ISongStaticsService songStaticsService)
         {
             _playlistRepository = playlistRepository;
             this._songRepository = _songRepository;
@@ -39,6 +41,7 @@ namespace Kita.Service.Services
             _spotifyService = spotifyService;
             _userRepository = userRepository;
             _artistRepository = artistRepository;
+            _songStaticsService = songStaticsService;
         }
 
 
@@ -66,30 +69,35 @@ namespace Kita.Service.Services
         }
 
         // Create Playlist
-        public async Task<ApiResponse<PlaylistDto>> CreatePlaylistAsync(CreatePlaylistDto createPlaylistDto, Guid ownerId, IFormFile coverFile)
+        public async Task<ApiResponse<PlaylistDto>> CreatePlaylistAsync(CreatePlaylistDto createPlaylistDto, Guid ownerId, IFormFile? coverFile)
         {
-            // Lấy config
-            var storagePath = _configuration["FileStorage:BasePath"];
-            var baseUrl = _configuration["FileStorage:BaseUrl"];
+            string? coverUrl = null;
 
-            // Đảm bảo thư mục Images tồn tại
-            var imagesFolder = Path.Combine(storagePath!, "Images");
-
-            // Tạo tên file random + giữ lại extension
-            var extension = Path.GetExtension(coverFile.FileName);
-            var fileName = Path.GetRandomFileName() + extension;
-
-            // Đường dẫn vật lý để lưu file
-            var filePath = Path.Combine(imagesFolder, fileName);
-
-            // Lưu file
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            // Upload cover image if provided
+            if (coverFile != null)
             {
-                await coverFile.CopyToAsync(stream);
-            }
+                var storagePath = _configuration["FileStorage:BasePath"];
+                var baseUrl = _configuration["FileStorage:BaseUrl"];
 
-            // URL trả về cho client
-            var coverUrl = $"{baseUrl}/Images/{fileName}";
+                // Đảm bảo thư mục Images tồn tại
+                var imagesFolder = Path.Combine(storagePath!, "Images");
+
+                // Tạo tên file random + giữ lại extension
+                var extension = Path.GetExtension(coverFile.FileName);
+                var fileName = Path.GetRandomFileName() + extension;
+
+                // Đường dẫn vật lý để lưu file
+                var filePath = Path.Combine(imagesFolder, fileName);
+
+                // Lưu file
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await coverFile.CopyToAsync(stream);
+                }
+
+                // URL trả về cho client
+                coverUrl = $"{baseUrl}/Images/{fileName}";
+            }
 
             var playlist = new Playlist
             {
@@ -166,6 +174,19 @@ namespace Kita.Service.Services
             await _playlistSongRepository.DeleteByCompositeKeyAsync(playlistId, songId);
             await _playlistSongRepository.SaveChangesAsync();
 
+            // If this is the "Favorite" playlist, also unfavorite the song
+            if (playlist.Name == "Favorite")
+            {
+                try
+                {
+                    await _songStaticsService.DecrementFavoriteCountAsync(songId, playlist.OwnerId);
+                }
+                catch (Exception)
+                {
+                    // Silently fail - song is already removed from playlist
+                }
+            }
+
             return new ApiResponse<PlaylistDto>(new PlaylistDto
             {
                 Id = playlist.Id,
@@ -177,7 +198,7 @@ namespace Kita.Service.Services
         }
 
         // Update Playlist
-        public async Task<ApiResponse<PlaylistDto>> UpdatePlaylistAsync(Guid playlistId, PlaylistDto updatePlaylistDto)
+        public async Task<ApiResponse<PlaylistDto>> UpdatePlaylistAsync(Guid playlistId, PlaylistDto updatePlaylistDto, IFormFile? coverFile = null)
         {
             var playlist = await _playlistRepository.GetByIdAsync(playlistId);
             if (playlist == null) return ApiResponse<PlaylistDto>.Fail("Playlist not found.");
@@ -185,6 +206,32 @@ namespace Kita.Service.Services
             playlist.Name = updatePlaylistDto.Name;
             playlist.Description = updatePlaylistDto.Description;
             playlist.IsPublic = updatePlaylistDto.IsPublic;
+
+            // Upload new cover image if provided
+            if (coverFile != null)
+            {
+                var storagePath = _configuration["FileStorage:BasePath"];
+                var baseUrl = _configuration["FileStorage:BaseUrl"];
+
+                // Đảm bảo thư mục Images tồn tại
+                var imagesFolder = Path.Combine(storagePath!, "Images");
+
+                // Tạo tên file random + giữ lại extension
+                var extension = Path.GetExtension(coverFile.FileName);
+                var fileName = Path.GetRandomFileName() + extension;
+
+                // Đường dẫn vật lý để lưu file
+                var filePath = Path.Combine(imagesFolder, fileName);
+
+                // Lưu file
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await coverFile.CopyToAsync(stream);
+                }
+
+                // URL trả về cho client
+                playlist.CoverUrl = $"{baseUrl}/Images/{fileName}";
+            }
 
             await _playlistRepository.UpdateAsync(playlist);
             await _playlistRepository.SaveChangesAsync();
@@ -195,7 +242,8 @@ namespace Kita.Service.Services
                 Name = playlist.Name,
                 Description = playlist.Description,
                 IsPublic = playlist.IsPublic,
-                OwnerId = playlist.OwnerId
+                OwnerId = playlist.OwnerId,
+                CoverUrl = playlist.CoverUrl
             }, "Playlist updated successfully.");
         }
 

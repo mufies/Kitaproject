@@ -21,7 +21,7 @@ namespace Kita.Controllers
         // CRUD Operations
 
         [HttpPost]
-        public async Task<IActionResult> CreatePlaylist([FromForm] CreatePlaylistDto createPlaylistDto, [FromForm] IFormFile coverFile)
+        public async Task<IActionResult> CreatePlaylist([FromForm] CreatePlaylistDto createPlaylistDto, [FromForm] IFormFile? coverFile)
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var result = await _playlistService.CreatePlaylistAsync(createPlaylistDto, userId, coverFile);
@@ -44,9 +44,9 @@ namespace Kita.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePlaylist(Guid id, PlaylistDto updatePlaylistDto)
+        public async Task<IActionResult> UpdatePlaylist(Guid id, [FromForm] PlaylistDto updatePlaylistDto, [FromForm] IFormFile? coverFile)
         {
-            var result = await _playlistService.UpdatePlaylistAsync(id, updatePlaylistDto);
+            var result = await _playlistService.UpdatePlaylistAsync(id, updatePlaylistDto, coverFile);
             return HandleResult(result);
         }
 

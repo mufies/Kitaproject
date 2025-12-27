@@ -5,7 +5,7 @@ import PlaylistList from "../../../components/Music/HomePage/PlaylistList";
 import HomeArtistList from "../../../components/Music/HomePage/HomeArtistList";
 import HomeLikedAlbumList from "../../../components/Music/HomePage/HomeLikedAlbumList";
 import { createPlaylist, uploadSong, importPlaylist } from "../../../utils/musicAPI";
-import { searchSongs, getAllSongs, type Song } from "../../../services/musicService";
+import { searchSongs, getRecentlyPlayedSongs, type Song } from "../../../services/musicService";
 import { artistService, type Artist } from "../../../services/artistService";
 import { getUserPlaylists, type Playlist } from "../../../services/musicService";
 
@@ -51,11 +51,11 @@ const HomePage: React.FC = () => {
                 const [playlists, artists, songs] = await Promise.all([
                     getUserPlaylists(),
                     artistService.getFollowedArtists(),
-                    getAllSongs()
+                    getRecentlyPlayedSongs(5)
                 ]);
                 setUserPlaylists(playlists.slice(0, 5));
                 setFollowedArtists(artists.slice(0, 5));
-                setRecentSongs(songs.slice(0, 5));
+                setRecentSongs(songs);
             } catch (error) {
                 console.error('Failed to fetch sidebar data:', error);
             }

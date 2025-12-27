@@ -6,11 +6,11 @@ namespace Kita.Service.Interfaces
 {
     public interface IPlaylistService
     {
-        Task<ApiResponse<PlaylistDto>> CreatePlaylistAsync(CreatePlaylistDto createPlaylistDto, Guid ownerId, IFormFile coverFile);
+        Task<ApiResponse<PlaylistDto>> CreatePlaylistAsync(CreatePlaylistDto createPlaylistDto, Guid ownerId, IFormFile? coverFile);
         Task<ApiResponse<PlaylistDto>> AddSongToPlaylistAsync(Guid playlistId, Guid songId);
         Task<ApiResponse<List<PlaylistDto>>> GetUserPlaylistsAsync(Guid userId);
         Task<ApiResponse<PlaylistDto>> RemoveSongFromPlaylistAsync(Guid playlistId, Guid songId);
-        Task<ApiResponse<PlaylistDto>> UpdatePlaylistAsync(Guid playlistId, PlaylistDto updatePlaylistDto);
+        Task<ApiResponse<PlaylistDto>> UpdatePlaylistAsync(Guid playlistId, PlaylistDto updatePlaylistDto, IFormFile? coverFile = null);
         Task<ApiResponse<PlaylistDto>> DeletePlaylistAsync(Guid playlistId);
         Task<ApiResponse<PlaylistDto>> GetPlaylistByIdAsync(Guid playlistId);
         Task<ApiResponse<List<PlaylistDto>>> GetAllPlaylistsAsync();

@@ -1,5 +1,6 @@
 using Domain.Entities.Music;
 using Infrastructure.Repositories;
+using Kita.Domain.Entities.Music;
 using Kita.Infrastructure.Repositories;
 using Kita.Service.Common;
 using Kita.Service.DTOs.Music;
@@ -12,11 +13,19 @@ namespace Kita.Service.Services
     {
         private readonly ISongStaticsRepository _songStaticsRepository;
         private readonly ISongRepository _songRepository;
+        private readonly IBaseRepository<Playlist> _playlistRepository;
+        private readonly IPlaylistSongRepository _playlistSongRepository;
 
-        public SongStaticsService(ISongStaticsRepository songStaticsRepository, ISongRepository songRepository)
+        public SongStaticsService(
+            ISongStaticsRepository songStaticsRepository, 
+            ISongRepository songRepository,
+            IBaseRepository<Playlist> playlistRepository,
+            IPlaylistSongRepository playlistSongRepository)
         {
             _songStaticsRepository = songStaticsRepository;
             _songRepository = songRepository;
+            _playlistRepository = playlistRepository;
+            _playlistSongRepository = playlistSongRepository;
         }
 
         public async Task<ApiResponse<SongStaticsDto>> GetSongStaticsAsync(Guid songId)
@@ -130,6 +139,9 @@ namespace Kita.Service.Services
             songStatics.FavoriteCount++;
             await _songStaticsRepository.UpdateSongStaticsAsync(songId, songStatics);
 
+            // Add song to user's "Favorite" playlist
+            await AddSongToFavoritePlaylistAsync(songId, userId);
+
             return new ApiResponse<SongStaticsDto>(MapToDto(songStatics));
         }
 
@@ -197,6 +209,9 @@ namespace Kita.Service.Services
             songStatics.FavoritedByUserIds.Remove(userId);
             songStatics.FavoriteCount = Math.Max(0, songStatics.FavoriteCount - 1);
             await _songStaticsRepository.UpdateSongStaticsAsync(songId, songStatics);
+
+            // Remove song from user's "Favorite" playlist
+            await RemoveSongFromFavoritePlaylistAsync(songId, userId);
 
             return new ApiResponse<SongStaticsDto>(MapToDto(songStatics));
         }
@@ -290,6 +305,88 @@ namespace Kita.Service.Services
                 SongTitle = songStatics.Song?.Title,
                 ArtistName = songStatics.Song?.Artist?.Name
             };
+        }
+
+        private async Task AddSongToFavoritePlaylistAsync(Guid songId, Guid userId)
+        {
+            try
+            {
+                // Find user's "Favorite" playlist
+                var favoritePlaylists = await _playlistRepository.FindAsync(p => 
+                    p.OwnerId == userId && p.Name == "Favorite");
+                var favoritePlaylist = favoritePlaylists.FirstOrDefault();
+
+                if (favoritePlaylist == null)
+                {
+                    // If no favorite playlist exists, create one
+                    favoritePlaylist = new Playlist
+                    {
+                        Name = "Favorite",
+                        Description = "Your favorite songs",
+                        IsPublic = false,
+                        OwnerId = userId
+                    };
+                    await _playlistRepository.AddAsync(favoritePlaylist);
+                    await _playlistRepository.SaveChangesAsync();
+                }
+
+                // Check if song already exists in playlist
+                var existing = await _playlistSongRepository.FindAsync(ps => 
+                    ps.PlaylistId == favoritePlaylist.Id && ps.SongId == songId);
+                
+                if (!existing.Any())
+                {
+                    // Get current max order index
+                    var playlistSongs = await _playlistSongRepository.FindAsync(ps => 
+                        ps.PlaylistId == favoritePlaylist.Id);
+                    var maxOrder = playlistSongs.Any() ? playlistSongs.Max(ps => ps.OrderIndex) : -1;
+
+                    // Add song to playlist
+                    var playlistSong = new PlaylistSong
+                    {
+                        PlaylistId = favoritePlaylist.Id,
+                        SongId = songId,
+                        OrderIndex = maxOrder + 1
+                    };
+
+                    await _playlistSongRepository.AddAsync(playlistSong);
+                    await _playlistSongRepository.SaveChangesAsync();
+                }
+            }
+            catch (Exception)
+            {
+                // Silently fail - favorite count is already updated
+            }
+        }
+
+        private async Task RemoveSongFromFavoritePlaylistAsync(Guid songId, Guid userId)
+        {
+            try
+            {
+                // Find user's "Favorite" playlist
+                var favoritePlaylists = await _playlistRepository.FindAsync(p => 
+                    p.OwnerId == userId && p.Name == "Favorite");
+                var favoritePlaylist = favoritePlaylists.FirstOrDefault();
+
+                if (favoritePlaylist != null)
+                {
+                    // Remove song from playlist if it exists
+                    var existing = await _playlistSongRepository.FindAsync(ps => 
+                        ps.PlaylistId == favoritePlaylist.Id && ps.SongId == songId);
+                    var songToRemove = existing.FirstOrDefault();
+
+                    if (songToRemove != null)
+                    {
+                        await _playlistSongRepository.DeleteByCompositeKeyAsync(
+                            favoritePlaylist.Id, songId);
+                        await _playlistSongRepository.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Silently fail - favorite count is already updated
+            }
         }
     }
 }

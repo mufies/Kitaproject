@@ -69,6 +69,49 @@ export const getSongById = async (id: string): Promise<Song | null> => {
     }
 };
 
+// Interface for ListenHistoryDto response
+interface ListenHistoryDto {
+    id: string;
+    songId: string;
+    userId: string;
+    msPlayed?: number;
+    createdAt: string;
+    updatedAt?: string;
+    songTitle?: string;
+    artistName?: string;
+    coverUrl?: string;
+    userName?: string;
+}
+
+// Get recently played songs
+export const getRecentlyPlayedSongs = async (limit: number = 20): Promise<Song[]> => {
+    try {
+        const response = await api.get<ApiResponse<ListenHistoryDto[]>>('/listenhistory/history/recent', {
+            params: { limit }
+        });
+
+        // Map ListenHistoryDto to Song format
+        const songs: Song[] = (response.data.data || []).map(history => ({
+            id: history.songId,
+            title: history.songTitle || 'Unknown',
+            artist: history.artistName || 'Unknown Artist',
+            coverUrl: history.coverUrl,
+            duration: history.msPlayed ? Math.floor(history.msPlayed / 1000) : 0,
+            streamUrl: '', // Will be loaded when needed
+            status: 'active',
+            type: 'audio',
+            genres: [],
+            audioQuality: 'standard',
+            createdAt: history.createdAt
+        }));
+
+        return songs;
+    } catch (error) {
+        console.error('Error fetching recently played songs:', error);
+        return [];
+    }
+};
+
 // ========== Playlist APIs ==========
 
 // Get all playlists
