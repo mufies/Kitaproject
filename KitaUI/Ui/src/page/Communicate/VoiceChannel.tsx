@@ -9,6 +9,7 @@ import {
     TrackToggle
 } from '@livekit/components-react';
 import { Track } from 'livekit-client';
+import MusicBotPlayer from '../../components/MusicBotPlayer';
 
 interface VoiceChannelProps {
     channel: ChannelDto;
@@ -62,7 +63,7 @@ function ParticipantTile({ name, isSpeaking, isMicrophoneEnabled }: ParticipantT
 
 function VoiceControls({ onLeave }: { onLeave: () => void }) {
     return (
-        <div className="h-20 bg-[#120c12] border-t border-[#ffffff0d] flex items-center justify-center gap-4 px-4 pb-4">
+        <div className="h-20 bg-[#120c12] border-t border-[#ffffff0d] flex items-center justify-center gap-4 px-4">
             <TrackToggle
                 source={Track.Source.Microphone}
                 className="p-4 rounded-2xl bg-[#1a141a] text-white hover:bg-[#251d25] transition-all"
@@ -149,6 +150,7 @@ export default function VoiceChannel({ channel }: VoiceChannelProps) {
         >
             <ParticipantList />
             <VoiceControls onLeave={handleLeave} />
+            <MusicBotPlayer channelId={channel.id} isConnected={isJoined} />
             <RoomAudioRenderer />
         </LiveKitRoom>
     );

@@ -73,6 +73,9 @@ builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
 });
 builder.Services.AddSingleton<IRedisService, RedisService>();
 
+// Add Music Bot Service (Singleton to maintain state)
+builder.Services.AddSingleton<IMusicBotService, MusicBotService>();
+
 
 // Configure Spotify Options
 builder.Services.Configure<SpotifyOptions>(builder.Configuration.GetSection("Spotify"));

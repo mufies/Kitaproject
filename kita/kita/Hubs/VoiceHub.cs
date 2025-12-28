@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Kita.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -14,6 +15,15 @@ public class VoiceHub : Hub
     // Track users in each room (channelId -> list of connection IDs)
     private static readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _roomParticipants 
         = new ConcurrentDictionary<string, ConcurrentDictionary<string, string>>();
+    
+    private readonly IMusicBotService _musicBotService;
+    private readonly ILogger<VoiceHub> _logger;
+
+    public VoiceHub(IMusicBotService musicBotService, ILogger<VoiceHub> logger)
+    {
+        _musicBotService = musicBotService;
+        _logger = logger;
+    }
 
     public override async Task OnConnectedAsync()
     {
@@ -33,6 +43,16 @@ public class VoiceHub : Hub
         // Track participant
         var participants = _roomParticipants.GetOrAdd(channelId, _ => new ConcurrentDictionary<string, string>());
         participants.TryAdd(Context.ConnectionId, username);
+
+        // Trigger music bot to join if first user
+        try
+        {
+            await _musicBotService.OnUserJoinedChannelAsync(channelId, Guid.Parse(userId));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error triggering music bot join for channel {channelId}");
+        }
 
         // Notify others in the room
         await Clients.Group(channelId).SendAsync("UserJoined", new
@@ -54,6 +74,19 @@ public class VoiceHub : Hub
         {
             if (participants.TryRemove(Context.ConnectionId, out var username))
             {
+                // Trigger music bot to potentially leave after delay
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    try
+                    {
+                        await _musicBotService.OnUserLeftChannelAsync(channelId, Guid.Parse(userId));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Error triggering music bot leave for channel {channelId}");
+                    }
+                }
+
                 // Notify others in the room
                 await Clients.Group(channelId).SendAsync("UserLeft", new
                 {
@@ -90,6 +123,19 @@ public class VoiceHub : Hub
             {
                 var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 
+                // Trigger music bot to potentially leave after delay
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    try
+                    {
+                        await _musicBotService.OnUserLeftChannelAsync(room.Key, Guid.Parse(userId));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Error triggering music bot leave for channel {room.Key} on disconnect");
+                    }
+                }
+
                 await Clients.Group(room.Key).SendAsync("UserLeft", new
                 {
                     userId,
