@@ -208,5 +208,20 @@ namespace Kita.Service.Services
                 Role = user.Role,
             }, "Password updated successfully.");
         }
+
+        public async Task<ApiResponse<bool>> SetActiveAsync(Guid userId, bool isActive)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return ApiResponse<bool>.Fail("User not found.", code: 404);
+            }
+
+            user.IsActive = isActive;
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            return new ApiResponse<bool>(true, "User status updated successfully.");
+        }
     }
 }

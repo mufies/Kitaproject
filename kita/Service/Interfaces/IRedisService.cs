@@ -21,7 +21,13 @@ namespace Kita.Service.Interfaces
         Task SetPlaybackStateAsync(string userId, PlaybackState state);
         Task<PlaybackState?> GetPlaybackStateAsync(string userId);
         
+        // Generic Key-Value Storage
+        Task SetValueAsync(string key, string value, TimeSpan? expiry = null);
+        Task<string?> GetValueAsync(string key);
+        Task RemoveValueAsync(string key);
+        
         // Cleanup
         Task ClearUserDevicesAsync(string userId);
+
     }
 }

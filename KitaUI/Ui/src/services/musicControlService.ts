@@ -26,16 +26,42 @@ export interface DeviceList {
 export class MusicControlService {
     private hubConnection: signalR.HubConnection;
     private currentDeviceId?: string;
+    private deviceName?: string;
+    private deviceType?: string;
 
     constructor() {
         this.hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl("https://localhost:5064/hubs/music-control", {
+            .withUrl("http://localhost:5064/hubs/music-control", {
                 accessTokenFactory: () => localStorage.getItem("auth_token") || "",
             })
             .withAutomaticReconnect()
             .build();
 
+        this.setupConnectionHandlers();
         this.setupEventHandlers();
+    }
+
+    private setupConnectionHandlers() {
+        this.hubConnection.onreconnecting(() => {
+            console.log("MusicControl Hub: Reconnecting...");
+        });
+
+        this.hubConnection.onreconnected(async () => {
+            console.log("MusicControl Hub: Reconnected");
+            // Re-register device after reconnection
+            if (this.deviceName && this.deviceType) {
+                try {
+                    await this.registerDevice(this.deviceName, this.deviceType);
+                    console.log("Device re-registered after reconnection");
+                } catch (error) {
+                    console.error("Failed to re-register device:", error);
+                }
+            }
+        });
+
+        this.hubConnection.onclose(() => {
+            console.log("MusicControl Hub: Connection closed");
+        });
     }
 
     private setupEventHandlers() {
@@ -85,8 +111,20 @@ export class MusicControlService {
 
     public async connect() {
         try {
-            await this.hubConnection.start();
-            console.log("Connected to MusicControl Hub");
+            // Only start if currently disconnected
+            if (this.hubConnection.state === signalR.HubConnectionState.Disconnected) {
+                await this.hubConnection.start();
+                console.log("Connected to MusicControl Hub");
+            } else if (this.hubConnection.state === signalR.HubConnectionState.Connecting) {
+                // Wait for connection to complete
+                console.log("Connection in progress, waiting...");
+                while (this.hubConnection.state === signalR.HubConnectionState.Connecting) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                console.log("Connection completed");
+            } else {
+                console.log(`Already ${this.hubConnection.state}, skipping connect`);
+            }
         } catch (error) {
             console.error("Error connecting to MusicControl Hub:", error);
             throw error;
@@ -104,6 +142,8 @@ export class MusicControlService {
 
     // Device Management
     public async registerDevice(deviceName: string, deviceType: string = "web") {
+        this.deviceName = deviceName;
+        this.deviceType = deviceType;
         await this.hubConnection.invoke("RegisterDevice", deviceName, deviceType);
     }
 
@@ -198,3 +238,6 @@ export class MusicControlService {
         return this.hubConnection.state;
     }
 }
+
+// Export singleton instance
+export const musicControlService = new MusicControlService();

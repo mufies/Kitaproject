@@ -8,6 +8,7 @@ using Kita.Service.DTOs.Server;
 using Kita.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Kita.Domain.Entities;
 
 namespace Kita.Hubs
 {
@@ -17,15 +18,18 @@ namespace Kita.Hubs
         private readonly IBaseRepository<Channel> _channelRepository;
         private readonly IBaseRepository<ServerMember> _serverMemberRepository;
         private readonly IMessageService _messageService;
+        private readonly IUserService _userService;
 
         public ChatHub(
             IBaseRepository<Channel> channelRepository,
             IBaseRepository<ServerMember> serverMemberRepository,
-            IMessageService messageService)
+            IMessageService messageService,
+            IUserService userService)
         {
             _channelRepository = channelRepository;
             _serverMemberRepository = serverMemberRepository;
             _messageService = messageService;
+            _userService = userService;
         }
 
         public override async Task OnConnectedAsync()
@@ -45,14 +49,12 @@ namespace Kita.Hubs
             var userId = GetUserId();
             
             
-            // Parse channelId
             if (!Guid.TryParse(channelId, out var channelGuid))
             {
                 await Clients.Caller.SendAsync("Error", "Invalid channel ID");
                 return;
             }
             
-            // Get channel and verify it exists
             var channel = await _channelRepository.GetByIdAsync(channelGuid);
             if (channel == null)
             {
@@ -61,7 +63,6 @@ namespace Kita.Hubs
             }
 
 
-            // Verify user is a member of the server
             var membership = await _serverMemberRepository.FindAsync(
                 sm => sm.ServerId == channel.ServerId && sm.UserId == userId);
             
@@ -72,13 +73,11 @@ namespace Kita.Hubs
                 return;
             }
 
-            // Add user to channel group
             var groupName = GetChannelGroupName(channelGuid);
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-            // Notify others in the channel
-            // var username = Context.User?.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
-            // await Clients.OthersInGroup(groupName).SendAsync("UserJoined", userId, username, channelId);
+            var username = Context.User?.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
+            await Clients.OthersInGroup(groupName).SendAsync("UserOnline", userId, username, channelId);
 
         }
 
@@ -91,8 +90,8 @@ namespace Kita.Hubs
             
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
-            // var username = Context.User?.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
-            // await Clients.OthersInGroup(groupName).SendAsync("UserLeft", userId, username, channelId);
+            var username = Context.User?.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
+            await Clients.OthersInGroup(groupName).SendAsync("UserOffline", userId, username, channelId);
 
         }
 
@@ -139,6 +138,113 @@ namespace Kita.Hubs
             else
             {
                 await Clients.Caller.SendAsync("Error", result.Message ?? "Failed to send message");
+            }
+        }
+
+        public async Task NotifyImageSent(string channelId, string messageId)
+        {
+            var userId = GetUserId();
+
+            if (!Guid.TryParse(channelId, out var channelGuid))
+            {
+                await Clients.Caller.SendAsync("Error", "Invalid channel ID");
+                return;
+            }
+
+            if (!Guid.TryParse(messageId, out var messageGuid))
+            {
+                await Clients.Caller.SendAsync("Error", "Invalid message ID");
+                return;
+            }
+
+            var channel = await _channelRepository.GetByIdAsync(channelGuid);
+            if (channel == null)
+            {
+                await Clients.Caller.SendAsync("Error", "Channel not found");
+                return;
+            }
+
+            var membership = await _serverMemberRepository.FindAsync(
+                sm => sm.ServerId == channel.ServerId && sm.UserId == userId);
+
+            if (!membership.Any())
+            {
+                await Clients.Caller.SendAsync("Error", "You don't have access to this channel");
+                return;
+            }
+
+            // Fetch the message to verify it exists and belongs to the channel
+            var messageResult = await _messageService.GetMessageByIdAsync(messageGuid);
+            if (!messageResult.Success || messageResult.Data == null)
+            {
+                await Clients.Caller.SendAsync("Error", "Message not found");
+                return;
+            }
+
+            if (messageResult.Data.ChannelId != channelGuid)
+            {
+                await Clients.Caller.SendAsync("Error", "Message does not belong to this channel");
+                return;
+            }
+
+            var groupName = GetChannelGroupName(channelGuid);
+            await Clients.Group(groupName).SendAsync("ReceiveMessage", messageResult.Data);
+        }
+        public async Task DeleteMessage(string messageId, string channelId, string? captions)
+        {
+            var userId = GetUserId();
+            if (!Guid.TryParse(messageId, out var messageGuid))
+            {
+                await Clients.Caller.SendAsync("Error", "Invalid message ID");
+                return;
+            }
+
+            if (!Guid.TryParse(channelId, out var channelGuid))
+            {
+                await Clients.Caller.SendAsync("Error", "Invalid channel ID");
+                return;
+            }
+
+            var result = await _messageService.DeleteMessageAsync(messageGuid, userId);
+
+            if (result.Success)
+            {
+                var groupName = GetChannelGroupName(channelGuid);
+                // Broadcast the messageId to all clients in the channel
+                await Clients.Group(groupName).SendAsync("DeleteMessage", new { id = messageId });
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("Error", result.Message ?? "Failed to delete message");
+            }
+        }
+
+        public async Task EditMessage(string messageId, string content, string channelId)
+        {
+            var userId = GetUserId();
+            
+            if (!Guid.TryParse(messageId, out var messageGuid))
+            {
+                await Clients.Caller.SendAsync("Error", "Invalid message ID");
+                return;
+            }
+
+            if (!Guid.TryParse(channelId, out var channelGuid))
+            {
+                await Clients.Caller.SendAsync("Error", "Invalid channel ID");
+                return;
+            }
+
+            var result = await _messageService.UpdateMessageAsync(messageGuid, new UpdateMessageDto { Content = content }, userId);
+
+            if (result.Success)
+            {
+                var groupName = GetChannelGroupName(channelGuid);
+                await Clients.Group(groupName).SendAsync("EditMessage", result.Data);
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("Error", result.Message ?? "Failed to edit message");
             }
         }
 

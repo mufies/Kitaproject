@@ -1,26 +1,19 @@
 import { useState, useEffect } from "react";
-import { MusicControlService, type DeviceConnection, type DeviceList } from "../services/musicControlService";
+import { musicControlService, type DeviceConnection, type DeviceList } from "../services/musicControlService";
 
-interface DeviceSelectorProps {
-    musicControlService: MusicControlService;
-}
-
-export const DeviceSelector = ({ musicControlService }: DeviceSelectorProps) => {
+export const DeviceSelector = () => {
     const [devices, setDevices] = useState<DeviceConnection[]>([]);
     const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>();
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        // Load initial device list
         loadDevices();
 
-        // Listen for device list updates
         musicControlService.onDeviceListUpdated((deviceList: DeviceList) => {
             setDevices(deviceList.devices);
             setActiveDeviceId(deviceList.activeDeviceId);
         });
 
-        // Listen for active device changes
         musicControlService.onActiveDeviceChanged((activeDevice: DeviceConnection) => {
             setActiveDeviceId(activeDevice.deviceId);
         });
@@ -28,7 +21,7 @@ export const DeviceSelector = ({ musicControlService }: DeviceSelectorProps) => 
         return () => {
             // Cleanup listeners if needed
         };
-    }, [musicControlService]);
+    }, []); // Empty deps - using singleton
 
     const loadDevices = async () => {
         try {
@@ -65,39 +58,48 @@ export const DeviceSelector = ({ musicControlService }: DeviceSelectorProps) => 
     };
 
     return (
-        <div className="device-selector">
+        <div className="relative inline-block">
             <button
-                className="device-selector-button"
+                className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-full text-white cursor-pointer transition-all duration-200 hover:bg-white/15"
                 onClick={() => setIsOpen(!isOpen)}
                 title="Select playback device"
             >
-                <span className="device-icon">🎵</span>
-                <span className="device-name">
+                <span className="text-lg">🎵</span>
+                <span className="text-sm max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap">
                     {getActiveDevice()?.deviceName || "No device selected"}
                 </span>
-                <span className="dropdown-icon">{isOpen ? "▲" : "▼"}</span>
+                <span className="text-[10px] ml-1">{isOpen ? "▼" : "▲"}</span>
             </button>
 
             {isOpen && (
-                <div className="device-dropdown">
-                    <div className="device-dropdown-header">Select a device</div>
-                    <div className="device-list">
+                <div className="absolute bottom-full mb-2 right-0 bg-[rgba(30,30,30,0.95)] backdrop-blur-[10px] border border-white/10 rounded-xl min-w-[280px] shadow-[0_8px_32px_rgba(0,0,0,0.3)] z-[1000] overflow-hidden">
+                    <div className="px-4 py-4 text-sm font-semibold text-white/80 border-b border-white/10">
+                        Select a device
+                    </div>
+                    <div className="max-h-[300px] overflow-y-auto">
                         {devices.length === 0 ? (
-                            <div className="no-devices">No devices available</div>
+                            <div className="py-8 text-center text-white/50 text-sm">
+                                No devices available
+                            </div>
                         ) : (
                             devices.map((device) => (
                                 <button
                                     key={device.deviceId}
-                                    className={`device-item ${device.deviceId === activeDeviceId ? "active" : ""}`}
+                                    className={`flex items-center gap-3 w-full px-4 py-3 bg-transparent border-none text-white cursor-pointer transition-colors duration-200 text-left hover:bg-white/10 ${device.deviceId === activeDeviceId ? "bg-[rgba(29,185,84,0.2)]" : ""
+                                        }`}
                                     onClick={() => handleSelectDevice(device.deviceId)}
                                 >
-                                    <span className="device-icon">{getDeviceIcon(device.deviceType)}</span>
-                                    <div className="device-info">
-                                        <div className="device-name">{device.deviceName}</div>
-                                        <div className="device-type">{device.deviceType}</div>
+                                    <span className="text-lg">{getDeviceIcon(device.deviceType)}</span>
+                                    <div className="flex-1">
+                                        <div className="text-sm font-medium mb-0.5">
+                                            {device.deviceName}
+                                        </div>
+                                        <div className="text-xs text-white/60 capitalize">
+                                            {device.deviceType}
+                                        </div>
                                     </div>
                                     {device.deviceId === activeDeviceId && (
-                                        <span className="active-indicator">✓</span>
+                                        <span className="text-[#1db954] text-lg font-bold">✓</span>
                                     )}
                                 </button>
                             ))
@@ -105,125 +107,6 @@ export const DeviceSelector = ({ musicControlService }: DeviceSelectorProps) => 
                     </div>
                 </div>
             )}
-
-            <style>{`
-                .device-selector {
-                    position: relative;
-                    display: inline-block;
-                }
-
-                .device-selector-button {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 8px 16px;
-                    background: rgba(255, 255, 255, 0.1);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    border-radius: 20px;
-                    color: white;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-
-                .device-selector-button:hover {
-                    background: rgba(255, 255, 255, 0.15);
-                }
-
-                .device-icon {
-                    font-size: 18px;
-                }
-
-                .device-name {
-                    font-size: 14px;
-                    max-width: 150px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-
-                .dropdown-icon {
-                    font-size: 10px;
-                    margin-left: 4px;
-                }
-
-                .device-dropdown {
-                    position: absolute;
-                    top: calc(100% + 8px);
-                    right: 0;
-                    background: rgba(30, 30, 30, 0.95);
-                    backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 12px;
-                    min-width: 280px;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-                    z-index: 1000;
-                    overflow: hidden;
-                }
-
-                .device-dropdown-header {
-                    padding: 16px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: rgba(255, 255, 255, 0.8);
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                }
-
-                .device-list {
-                    max-height: 300px;
-                    overflow-y: auto;
-                }
-
-                .no-devices {
-                    padding: 32px;
-                    text-align: center;
-                    color: rgba(255, 255, 255, 0.5);
-                    font-size: 14px;
-                }
-
-                .device-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    width: 100%;
-                    padding: 12px 16px;
-                    background: transparent;
-                    border: none;
-                    color: white;
-                    cursor: pointer;
-                    transition: background 0.2s;
-                    text-align: left;
-                }
-
-                .device-item:hover {
-                    background: rgba(255, 255, 255, 0.1);
-                }
-
-                .device-item.active {
-                    background: rgba(29, 185, 84, 0.2);
-                }
-
-                .device-info {
-                    flex: 1;
-                }
-
-                .device-info .device-name {
-                    font-size: 14px;
-                    font-weight: 500;
-                    margin-bottom: 2px;
-                }
-
-                .device-info .device-type {
-                    font-size: 12px;
-                    color: rgba(255, 255, 255, 0.6);
-                    text-transform: capitalize;
-                }
-
-                .active-indicator {
-                    color: #1db954;
-                    font-size: 18px;
-                    font-weight: bold;
-                }
-            `}</style>
         </div>
     );
 };

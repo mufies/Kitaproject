@@ -14,6 +14,9 @@ namespace Kita.Domain.Entities
         public string Role { get; set; } = "User";
         public string? AvatarUrl { get; set; }
         public UserSubscription Subscription { get; set; } = UserSubscription.Free;
+        public bool IsPremium { get; set; } = false;
+        public bool IsVerified { get; set; } = false;
+        public bool IsActive { get; set; } = true;
 
         // Navigation properties
         public virtual ICollection<Playlist> Playlists { get; set; } = new List<Playlist>();

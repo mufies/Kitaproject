@@ -10,7 +10,7 @@ namespace Kita.Service.DTOs
         public string? AvatarUrl { get; set; }
         public string Role { get; set; } = string.Empty;
         public string Subscription { get; set; } = string.Empty;
-        // public string UserAgent { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = false;
     }
 
     public class UpdatePasswordDto

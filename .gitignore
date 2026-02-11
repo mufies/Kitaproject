@@ -59,3 +59,9 @@ Thumbs.db
 *.db
 *.db-shm
 *.db-wal
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/

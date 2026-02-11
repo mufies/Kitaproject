@@ -13,5 +13,6 @@ namespace Kita.Infrastructure.Repositories
         Task<User?> GetWithServerMembershipsAsync(Guid userId);
         Task<List<User>> SearchUsersByNameAsync(string query);
         Task<bool> UsernameExistsAsync(string username);
+        Task<bool> setActiveAsync(Guid userId, bool isActive);
     }
 }

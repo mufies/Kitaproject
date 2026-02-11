@@ -58,14 +58,12 @@ namespace Kita.Service.Services
                 return ApiResponse<MessageDto>.Fail("File storage is not configured.");
             }
 
-            // Ensure messages folder exists
             var messagesPath = Path.Combine(storagePath, "messages");
             if (!Directory.Exists(messagesPath))
             {
                 Directory.CreateDirectory(messagesPath);
             }
 
-            // Save the image file
             var fileExtension = Path.GetExtension(imageFile.FileName);
             var fileName = $"{Guid.NewGuid()}{fileExtension}";
             var filePath = Path.Combine(messagesPath, fileName);
@@ -136,7 +134,6 @@ namespace Kita.Service.Services
             if (message == null)
                 return ApiResponse<bool>.Fail("Message not found.");
 
-            // Only the sender can delete their own message
             if (message.SenderId != userId)
                 return ApiResponse<bool>.Fail("You can only delete your own messages.");
 

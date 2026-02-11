@@ -13,6 +13,7 @@ namespace Kita.Hubs
     public class MusicControlHub : Hub
     {
         private readonly IRedisService _redisService;
+        private static readonly Dictionary<string, string> _userConnections = new Dictionary<string, string>();
 
         public MusicControlHub(IRedisService redisService)
         {
@@ -29,15 +30,11 @@ namespace Kita.Hubs
             var userId = GetUserId();
             await _redisService.RemoveDeviceAsync(userId, Context.ConnectionId);
             
-            // Notify other devices về việc device list đã thay đổi
             await NotifyDeviceListChanged(userId);
             
             await base.OnDisconnectedAsync(exception);
         }
 
-        /// <summary>
-        /// Đăng ký device mới khi connect
-        /// </summary>
         public async Task RegisterDevice(string deviceName, string deviceType)
         {
             var userId = GetUserId();
@@ -54,22 +51,17 @@ namespace Kita.Hubs
 
             await _redisService.AddDeviceAsync(userId, device);
             
-            // Notify tất cả devices về device mới
             await NotifyDeviceListChanged(userId);
             
-            // Trả về deviceId cho client
             await Clients.Caller.SendAsync("DeviceRegistered", deviceId);
         }
 
-        /// <summary>
-        /// Chọn device để làm active playback device
-        /// </summary>
+
         public async Task SelectActiveDevice(string deviceId)
         {
             var userId = GetUserId();
             await _redisService.SetActivePlayerAsync(userId, deviceId);
             
-            // Notify tất cả devices về active device mới
             var activeDevice = await _redisService.GetActivePlayerAsync(userId);
             if (activeDevice != null)
             {
@@ -82,9 +74,6 @@ namespace Kita.Hubs
             }
         }
 
-        /// <summary>
-        /// Lấy danh sách devices
-        /// </summary>
         public async Task<object> GetConnectedDevices()
         {
             var userId = GetUserId();
@@ -98,9 +87,7 @@ namespace Kita.Hubs
             };
         }
 
-        /// <summary>
-        /// Play nhạc trên active device
-        /// </summary>
+
         public async Task Play()
         {
             var userId = GetUserId();
@@ -118,9 +105,6 @@ namespace Kita.Hubs
             }
         }
 
-        /// <summary>
-        /// Pause nhạc trên active device
-        /// </summary>
         public async Task Pause()
         {
             var userId = GetUserId();
@@ -138,9 +122,6 @@ namespace Kita.Hubs
             }
         }
 
-        /// <summary>
-        /// Next bài hát trên active device
-        /// </summary>
         public async Task Next()
         {
             var userId = GetUserId();
@@ -152,9 +133,7 @@ namespace Kita.Hubs
             }
         }
 
-        /// <summary>
-        /// Previous bài hát trên active device
-        /// </summary>
+
         public async Task Previous()
         {
             var userId = GetUserId();
@@ -166,9 +145,7 @@ namespace Kita.Hubs
             }
         }
 
-        /// <summary>
-        /// Set volume trên active device
-        /// </summary>
+
         public async Task SetVolume(int volume)
         {
             var userId = GetUserId();
@@ -186,9 +163,7 @@ namespace Kita.Hubs
             }
         }
 
-        /// <summary>
-        /// Play bài hát cụ thể trên active device
-        /// </summary>
+
         public async Task PlaySong(string songId, int startTime = 0)
         {
             var userId = GetUserId();
@@ -209,15 +184,12 @@ namespace Kita.Hubs
             }
         }
 
-        /// <summary>
-        /// Sync playback state to all devices
-        /// </summary>
+
         public async Task SyncPlaybackState(PlaybackState state)
         {
             var userId = GetUserId();
             await _redisService.SetPlaybackStateAsync(userId, state);
             
-            // Broadcast to all devices of this user
             var devices = await _redisService.GetUserDevicesAsync(userId);
             foreach (var device in devices.Where(d => d.ConnectionId != Context.ConnectionId))
             {
@@ -226,9 +198,7 @@ namespace Kita.Hubs
             }
         }
 
-        /// <summary>
-        /// Get current playback state
-        /// </summary>
+
         public async Task<PlaybackState?> GetPlaybackState()
         {
             var userId = GetUserId();

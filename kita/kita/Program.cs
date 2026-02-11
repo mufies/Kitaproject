@@ -69,7 +69,18 @@ builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
     var redisConnectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
-    return StackExchange.Redis.ConnectionMultiplexer.Connect(redisConnectionString);
+    Console.WriteLine($"Attempting to connect to Redis at: {redisConnectionString}");
+    try 
+    {
+        var multiplexer = StackExchange.Redis.ConnectionMultiplexer.Connect(redisConnectionString);
+        Console.WriteLine($"Successfully connected to Redis at: {redisConnectionString}. Status: {multiplexer.IsConnected}");
+        return multiplexer;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to connect to Redis at: {redisConnectionString}. Error: {ex.Message}");
+        throw;
+    }
 });
 builder.Services.AddSingleton<IRedisService, RedisService>();
 
@@ -89,6 +100,11 @@ builder.Services.AddHttpClient<ISpotifyService, SpotifyService>();
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true; // CHỈ development
+})
+.AddJsonProtocol(options =>
+{
+    options.PayloadSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    options.PayloadSerializerOptions.WriteIndented = false;
 });
 // Add Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -194,5 +210,6 @@ app.MapControllers();
 app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<VoiceHub>("/hubs/voice");
 app.MapHub<MusicControlHub>("/hubs/music-control");
+app.MapHub<UserStatusHub>("/hubs/userstatus");
 
 app.Run();

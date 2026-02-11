@@ -2,6 +2,7 @@ using Kita.Domain;
 using Kita.Service.Interfaces;
 using StackExchange.Redis;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace Kita.Service.Services;
 
@@ -9,39 +10,43 @@ public class RedisService : IRedisService
 {
     private readonly IConnectionMultiplexer _redis;
     private readonly IDatabase _db;
+    private readonly ILogger<RedisService> _logger;
     private const string DevicesKeyPrefix = "user:devices:";
     private const string ActivePlayerKeyPrefix = "user:activeplayer:";
     private const string PlaybackStateKeyPrefix = "user:playbackstate:";
 
-    public RedisService(IConnectionMultiplexer redis)
+    public RedisService(IConnectionMultiplexer redis, ILogger<RedisService> logger)
     {
         _redis = redis;
+        _logger = logger;
         _db = redis.GetDatabase();
+        _logger.LogInformation("RedisService initialized. Connection status: {Status}", _redis.IsConnected);
     }
 
-    // Device Management
     public async Task AddDeviceAsync(string userId, DeviceConnection device)
     {
         var key = $"{DevicesKeyPrefix}{userId}";
+        _logger.LogInformation("Adding device for user {UserId}. Key: {Key}, ConnectionId: {ConnectionId}", userId, key, device.ConnectionId);
         var deviceJson = JsonSerializer.Serialize(device);
         
-        // Store device with connectionId as hash field
         await _db.HashSetAsync(key, device.ConnectionId, deviceJson);
+        _logger.LogInformation("Device added successfully for user {UserId}", userId);
     }
 
     public async Task RemoveDeviceAsync(string userId, string connectionId)
     {
         var key = $"{DevicesKeyPrefix}{userId}";
+        _logger.LogInformation("Removing device for user {UserId}. Key: {Key}, ConnectionId: {ConnectionId}", userId, key, connectionId);
         await _db.HashDeleteAsync(key, connectionId);
         
-        // If this was the active player, clear it
         var activePlayerDeviceId = await GetActivePlayerDeviceIdAsync(userId);
         if (activePlayerDeviceId != null)
         {
             var devices = await GetUserDevicesAsync(userId);
             var removedDevice = devices.FirstOrDefault(d => d.ConnectionId == connectionId);
-            if (removedDevice?.DeviceId == activePlayerDeviceId)
+            if (removedDevice != null && removedDevice.DeviceId == activePlayerDeviceId)
             {
+                _logger.LogInformation("Removed device was active player. Clearing active player key for user {UserId}", userId);
                 await _db.KeyDeleteAsync($"{ActivePlayerKeyPrefix}{userId}");
             }
         }
@@ -80,6 +85,7 @@ public class RedisService : IRedisService
     public async Task SetActivePlayerAsync(string userId, string deviceId)
     {
         var key = $"{ActivePlayerKeyPrefix}{userId}";
+        _logger.LogInformation("Setting active player for user {UserId}. Key: {Key}, DeviceId: {DeviceId}", userId, key, deviceId);
         await _db.StringSetAsync(key, deviceId);
     }
 
@@ -105,6 +111,7 @@ public class RedisService : IRedisService
     public async Task SetPlaybackStateAsync(string userId, PlaybackState state)
     {
         var key = $"{PlaybackStateKeyPrefix}{userId}";
+        _logger.LogInformation("Setting playback state for user {UserId}. Key: {Key}", userId, key);
         var stateJson = JsonSerializer.Serialize(state);
         await _db.StringSetAsync(key, stateJson);
     }
@@ -131,4 +138,23 @@ public class RedisService : IRedisService
         await _db.KeyDeleteAsync(activePlayerKey);
         await _db.KeyDeleteAsync(playbackStateKey);
     }
+
+    // Generic Key-Value Storage
+    public async Task SetValueAsync(string key, string value, TimeSpan? expiry = null)
+    {
+        _logger.LogInformation("Setting value for Key: {Key}, Expiry: {Expiry}", key, expiry);
+        await _db.StringSetAsync(key, value, expiry);
+    }
+
+    public async Task<string?> GetValueAsync(string key)
+    {
+        var value = await _db.StringGetAsync(key);
+        return value.IsNullOrEmpty ? null : value.ToString();
+    }
+
+    public async Task RemoveValueAsync(string key)
+    {
+        await _db.KeyDeleteAsync(key);
+    }
 }
+

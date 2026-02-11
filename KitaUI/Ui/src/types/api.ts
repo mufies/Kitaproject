@@ -282,3 +282,19 @@ export interface ListenHistoryStatsDto {
     favoriteArtist?: string;
     favoriteGenre?: string;
 }
+
+// User Status DTOs
+export interface UserStatus {
+    userId: string;
+    isOnline: boolean;
+    currentlyPlayingSong?: CurrentlyPlayingSong;
+}
+
+export interface CurrentlyPlayingSong {
+    songId: string;
+    songTitle: string;
+    artistName: string;
+    startedAt: string;
+    coverUrl?: string;
+}
+

@@ -55,5 +55,14 @@ namespace Kita.Infrastructure.Repositories
         {
             return await _dbSet.AnyAsync(u => u.UserName == username);
         }
+
+        public async Task<bool> setActiveAsync(Guid userId, bool isActive)
+        {
+            var user = await _dbSet.FindAsync(userId);
+            if (user == null) return false;
+            user.IsActive = isActive;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { SongDto } from '../types/api';
 import { SongInteractionBar } from './SongInteractionBar';
 import { incrementPlayCount } from '../utils/songStaticsAPI';
+import { userStatusService } from '../services/userStatusService';
 
 interface MusicPlayerProps {
     currentSong: SongDto | null;
@@ -26,13 +27,22 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
     useEffect(() => {
         if (audioRef.current && currentSong) {
+            console.log('🔵 MusicPlayer: Song changed to:', currentSong.title);
             audioRef.current.src = currentSong.streamUrl;
             audioRef.current.load();
             if (isPlaying) {
+                console.log('🟢 MusicPlayer: Auto-playing and updating status');
                 audioRef.current.play();
+                // Update user status when song changes and is playing
+                userStatusService.updateCurrentlyPlayingSong(
+                    currentSong.id,
+                    currentSong.title,
+                    currentSong.artist,
+                    currentSong.coverUrl || ""
+                ).catch(err => console.error('Failed to update user status:', err));
             }
         }
-    }, [currentSong]);
+    }, [currentSong, isPlaying]); // Added isPlaying to dependencies
 
     useEffect(() => {
         if (audioRef.current) {
@@ -44,12 +54,24 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
+                console.log('🔴 MusicPlayer: Pausing, clearing status');
+                // Clear currently playing song when pausing
+                userStatusService.clearCurrentlyPlayingSong()
+                    .catch(err => console.error('Failed to clear user status:', err));
             } else {
                 audioRef.current.play();
                 // Increment play count when starting to play
                 if (currentSong) {
                     try {
                         await incrementPlayCount(currentSong.id);
+                        console.log('🟢 MusicPlayer: Playing song, updating status:', currentSong.title);
+                        // Update user status when starting to play
+                        await userStatusService.updateCurrentlyPlayingSong(
+                            currentSong.id,
+                            currentSong.title,
+                            currentSong.artist,
+                            currentSong.coverUrl || ""
+                        );
                     } catch (error) {
                         console.error('Failed to increment play count:', error);
                     }
@@ -98,6 +120,9 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
     const handleEnded = () => {
         setIsPlaying(false);
+        // Clear currently playing song when song ends
+        userStatusService.clearCurrentlyPlayingSong()
+            .catch(err => console.error('Failed to clear user status:', err));
         if (onSongEnd) {
             onSongEnd();
         }

@@ -33,12 +33,12 @@ class ChatService {
                 this.messageCallbacks.forEach(cb => cb(message));
             });
 
-            this.connection.on('MessageEdited', (message: MessageDto) => {
+            this.connection.on('EditMessage', (message: MessageDto) => {
                 this.messageEditCallbacks.forEach(cb => cb(message));
             });
 
-            this.connection.on('MessageDeleted', (messageId: string) => {
-                this.messageDeleteCallbacks.forEach(cb => cb(messageId));
+            this.connection.on('DeleteMessage', (message: MessageDto) => {
+                this.messageDeleteCallbacks.forEach(cb => cb(message.id));
             });
 
             this.connection.onclose(() => {
@@ -98,28 +98,23 @@ class ChatService {
         }
     }
 
-    async updateMessage(channelId: string, messageId: string, data: UpdateMessageDto): Promise<MessageDto | null> {
+    async updateMessage(channelId: string, messageId: string, data: UpdateMessageDto): Promise<void> {
+        if (!this.isConnected()) throw new Error('Not connected');
         try {
-            const response = await api.put<ApiResponse<MessageDto>>(
-                `/channel/${channelId}/messages/${messageId}`,
-                data
-            );
-            return response.data.data;
+            await this.connection!.invoke('EditMessage', messageId, data.content, channelId);
         } catch (err) {
             console.error('Failed to update message:', err);
-            return null;
+            throw err;
         }
     }
 
-    async deleteMessage(channelId: string, messageId: string): Promise<boolean> {
+    async deleteMessage(channelId: string, messageId: string): Promise<void> {
+        if (!this.isConnected()) throw new Error('Not connected');
         try {
-            const response = await api.delete<ApiResponse<boolean>>(
-                `/channel/${channelId}/messages/${messageId}`
-            );
-            return response.data.success;
+            await this.connection!.invoke('DeleteMessage', messageId, channelId);
         } catch (err) {
             console.error('Failed to delete message:', err);
-            return false;
+            throw err;
         }
     }
 
@@ -138,11 +133,11 @@ class ChatService {
     async sendImageMessage(channelId: string, imageFile: File, caption?: string): Promise<MessageDto | null> {
         try {
             const formData = new FormData();
-            formData.append('ChannelId', channelId);
+            formData.append('channelId', channelId);
             if (caption) {
-                formData.append('Caption', caption);
+                formData.append('caption', caption);
             }
-            formData.append('File', imageFile);
+            formData.append('file', imageFile);
 
             const token = localStorage.getItem('auth_token');
             const response = await fetch('http://localhost:5064/api/message/image', {
@@ -158,6 +153,20 @@ class ChatService {
             }
 
             const result = await response.json();
+
+            if (result.success && result.data) {
+                try {
+                    // Determine the correct ID property name (casing might vary)
+                    const messageId = result.data.id || result.data.Id;
+                    if (messageId && this.connection) {
+                        await this.connection.invoke('NotifyImageSent', channelId, messageId);
+                    }
+                } catch (hubError) {
+                    console.error('Failed to notify hub about image:', hubError);
+                    // Don't throw here, as the upload was successful
+                }
+            }
+
             return result.data;
         } catch (err) {
             console.error('Failed to send image message:', err);

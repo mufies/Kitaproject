@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { userStatusService } from '../services/userStatusService';
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -35,9 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [userRole, setUserRole] = useState<string | null>(null);
 
     useEffect(() => {
+        let isSubscribed = true;
+
         // Check for existing token in localStorage
         const storedToken = localStorage.getItem('auth_token');
-        if (storedToken) {
+        if (storedToken && isSubscribed) {
             setToken(storedToken);
             setIsAuthenticated(true);
             // Decode JWT to get role
@@ -45,8 +48,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (payload?.role) {
                 setUserRole(payload.role);
             }
+
+            // Auto-connect to UserStatusHub when returning with valid token
+            userStatusService.connect(storedToken).catch(err => {
+                if (isSubscribed) {
+                    console.error('Failed to connect to UserStatusHub on app load:', err);
+                }
+            });
         }
         setLoading(false);
+
+        return () => {
+            isSubscribed = false;
+            // Don't disconnect here - let logout handle it
+        };
     }, []);
 
     const login = (newToken: string) => {
@@ -58,6 +73,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (payload?.role) {
             setUserRole(payload.role);
         }
+
+        // Connect to UserStatusHub on login
+        userStatusService.connect(newToken).catch(err => {
+            console.error('Failed to connect to UserStatusHub on login:', err);
+        });
     };
 
     const logout = () => {
@@ -65,6 +85,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setToken(null);
         setIsAuthenticated(false);
         setUserRole(null);
+
+        // Disconnect from UserStatusHub on logout
+        userStatusService.disconnect().catch(err => {
+            console.error('Failed to disconnect from UserStatusHub:', err);
+        });
     };
 
     return (
