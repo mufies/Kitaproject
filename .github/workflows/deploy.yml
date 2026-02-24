@@ -63,7 +63,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      # Tạo .env từ GitHub Secrets (không cần file trong repo)
       - name: Generate .env from GitHub Secrets
         run: |
           cat > .env << EOF
