@@ -63,6 +63,45 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
+      # Tạo .env từ GitHub Secrets (không cần file trong repo)
+      - name: Generate .env from GitHub Secrets
+        run: |
+          cat > .env << EOF
+          # Docker
+          DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+
+          # Postgres Configuration
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+
+          # JWT Configuration
+          JWT_KEY=${{ secrets.JWT_KEY }}
+          JWT_ISSUER=${{ secrets.JWT_ISSUER }}
+          JWT_AUDIENCE=${{ secrets.JWT_AUDIENCE }}
+
+          # File Storage
+          FILE_STORAGE_BASE_URL=${{ secrets.FILE_STORAGE_BASE_URL }}
+
+          # YouTube
+          YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_APP_NAME=${{ secrets.YOUTUBE_APP_NAME }}
+
+          # Spotify
+          SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
+
+          # LiveKit
+          LIVEKIT_API_KEY=${{ secrets.LIVEKIT_API_KEY }}
+          LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET }}
+          LIVEKIT_SERVER_URL=${{ secrets.LIVEKIT_SERVER_URL }}
+
+          # Frontend
+          VITE_API_URL=${{ secrets.VITE_API_URL }}
+          VITE_WS_URL=${{ secrets.VITE_WS_URL }}
+          VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL }}
+          EOF
+
       - name: Transfer Configuration Files
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
@@ -86,11 +125,6 @@ jobs:
 
               # Login to Docker Hub
               echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-
-              # Inject DOCKER_USERNAME into .env for docker-compose image resolution
-              grep -q "^DOCKER_USERNAME=" .env && \
-                sed -i "s|^DOCKER_USERNAME=.*|DOCKER_USERNAME=$DOCKER_USERNAME|" .env || \
-                echo "DOCKER_USERNAME=$DOCKER_USERNAME" >> .env
 
               # Pull latest images and redeploy
               docker compose pull
