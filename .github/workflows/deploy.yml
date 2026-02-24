@@ -41,6 +41,10 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/kita-frontend:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/kita-frontend:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/kita-frontend:buildcache,mode=max
+          build-args: |
+            VITE_API_URL=${{ secrets.VITE_API_URL }}
+            VITE_WS_URL=${{ secrets.VITE_WS_URL }}
+            VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL }}
 
   deploy:
     name: Deploy to Server via Tailscale

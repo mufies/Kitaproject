@@ -11,6 +11,16 @@ RUN npm install
 # Copy all files
 COPY . .
 
+# Declare build-time variables for Vite (must be set at build time, not runtime)
+ARG VITE_API_URL
+ARG VITE_WS_URL
+ARG VITE_FRONTEND_URL
+
+# Make them available as environment variables during build
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_WS_URL=$VITE_WS_URL
+ENV VITE_FRONTEND_URL=$VITE_FRONTEND_URL
+
 # Build Vite app
 RUN npm run build
 
