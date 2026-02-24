@@ -350,9 +350,7 @@ namespace Infrastructure.Migrations
                 table: "ArtistManagers",
                 column: "ManagedByUsersId");
 
-            migrationBuilder.DropColumn(
-                name: "SearchVector",
-                table: "Songs");
+            migrationBuilder.Sql("ALTER TABLE \"Songs\" DROP COLUMN IF EXISTS \"SearchVector\";");
         }
 
         /// <inheritdoc />
