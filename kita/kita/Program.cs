@@ -88,12 +88,6 @@ builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
     }
 });
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate(); 
-}
-
 builder.Services.AddSingleton<IRedisService, RedisService>();
 
 builder.Services.AddSingleton<IMusicBotService, MusicBotService>();
@@ -183,6 +177,13 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+// Auto-migrate database on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<KitaDbContext>();
+    db.Database.Migrate();
+}
 
 // Configure static files
 var basePath = app.Configuration["FileStorage:BasePath"] ?? Path.Combine(app.Environment.ContentRootPath, "Assets");
