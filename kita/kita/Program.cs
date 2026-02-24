@@ -14,6 +14,11 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Http;
 
 Env.Load();
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
+if (File.Exists(envPath))
+{
+    Env.Load(envPath);
+}
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -156,12 +161,15 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+// Get Frontend URL from config or .env
+var frontendUrl = builder.Configuration["VITE_FRONTEND_URL"] ?? "http://localhost:5173";
+
 // Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:5174")
+        policy.WithOrigins(frontendUrl, "http://localhost:5174")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); // Required for SignalR

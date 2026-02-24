@@ -146,7 +146,7 @@ namespace Kita.Hubs
         }
 
 
-        public async Task SetVolume(int volume)
+        public async Task SetVolume(double volume)
         {
             var userId = GetUserId();
             var activeDevice = await _redisService.GetActivePlayerAsync(userId);
@@ -160,6 +160,36 @@ namespace Kita.Hubs
                 state.Volume = volume;
                 state.LastUpdated = DateTime.UtcNow;
                 await _redisService.SetPlaybackStateAsync(userId, state);
+
+                // Broadcast updated state to all OTHER devices (so controllers see new volume)
+                var devices = await _redisService.GetUserDevicesAsync(userId);
+                foreach (var device in devices.Where(d => d.ConnectionId != activeDevice.ConnectionId))
+                {
+                    await Clients.Client(device.ConnectionId).SendAsync("PlaybackStateUpdated", state);
+                }
+            }
+        }
+
+
+        public async Task Seek(double positionSeconds)
+        {
+            var userId = GetUserId();
+            var activeDevice = await _redisService.GetActivePlayerAsync(userId);
+            
+            if (activeDevice != null)
+            {
+                await Clients.Client(activeDevice.ConnectionId).SendAsync("Seek", positionSeconds);
+                
+                var state = await _redisService.GetPlaybackStateAsync(userId) ?? new PlaybackState();
+                state.CurrentTime = positionSeconds;
+                state.LastUpdated = DateTime.UtcNow;
+                await _redisService.SetPlaybackStateAsync(userId, state);
+
+                var devices = await _redisService.GetUserDevicesAsync(userId);
+                foreach (var device in devices.Where(d => d.ConnectionId != activeDevice.ConnectionId))
+                {
+                    await Clients.Client(device.ConnectionId).SendAsync("PlaybackStateUpdated", state);
+                }
             }
         }
 
