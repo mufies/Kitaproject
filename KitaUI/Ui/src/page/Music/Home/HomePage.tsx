@@ -7,7 +7,7 @@ import HomeLikedAlbumList from "../../../components/Music/HomePage/HomeLikedAlbu
 import { createPlaylist, uploadSong, importPlaylist } from "../../../utils/musicAPI";
 import { searchSongs, getRecentlyPlayedSongs, type Song } from "../../../services/musicService";
 import { artistService, type Artist } from "../../../services/artistService";
-import { getUserPlaylists, type Playlist } from "../../../services/musicService";
+
 
 const HomePage: React.FC = () => {
     const navigate = useNavigate();
@@ -40,7 +40,6 @@ const HomePage: React.FC = () => {
     const [isImportingPlaylist, setIsImportingPlaylist] = useState(false);
 
     // Sidebar data
-    const [userPlaylists, setUserPlaylists] = useState<Playlist[]>([]);
     const [followedArtists, setFollowedArtists] = useState<Artist[]>([]);
     const [recentSongs, setRecentSongs] = useState<Song[]>([]);
 
@@ -48,12 +47,10 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         const fetchSidebarData = async () => {
             try {
-                const [playlists, artists, songs] = await Promise.all([
-                    getUserPlaylists(),
+                const [artists, songs] = await Promise.all([
                     artistService.getFollowedArtists(),
                     getRecentlyPlayedSongs(5)
                 ]);
-                setUserPlaylists(playlists.slice(0, 5));
                 setFollowedArtists(artists.slice(0, 5));
                 setRecentSongs(songs);
             } catch (error) {

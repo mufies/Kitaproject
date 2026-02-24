@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Play, Music, TrendingUp, ChevronRight, Disc, Heart, MoreHorizontal, Speaker } from 'lucide-react';
+import { Play, TrendingUp, Disc, MoreHorizontal, Speaker } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import themeSong from '../assets/Song/theme.mp3';
 
@@ -225,7 +225,7 @@ export default function Home() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {featuredPlaylists.map((playlist, idx) => (
+                        {featuredPlaylists.map((playlist) => (
                             <div
                                 key={playlist.id}
                                 className="group cursor-pointer relative"

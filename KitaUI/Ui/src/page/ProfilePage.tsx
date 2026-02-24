@@ -18,7 +18,6 @@ export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
-    const [updatingUsername, setUpdatingUsername] = useState(false);
     const [error, setError] = useState('');
     const [userData, setUserData] = useState<UserProfile | null>(null);
     const [newUsername, setNewUsername] = useState('');
@@ -173,7 +172,6 @@ export default function ProfilePage() {
         }
 
         try {
-            setUpdatingUsername(true);
             setError('');
             const result = await fetchUpdateUsername(newUsername.trim());
             if (result.success) {
@@ -189,8 +187,6 @@ export default function ProfilePage() {
             } else {
                 setError(err.response?.data?.message || 'Failed to update username');
             }
-        } finally {
-            setUpdatingUsername(false);
         }
     };
 
