@@ -11,35 +11,22 @@ namespace Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Create ArtistFollowers join table
-            migrationBuilder.CreateTable(
-                name: "ArtistFollowers",
-                columns: table => new
-                {
-                    FollowedArtistsId = table.Column<Guid>(type: "uuid", nullable: false),
-                    FollowedByUsersId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ArtistFollowers", x => new { x.FollowedArtistsId, x.FollowedByUsersId });
-                    table.ForeignKey(
-                        name: "FK_ArtistFollowers_Artists_FollowedArtistsId",
-                        column: x => x.FollowedArtistsId,
-                        principalTable: "Artists",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ArtistFollowers_Users_FollowedByUsersId",
-                        column: x => x.FollowedByUsersId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ArtistFollowers_FollowedByUsersId",
-                table: "ArtistFollowers",
-                column: "FollowedByUsersId");
+            migrationBuilder.Sql(@"
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'ArtistFollowers') THEN
+                        CREATE TABLE ""ArtistFollowers"" (
+                            ""FollowedArtistsId"" uuid NOT NULL,
+                            ""FollowedByUsersId"" uuid NOT NULL,
+                            CONSTRAINT ""PK_ArtistFollowers"" PRIMARY KEY (""FollowedArtistsId"", ""FollowedByUsersId""),
+                            CONSTRAINT ""FK_ArtistFollowers_Artists_FollowedArtistsId"" FOREIGN KEY (""FollowedArtistsId"") REFERENCES ""Artists"" (""Id"") ON DELETE CASCADE,
+                            CONSTRAINT ""FK_ArtistFollowers_Users_FollowedByUsersId"" FOREIGN KEY (""FollowedByUsersId"") REFERENCES ""Users"" (""Id"") ON DELETE CASCADE
+                        );
+                        CREATE INDEX ""IX_ArtistFollowers_FollowedByUsersId"" ON ""ArtistFollowers"" (""FollowedByUsersId"");
+                    END IF;
+                END
+                $$;
+            ");
         }
 
         /// <inheritdoc />
