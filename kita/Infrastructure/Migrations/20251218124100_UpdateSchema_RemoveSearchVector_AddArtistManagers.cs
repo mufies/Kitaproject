@@ -292,29 +292,7 @@ namespace Infrastructure.Migrations
                 principalTable: "Users",
                 principalColumn: "Id");
 
-            migrationBuilder.CreateTable(
-                name: "ArtistFollowers",
-                columns: table => new
-                {
-                    Artist1Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    FollowedByUsersId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ArtistFollowers", x => new { x.Artist1Id, x.FollowedByUsersId });
-                    table.ForeignKey(
-                        name: "FK_ArtistFollowers_Artists_Artist1Id",
-                        column: x => x.Artist1Id,
-                        principalTable: "Artists",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ArtistFollowers_Users_FollowedByUsersId",
-                        column: x => x.FollowedByUsersId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            // Create ArtistManagers only, let next migration handle ArtistFollowers
 
             migrationBuilder.CreateTable(
                 name: "ArtistManagers",
@@ -339,11 +317,6 @@ namespace Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ArtistFollowers_FollowedByUsersId",
-                table: "ArtistFollowers",
-                column: "FollowedByUsersId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ArtistManagers_ManagedByUsersId",
