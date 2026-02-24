@@ -87,16 +87,20 @@ builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
         throw;
     }
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate(); 
+}
+
 builder.Services.AddSingleton<IRedisService, RedisService>();
 
-// Add Music Bot Service (Singleton to maintain state)
 builder.Services.AddSingleton<IMusicBotService, MusicBotService>();
 
 
-// Configure Spotify Options
 builder.Services.Configure<SpotifyOptions>(builder.Configuration.GetSection("Spotify"));
 
-// Add HttpClient for Spotify Service
 builder.Services.AddHttpClient<ISpotifyService, SpotifyService>();
 
 // builder.Services.AddHostedService<WebRTCSfuService>();
