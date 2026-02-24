@@ -1,4 +1,4 @@
-name: Compile and Deploy via Tailscale
+name: Build and Deploy via Tailscale
 
 on:
   push:
@@ -51,10 +51,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Connect to Tailscale
-        uses: tailscale/github-action@v4
+        uses: tailscale/github-action@v2
         with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
           tags: tag:ci
 
       - name: Setup SSH
@@ -66,28 +65,43 @@ jobs:
 
       - name: Transfer Configuration Files
         run: |
-          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~/kita/docker-compose.yml
-          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no .env ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~/kita/
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} \
+            "mkdir -p ~/kita"
 
-      - name: Deploy via Docker Compose
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            set -e
-            cd ~/kita
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
+            docker-compose.prod.yml \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~/kita/docker-compose.yml
 
-            # Login to Docker Hub
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
+            .env \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~/kita/.env
 
-            # Pull latest images and redeploy
-            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} docker compose pull
-            docker compose down
-            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} docker compose up -d
+      - name: Deploy via SSH
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'ENDSSH'
+              set -e
+              cd ~/kita
 
-            echo "Deployment successful!"
+              # Login to Docker Hub
+              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+              # Inject DOCKER_USERNAME into .env for docker-compose image resolution
+              grep -q "^DOCKER_USERNAME=" .env && \
+                sed -i "s|^DOCKER_USERNAME=.*|DOCKER_USERNAME=$DOCKER_USERNAME|" .env || \
+                echo "DOCKER_USERNAME=$DOCKER_USERNAME" >> .env
+
+              # Pull latest images and redeploy
+              docker compose pull
+              docker compose down --remove-orphans
+              docker compose up -d
+
+              # Cleanup dangling images
+              docker image prune -f
+
+              echo "✅ Deployment successful!"
+          ENDSSH
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

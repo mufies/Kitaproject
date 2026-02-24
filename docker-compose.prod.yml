@@ -13,6 +13,11 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - kita_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-kita_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -22,14 +27,21 @@ services:
       - redisdata:/data
     networks:
       - kita_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     image: ${DOCKER_USERNAME}/kita-backend:latest
     container_name: kita_backend
     restart: unless-stopped
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB:-kita_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-123}
@@ -38,7 +50,7 @@ services:
       - JwtSettings__Issuer=${JWT_ISSUER:-KitaApi}
       - JwtSettings__Audience=${JWT_AUDIENCE:-KitaClient}
       - FileStorage__BasePath=/app/Assets
-      - FileStorage__BaseUrl=${FILE_STORAGE_BASE_URL:-http://localhost:8080/Assets}
+      - FileStorage__BaseUrl=${FILE_STORAGE_BASE_URL}
       - YouTube__ApiKey=${YOUTUBE_API_KEY}
       - YouTube__ApplicationName=${YOUTUBE_APP_NAME:-Kita}
       - Spotify__ClientId=${SPOTIFY_CLIENT_ID}
@@ -61,10 +73,9 @@ services:
       - backend
     ports:
       - "80:80"
-      - "443:443"
     environment:
-      - VITE_API_URL=${VITE_API_URL:-http://localhost:5064}
-      - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:5064}
+      - VITE_API_URL=${VITE_API_URL}
+      - VITE_WS_URL=${VITE_WS_URL}
     networks:
       - kita_network
 
