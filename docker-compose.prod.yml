@@ -4,12 +4,11 @@ services:
   db:
     image: postgres:15-alpine
     container_name: kita_db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123}
       POSTGRES_DB: ${POSTGRES_DB:-kita_db}
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -18,17 +17,14 @@ services:
   redis:
     image: redis:7-alpine
     container_name: kita_redis
-    ports:
-      - "6379:6379"
+    restart: unless-stopped
     volumes:
       - redisdata:/data
     networks:
       - kita_network
 
   backend:
-    build:
-      context: ./kita
-      dockerfile: Dockerfile
+    image: ${DOCKER_USERNAME}/kita-backend:latest
     container_name: kita_backend
     restart: unless-stopped
     depends_on:
@@ -58,9 +54,7 @@ services:
       - kita_network
 
   frontend:
-    build:
-      context: ./KitaUI/Ui
-      dockerfile: Dockerfile
+    image: ${DOCKER_USERNAME}/kita-frontend:latest
     container_name: kita_frontend
     restart: unless-stopped
     depends_on:
