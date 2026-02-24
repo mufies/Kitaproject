@@ -58,6 +58,7 @@ services:
       - LiveKit__ApiKey=${LIVEKIT_API_KEY:-devkey}
       - LiveKit__ApiSecret=${LIVEKIT_API_SECRET:-devsecret1234567890abcdefghijklmnopqrstuvwxyz}
       - LiveKit__ServerUrl=${LIVEKIT_SERVER_URL:-ws://livekit:7880}
+      - VITE_FRONTEND_URL=${VITE_FRONTEND_URL}
     ports:
       - "5064:8080"
     volumes:
