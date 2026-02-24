@@ -181,26 +181,30 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure static files
-app.UseStaticFiles(new StaticFileOptions
+var basePath = app.Configuration["FileStorage:BasePath"] ?? Path.Combine(app.Environment.ContentRootPath, "Assets");
+
+var assetDirectories = new[]
 {
-    FileProvider = new PhysicalFileProvider("/home/mufies/Code/Kitaproject/kita/Assets/Images"),
-    RequestPath = "/assets/images"
-});
-app.UseStaticFiles(new StaticFileOptions
+    new { Path = "Images", RequestPath = "/assets/images" },
+    new { Path = "Music", RequestPath = "/assets/music" },
+    new { Path = "artists", RequestPath = "/Assets/artists" },
+    new { Path = "avatars", RequestPath = "/Assets/avatars" }
+};
+
+foreach (var dir in assetDirectories)
 {
-    FileProvider = new PhysicalFileProvider("/home/mufies/Code/Kitaproject/kita/Assets/Music"),
-    RequestPath = "/assets/music"
-});
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider("/home/mufies/Code/Kitaproject/kita/Assets/artists"),
-    RequestPath = "/Assets/artists"
-});
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider("/home/mufies/Code/Kitaproject/kita/Assets/avatars"),
-    RequestPath = "/Assets/avatars"
-});
+    var fullPath = Path.Combine(basePath, dir.Path);
+    if (!Directory.Exists(fullPath))
+    {
+        Directory.CreateDirectory(fullPath);
+    }
+
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(fullPath),
+        RequestPath = dir.RequestPath
+    });
+}
 
 app.UseHttpsRedirection();
 
