@@ -2,8 +2,11 @@ import React, { createContext, useContext, useState, useRef, useCallback, useEff
 import type { SongDto } from '../types/api';
 import { incrementPlayCount } from '../utils/songStaticsAPI';
 import { addToListenHistory } from '../utils/fetchAPI';
+import { getSongById } from '../utils/musicAPI';
 import { musicControlService } from '../services/musicControlService';
+import { deviceService } from '../services/deviceService';
 import { userStatusService } from '../services/userStatusService';
+import type { DeviceConnection } from '../services/musicControlService';
 
 const safePlay = (audio: HTMLAudioElement): Promise<void> => {
     return audio.play().catch((error) => {
@@ -23,6 +26,13 @@ interface PlayContextType {
     volume: number;
     isMuted: boolean;
 
+    // Device state
+    isActiveDevice: boolean;
+    devices: DeviceConnection[];
+    activeDeviceId: string | undefined;
+    currentDeviceId: string | undefined;
+
+    // Actions
     playSong: (song: SongDto, playlist?: SongDto[], currentTime?: number) => void;
     togglePlayPause: () => void;
     nextSong: () => void;
@@ -30,6 +40,7 @@ interface PlayContextType {
     seekTo: (time: number) => void;
     setVolume: (volume: number) => void;
     toggleMute: () => void;
+    switchDevice: (deviceId: string) => void;
 }
 
 const PlayContext = createContext<PlayContextType | undefined>(undefined);
@@ -45,28 +56,27 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [duration, setDuration] = useState(0);
     const [volume, setVolumeState] = useState(0.7);
     const [isMuted, setIsMuted] = useState(false);
+
+    // Device state
     const [isActiveDevice, setIsActiveDevice] = useState(false);
+    const [devices, setDevices] = useState<DeviceConnection[]>([]);
+    const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(undefined);
+    const [currentDeviceId, setCurrentDeviceId] = useState<string | undefined>(undefined);
 
     const isSyncingRef = useRef(false);
-    const currentDeviceIdRef = useRef<string | undefined>(undefined);
-
     const hasCountedPlayRef = useRef(false);
     const currentSongRef = useRef<SongDto | null>(null);
     const currentIndexRef = useRef<number>(-1);
     const playlistRef = useRef<SongDto[]>([]);
+    const isActiveDeviceRef = useRef(false);
+    const currentTimeRef = useRef(0);          // Tracks last known playback position
+    const lastSyncedSongIdRef = useRef<string | undefined>(undefined); // Avoids re-fetching
 
     // Keep refs in sync with state
-    useEffect(() => {
-        currentSongRef.current = currentSong;
-    }, [currentSong]);
-
-    useEffect(() => {
-        currentIndexRef.current = currentIndex;
-    }, [currentIndex]);
-
-    useEffect(() => {
-        playlistRef.current = playlist;
-    }, [playlist]);
+    useEffect(() => { currentSongRef.current = currentSong; }, [currentSong]);
+    useEffect(() => { currentIndexRef.current = currentIndex; }, [currentIndex]);
+    useEffect(() => { playlistRef.current = playlist; }, [playlist]);
+    useEffect(() => { isActiveDeviceRef.current = isActiveDevice; }, [isActiveDevice]);
 
     // Initialize audio element only once
     useEffect(() => {
@@ -75,9 +85,9 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const audio = audioRef.current;
 
-        // Event listeners
         const handleTimeUpdate = () => {
             setCurrentTime(audio.currentTime);
+            currentTimeRef.current = audio.currentTime;   // keep ref in sync for device switching
 
             // Check 80% threshold for play count
             if (audio.duration > 0 && !hasCountedPlayRef.current) {
@@ -97,7 +107,6 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const handleEnded = () => {
             setIsPlaying(false);
-            // Auto-play next song if available
             const currentIdx = currentIndexRef.current;
             const currentPlaylist = playlistRef.current;
             if (currentIdx < currentPlaylist.length - 1) {
@@ -111,7 +120,6 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     audio.load();
                     safePlay(audio).then(() => {
                         setIsPlaying(true);
-                        // Add to listen history when next song starts
                         addToListenHistory(nextSongItem.id).catch((error) => {
                             console.error('Failed to add to listen history:', error);
                         });
@@ -122,7 +130,6 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const handlePlay = () => {
             setIsPlaying(true);
-            // Update user status when playing
             if (currentSongRef.current) {
                 userStatusService.updateCurrentlyPlayingSong(
                     currentSongRef.current.id,
@@ -144,7 +151,6 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         };
 
-
         audio.addEventListener('timeupdate', handleTimeUpdate);
         audio.addEventListener('loadedmetadata', handleLoadedMetadata);
         audio.addEventListener('ended', handleEnded);
@@ -162,229 +168,298 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
             audio.pause();
             audio.src = '';
         };
-    }, []); // Empty deps - only run on mount
+    }, []);
 
+    // --- Device initialization (uses deviceService) ---
+    useEffect(() => {
+        let cleanupDevice: (() => void) | null = null;
+        let isSubscribed = true;
+
+        const init = async () => {
+            try {
+                cleanupDevice = await deviceService.initializeDevice();
+                if (!isSubscribed) {
+                    cleanupDevice?.();
+                    return;
+                }
+            } catch (error) {
+                console.error('[PlayContext] Failed to initialize device:', error);
+            }
+        };
+
+        // Subscribe to device state changes
+        const unsubDeviceChange = deviceService.onDeviceChange(async (info) => {
+            if (!isSubscribed) return;
+
+            const wasActive = isActiveDeviceRef.current;
+            // Update ref EAGERLY (before React state re-render) so playback logic is correct
+            isActiveDeviceRef.current = info.isActiveDevice;
+
+            setIsActiveDevice(info.isActiveDevice);
+            setDevices(info.devices);
+            setActiveDeviceId(info.activeDeviceId);
+            setCurrentDeviceId(info.currentDeviceId);
+
+            if (!info.isActiveDevice && audioRef.current) {
+                // Became inactive — pause local audio
+                audioRef.current.pause();
+            } else if (info.isActiveDevice && !wasActive) {
+                // Just became the ACTIVE device — start playing current song
+                const song = currentSongRef.current;
+                const audio = audioRef.current;
+                if (song && audio) {
+                    console.log('[PlayContext] Became active device, starting playback of:', song.title, 'at', currentTimeRef.current);
+                    if (audio.src !== song.streamUrl) {
+                        audio.src = song.streamUrl;
+                        audio.load();
+                    }
+                    audio.currentTime = currentTimeRef.current;
+                    safePlay(audio).then(() => {
+                        setIsPlaying(true);
+                    }).catch(console.error);
+                } else if (!song) {
+                    // No song loaded yet — get from server
+                    try {
+                        const state = await musicControlService.getPlaybackState();
+                        if (state && state.currentSongId && audio) {
+                            const response = await getSongById(state.currentSongId);
+                            const fetchedSong = response?.data;
+                            if (fetchedSong) {
+                                setCurrentSong(fetchedSong);
+                                currentSongRef.current = fetchedSong;
+                                lastSyncedSongIdRef.current = fetchedSong.id;
+                                const startTime = state.currentTime || 0;
+                                currentTimeRef.current = startTime;
+                                audio.src = fetchedSong.streamUrl;
+                                audio.load();
+                                audio.currentTime = startTime;
+                                safePlay(audio).then(() => setIsPlaying(true)).catch(console.error);
+                            }
+                        }
+                    } catch (err) {
+                        console.error('[PlayContext] Failed to fetch song on device activation:', err);
+                    }
+                }
+            }
+        });
+
+        // Subscribe to playback sync (for new device joining an existing session)
+        const unsubPlaybackSync = deviceService.onPlaybackSync(async (state) => {
+            if (!isSubscribed) return;
+            console.log('[PlayContext] Received initial playback sync:', state);
+            setIsPlaying(state.isPlaying);
+            const normalizedVolume = state.volume > 1 ? state.volume / 100 : state.volume;
+            setVolumeState(normalizedVolume);
+            currentTimeRef.current = state.currentTime || 0;
+
+            // Fetch the song so controller browser displays it
+            if (state.currentSongId && state.currentSongId !== lastSyncedSongIdRef.current) {
+                lastSyncedSongIdRef.current = state.currentSongId;
+                // First check local playlist
+                const inPlaylist = playlistRef.current.find(s => s.id === state.currentSongId);
+                if (inPlaylist) {
+                    setCurrentSong(inPlaylist);
+                    currentSongRef.current = inPlaylist;
+                } else {
+                    try {
+                        const response = await getSongById(state.currentSongId);
+                        const song = response?.data;
+                        if (song && isSubscribed) {
+                            setCurrentSong(song);
+                            currentSongRef.current = song;
+                        }
+                    } catch (err) {
+                        console.error('[PlayContext] Failed to fetch song from sync:', err);
+                    }
+                }
+            }
+        });
+
+        init();
+
+        return () => {
+            isSubscribed = false;
+            cleanupDevice?.();
+            unsubDeviceChange();
+            unsubPlaybackSync();
+        };
+    }, []);
+
+    // --- Playback command listeners (from other devices) ---
     useEffect(() => {
         let isSubscribed = true;
 
-        const initMusicControl = async () => {
-            if (!isSubscribed) return;
-
-            try {
-                await musicControlService.connect();
-
-                if (!isSubscribed) {
-                    // Component unmounted during connection - but don't disconnect singleton
-                    return;
-                }
-
-
-                // Register this device
-                const deviceName = `Web - ${navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'}`;
-                const deviceType = navigator.userAgent.includes('Mobile') ? 'mobile' : 'web';
-                await musicControlService.registerDevice(deviceName, deviceType);
-
-                // Listen to playback commands from other devices
-                musicControlService.onPlay(() => {
-                    if (!isSyncingRef.current && audioRef.current) {
-                        isSyncingRef.current = true;
-                        safePlay(audioRef.current).finally(() => {
-                            isSyncingRef.current = false;
-                        });
-                    }
+        const handleRemotePlay = () => {
+            if (!isSubscribed || !isActiveDeviceRef.current) return;
+            if (!isSyncingRef.current && audioRef.current) {
+                isSyncingRef.current = true;
+                safePlay(audioRef.current).finally(() => {
+                    isSyncingRef.current = false;
                 });
+            }
+        };
 
-                musicControlService.onPause(() => {
-                    if (!isSyncingRef.current && audioRef.current) {
-                        isSyncingRef.current = true;
-                        audioRef.current.pause();
-                        setTimeout(() => { isSyncingRef.current = false; }, 100);
-                    }
-                });
+        const handleRemotePause = () => {
+            if (!isSubscribed || !isActiveDeviceRef.current) return;
+            if (!isSyncingRef.current && audioRef.current) {
+                isSyncingRef.current = true;
+                audioRef.current.pause();
+                setTimeout(() => { isSyncingRef.current = false; }, 100);
+            }
+        };
 
-                musicControlService.onNext(() => {
-                    if (!isSyncingRef.current) {
-                        // Call next song handler
-                        const currentIdx = currentIndexRef.current;
-                        const currentPlaylist = playlistRef.current;
-                        if (currentPlaylist.length > 0 && currentIdx < currentPlaylist.length - 1) {
-                            const nextIndex = currentIdx + 1;
-                            const song = currentPlaylist[nextIndex];
-                            if (song && audioRef.current) {
-                                hasCountedPlayRef.current = false;
-                                setCurrentIndex(nextIndex);
-                                setCurrentSong(song);
-                                audioRef.current.src = song.streamUrl;
-                                audioRef.current.load();
-                                safePlay(audioRef.current).then(() => {
-                                    setIsPlaying(true);
-                                    addToListenHistory(song.id).catch(console.error);
-                                });
-                            }
-                        }
-                    }
-                });
-
-                musicControlService.onPrevious(() => {
-                    if (!isSyncingRef.current && audioRef.current) {
-                        const audio = audioRef.current;
-                        if (audio.currentTime > 3) {
-                            audio.currentTime = 0;
-                            return;
-                        }
-
-                        const currentIdx = currentIndexRef.current;
-                        const currentPlaylist = playlistRef.current;
-                        if (currentPlaylist.length > 0 && currentIdx > 0) {
-                            const prevIndex = currentIdx - 1;
-                            const song = currentPlaylist[prevIndex];
-                            if (song) {
-                                hasCountedPlayRef.current = false;
-                                setCurrentIndex(prevIndex);
-                                setCurrentSong(song);
-                                audio.src = song.streamUrl;
-                                audio.load();
-                                safePlay(audio).then(() => {
-                                    setIsPlaying(true);
-                                    addToListenHistory(song.id).catch(console.error);
-                                });
-                            }
-                        }
-                    }
-                });
-
-                musicControlService.onSetVolume((vol: number) => {
-                    if (!isSyncingRef.current) {
-                        isSyncingRef.current = true;
-                        setVolumeState(vol);
-                        setTimeout(() => { isSyncingRef.current = false; }, 100);
-                    }
-                });
-
-                musicControlService.onPlaySong((songId: string, startTime: number) => {
-                    console.log("Received PlaySong command:", songId, startTime);
-                    // TODO: Load and play the specific song
-                });
-
-                // Handle playback state updates from other devices
-                musicControlService.onPlaybackStateUpdated((state) => {
-                    if (isSyncingRef.current) return;
-                    
-                    console.log("Received PlaybackState update:", state);
-                    
-                    // Update UI state for all devices
-                    // Find the song in current playlist if available
-                    const currentPlaylist = playlistRef.current;
-                    let songToUpdate = currentPlaylist.find(s => s.id === state.currentSongId);
-                    
-                    if (songToUpdate && currentSongRef.current?.id !== state.currentSongId) {
-                        setCurrentSong(songToUpdate);
-                        const index = currentPlaylist.findIndex(s => s.id === state.currentSongId);
-                        if (index >= 0) {
-                            setCurrentIndex(index);
-                        }
-                    }
-                    
-                    setIsPlaying(state.isPlaying);
-                    setVolumeState(state.volume);
-                    
-                    // Only play audio on active device
-                    const audio = audioRef.current;
-                    if (audio && songToUpdate) {
-                        const activeDeviceId = state.playlistId; // We can use a custom field or check active device
-                        const myDeviceId = currentDeviceIdRef.current;
-                        
-                        // Check if this is the active device
-                        musicControlService.getConnectedDevices().then((deviceList) => {
-                            const isThisDeviceActive = deviceList.activeDeviceId === myDeviceId;
-                            
-                            if (isThisDeviceActive && state.currentSongId) {
-                                // This is the active device - update audio
-                                if (audio.src !== songToUpdate.streamUrl) {
-                                    audio.src = songToUpdate.streamUrl;
-                                    audio.load();
-                                }
-                                audio.currentTime = state.currentTime;
-                                if (state.isPlaying) {
-                                    safePlay(audio);
-                                } else {
-                                    audio.pause();
-                                }
-                            } else {
-                                // This is not the active device - pause local audio
-                                audio.pause();
-                            }
-                        }).catch(console.error);
-                    }
-                });
-
-                // Handle active device changes
-                musicControlService.onActiveDeviceChanged((activeDevice) => {
-                    console.log("Active device changed:", activeDevice);
-                    const myDeviceId = musicControlService.getCurrentDeviceId();
-                    setIsActiveDevice(activeDevice.deviceId === myDeviceId);
-                    
-                    // If this device becomes inactive, pause local audio
-                    if (activeDevice.deviceId !== myDeviceId && audioRef.current) {
-                        audioRef.current.pause();
-                    }
-                    
-                    // Get updated playback state
-                    musicControlService.getPlaybackState().then((state) => {
-                        if (state && state.currentSongId) {
-                            console.log("Syncing playback state after device change:", state);
-                        }
-                    }).catch(console.error);
-                });
-
-                // Handle device registration
-                musicControlService.onDeviceRegistered(async (deviceId) => {
-                    console.log("Device registered with ID:", deviceId);
-                    currentDeviceIdRef.current = deviceId;
-                    
-                    try {
-                        // Get list of connected devices
-                        const deviceList = await musicControlService.getConnectedDevices();
-                        console.log("Connected devices:", deviceList);
-                        
-                        // If this is the only device (first device), automatically set it as active
-                        if (deviceList.devices.length === 1) {
-                            console.log("First device - automatically setting as active");
-                            await musicControlService.selectActiveDevice(deviceId);
-                            setIsActiveDevice(true);
-                        } else if (deviceList.activeDeviceId) {
-                            // There are other devices and one is already active
-                            console.log("Multiple devices detected, active device:", deviceList.activeDeviceId);
-                            setIsActiveDevice(deviceList.activeDeviceId === deviceId);
-                            
-                            // Sync playback state from server
-                            const state = await musicControlService.getPlaybackState();
-                            if (state && state.currentSongId) {
-                                console.log("Syncing playback state from server:", state);
-                            }
-                        } else {
-                            // Multiple devices but no active device - let user choose
-                            console.log("Multiple devices but no active device - waiting for user selection");
-                        }
-                    } catch (error) {
-                        console.error("Error handling device registration:", error);
-                    }
-                });
-
-            } catch (error) {
-                if (isSubscribed) {
-                    console.error("Failed to connect to MusicControl Hub:", error);
+        const handleRemoteNext = () => {
+            if (!isSubscribed || isSyncingRef.current || !isActiveDeviceRef.current) return;
+            const currentIdx = currentIndexRef.current;
+            const currentPlaylist = playlistRef.current;
+            if (currentPlaylist.length > 0 && currentIdx < currentPlaylist.length - 1) {
+                const nextIndex = currentIdx + 1;
+                const song = currentPlaylist[nextIndex];
+                if (song && audioRef.current) {
+                    hasCountedPlayRef.current = false;
+                    setCurrentIndex(nextIndex);
+                    setCurrentSong(song);
+                    audioRef.current.src = song.streamUrl;
+                    audioRef.current.load();
+                    safePlay(audioRef.current).then(() => {
+                        setIsPlaying(true);
+                        addToListenHistory(song.id).catch(console.error);
+                    });
                 }
             }
         };
 
-        initMusicControl();
+        const handleRemotePrevious = () => {
+            if (!isSubscribed || !isActiveDeviceRef.current) return;
+            if (!isSyncingRef.current && audioRef.current) {
+                const audio = audioRef.current;
+                if (audio.currentTime > 3) {
+                    audio.currentTime = 0;
+                    return;
+                }
+
+                const currentIdx = currentIndexRef.current;
+                const currentPlaylist = playlistRef.current;
+                if (currentPlaylist.length > 0 && currentIdx > 0) {
+                    const prevIndex = currentIdx - 1;
+                    const song = currentPlaylist[prevIndex];
+                    if (song) {
+                        hasCountedPlayRef.current = false;
+                        setCurrentIndex(prevIndex);
+                        setCurrentSong(song);
+                        audio.src = song.streamUrl;
+                        audio.load();
+                        safePlay(audio).then(() => {
+                            setIsPlaying(true);
+                            addToListenHistory(song.id).catch(console.error);
+                        });
+                    }
+                }
+            }
+        };
+
+        const handleRemoteVolume = (vol: number) => {
+            if (!isSubscribed || isSyncingRef.current) return;
+            // Only the active device applies local volume; others update UI
+            const normalized = vol > 1 ? vol / 100 : vol;
+            isSyncingRef.current = true;
+            setVolumeState(normalized);
+            if (isActiveDeviceRef.current && audioRef.current) {
+                audioRef.current.volume = normalized;
+            }
+            setTimeout(() => { isSyncingRef.current = false; }, 100);
+        };
+
+        const handleRemoteSeek = (positionSeconds: number) => {
+            if (!isSubscribed || !isActiveDeviceRef.current) return;
+            if (audioRef.current) {
+                audioRef.current.currentTime = positionSeconds;
+            }
+            setCurrentTime(positionSeconds);
+        };
+
+        const handleRemotePlaySong = (songId: string, _startTime: number) => {
+            if (!isSubscribed) return;
+            console.log('[PlayContext] Received PlaySong command:', songId, _startTime);
+            // TODO: Load and play the specific song by ID
+        };
+
+        const handlePlaybackStateUpdated = async (state: {
+            currentSongId?: string;
+            isPlaying: boolean;
+            currentTime: number;
+            volume: number;
+            queue: string[];
+        }) => {
+            if (!isSubscribed || isSyncingRef.current) return;
+            console.log('[PlayContext] PlaybackState update:', state);
+
+            // Keep time ref in sync so "become active" logic can resume correctly
+            currentTimeRef.current = state.currentTime;
+
+            const currentPlaylist = playlistRef.current;
+            let songToUpdate = currentPlaylist.find(s => s.id === state.currentSongId);
+
+            // Fetch song from API if not found in local playlist
+            if (!songToUpdate && state.currentSongId && state.currentSongId !== lastSyncedSongIdRef.current) {
+                lastSyncedSongIdRef.current = state.currentSongId;
+                try {
+                    const response = await getSongById(state.currentSongId);
+                    const fetched = response?.data;
+                    if (fetched && isSubscribed) {
+                        songToUpdate = fetched;
+                        setCurrentSong(fetched);
+                        currentSongRef.current = fetched;
+                    }
+                } catch (err) {
+                    console.error('[PlayContext] Could not fetch song for state update:', err);
+                }
+            } else if (songToUpdate && currentSongRef.current?.id !== state.currentSongId) {
+                setCurrentSong(songToUpdate);
+                const index = currentPlaylist.findIndex(s => s.id === state.currentSongId);
+                if (index >= 0) setCurrentIndex(index);
+            }
+
+            setIsPlaying(state.isPlaying);
+            const normalizedVol = state.volume > 1 ? state.volume / 100 : state.volume;
+            setVolumeState(normalizedVol);
+
+            // Only drive audio on the active device
+            if (isActiveDeviceRef.current && audioRef.current && songToUpdate) {
+                const audio = audioRef.current;
+                if (audio.src !== songToUpdate.streamUrl) {
+                    audio.src = songToUpdate.streamUrl;
+                    audio.load();
+                }
+                audio.currentTime = state.currentTime;
+                if (state.isPlaying) safePlay(audio);
+                else audio.pause();
+            } else if (!isActiveDeviceRef.current && audioRef.current) {
+                audioRef.current.pause();
+            }
+        };
+
+        musicControlService.onPlay(handleRemotePlay);
+        musicControlService.onPause(handleRemotePause);
+        musicControlService.onNext(handleRemoteNext);
+        musicControlService.onPrevious(handleRemotePrevious);
+        musicControlService.onSetVolume(handleRemoteVolume);
+        musicControlService.onSeek(handleRemoteSeek);
+        musicControlService.onPlaySong(handleRemotePlaySong);
+        musicControlService.onPlaybackStateUpdated(handlePlaybackStateUpdated);
 
         return () => {
             isSubscribed = false;
-            // Don't disconnect - the singleton service handles its own lifecycle
+            musicControlService.offPlay(handleRemotePlay);
+            musicControlService.offPause(handleRemotePause);
+            musicControlService.offNext(handleRemoteNext);
+            musicControlService.offPrevious(handleRemotePrevious);
+            musicControlService.offSetVolume(handleRemoteVolume);
+            musicControlService.offSeek(handleRemoteSeek);
+            musicControlService.offPlaySong(handleRemotePlaySong);
+            musicControlService.offPlaybackStateUpdated(handlePlaybackStateUpdated);
         };
-    }, []); // Empty deps - handlers use refs
+    }, []);
 
     // Update volume when changed
     useEffect(() => {
@@ -398,10 +473,8 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const audio = audioRef.current;
         if (!audio) return;
 
-        // Reset play count tracking for new song
         hasCountedPlayRef.current = false;
 
-        // Set playlist if provided
         if (songPlaylist) {
             setPlaylist(songPlaylist);
             const index = songPlaylist.findIndex(s => s.id === song.id);
@@ -412,73 +485,75 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         setCurrentSong(song);
-        audio.src = song.streamUrl;
-        audio.load();
-        safePlay(audio).then(() => {
-            setIsPlaying(true);
-            // Add to listen history when song starts playing
-            addToListenHistory(song.id).catch((error) => {
-                console.error('Failed to add to listen history:', error);
+
+        // Only play audio if this is the active device
+        if (isActiveDeviceRef.current) {
+            audio.src = song.streamUrl;
+            audio.load();
+            safePlay(audio).then(() => {
+                setIsPlaying(true);
+                addToListenHistory(song.id).catch((error) => {
+                    console.error('Failed to add to listen history:', error);
+                });
             });
-            
-            // Sync playback state to all devices
-            if (!isSyncingRef.current) {
-                const playbackState = {
-                    currentSongId: song.id,
-                    isPlaying: true,
-                    currentTime: 0,
-                    volume: volume,
-                    queue: songPlaylist ? songPlaylist.map(s => s.id) : [song.id],
-                    lastUpdated: new Date().toISOString()
-                };
-                musicControlService.syncPlaybackState(playbackState).catch(console.error);
-            }
-        });
+        } else {
+            // Controller mode — just update UI
+            setIsPlaying(true);
+        }
+
+        // Sync playback state to all devices
+        if (!isSyncingRef.current) {
+            const playbackState = {
+                currentSongId: song.id,
+                isPlaying: true,
+                currentTime: 0,
+                volume: Math.round(volume * 100),
+                queue: songPlaylist ? songPlaylist.map(s => s.id) : [song.id],
+                lastUpdated: new Date().toISOString()
+            };
+            musicControlService.syncPlaybackState(playbackState).catch(console.error);
+        }
     }, [volume]);
 
     // Toggle play/pause
     const togglePlayPause = useCallback(() => {
         const audio = audioRef.current;
-        if (!audio || !currentSong) return;
+        if (!currentSong) return;
 
-        if (isPlaying) {
-            audio.pause();
-            // Sync pause to other devices
-            if (!isSyncingRef.current) {
+        if (isActiveDeviceRef.current && audio) {
+            // Active device — control local audio
+            if (isPlaying) {
+                audio.pause();
+            } else {
+                safePlay(audio);
+            }
+        }
+
+        // Send command to other devices
+        if (!isSyncingRef.current) {
+            if (isPlaying) {
                 musicControlService.pause().catch(console.error);
-                
-                // Sync playback state
-                if (currentSong) {
-                    const playbackState = {
-                        currentSongId: currentSong.id,
-                        isPlaying: false,
-                        currentTime: audio.currentTime,
-                        volume: volume,
-                        queue: playlist.map(s => s.id),
-                        lastUpdated: new Date().toISOString()
-                    };
-                    musicControlService.syncPlaybackState(playbackState).catch(console.error);
-                }
-            }
-        } else {
-            safePlay(audio);
-            // Sync play to other devices
-            if (!isSyncingRef.current) {
+            } else {
                 musicControlService.play().catch(console.error);
-                
-                // Sync playback state
-                if (currentSong) {
-                    const playbackState = {
-                        currentSongId: currentSong.id,
-                        isPlaying: true,
-                        currentTime: audio.currentTime,
-                        volume: volume,
-                        queue: playlist.map(s => s.id),
-                        lastUpdated: new Date().toISOString()
-                    };
-                    musicControlService.syncPlaybackState(playbackState).catch(console.error);
-                }
             }
+
+            // Sync playback state
+            if (currentSong) {
+                const playbackState = {
+                    currentSongId: currentSong.id,
+                    isPlaying: !isPlaying,
+                    currentTime: audio?.currentTime || 0,
+                    volume: Math.round(volume * 100),
+                    queue: playlist.map(s => s.id),
+                    lastUpdated: new Date().toISOString()
+                };
+                musicControlService.syncPlaybackState(playbackState).catch(console.error);
+            }
+        }
+
+        if (!isActiveDeviceRef.current) {
+            // Controller mode — toggle UI state directly
+            setIsPlaying(!isPlaying);
         }
     }, [isPlaying, currentSong, volume, playlist]);
 
@@ -487,14 +562,15 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (playlist.length === 0 || currentIndex >= playlist.length - 1) return;
 
         const audio = audioRef.current;
-        if (!audio) return;
-
         const nextIndex = currentIndex + 1;
         const song = playlist[nextIndex];
-        if (song) {
-            hasCountedPlayRef.current = false;
-            setCurrentIndex(nextIndex);
-            setCurrentSong(song);
+        if (!song) return;
+
+        hasCountedPlayRef.current = false;
+        setCurrentIndex(nextIndex);
+        setCurrentSong(song);
+
+        if (isActiveDeviceRef.current && audio) {
             audio.src = song.streamUrl;
             audio.load();
             safePlay(audio).then(() => {
@@ -502,28 +578,29 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 addToListenHistory(song.id).catch((error) => {
                     console.error('Failed to add to listen history:', error);
                 });
-                
-                // Sync playback state
-                const playbackState = {
-                    currentSongId: song.id,
-                    isPlaying: true,
-                    currentTime: 0,
-                    volume: volume,
-                    queue: playlist.map(s => s.id),
-                    lastUpdated: new Date().toISOString()
-                };
-                musicControlService.syncPlaybackState(playbackState).catch(console.error);
             });
+        } else {
+            setIsPlaying(true);
         }
+
+        // Sync playback state
+        const playbackState = {
+            currentSongId: song.id,
+            isPlaying: true,
+            currentTime: 0,
+            volume: Math.round(volume * 100),
+            queue: playlist.map(s => s.id),
+            lastUpdated: new Date().toISOString()
+        };
+        musicControlService.syncPlaybackState(playbackState).catch(console.error);
     }, [playlist, currentIndex, volume]);
 
     // Previous song
     const previousSong = useCallback(() => {
         const audio = audioRef.current;
-        if (!audio) return;
 
         // If more than 3 seconds into song, restart it
-        if (audio.currentTime > 3) {
+        if (audio && audio.currentTime > 3) {
             audio.currentTime = 0;
             return;
         }
@@ -532,10 +609,13 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const prevIndex = currentIndex - 1;
         const song = playlist[prevIndex];
-        if (song) {
-            hasCountedPlayRef.current = false;
-            setCurrentIndex(prevIndex);
-            setCurrentSong(song);
+        if (!song) return;
+
+        hasCountedPlayRef.current = false;
+        setCurrentIndex(prevIndex);
+        setCurrentSong(song);
+
+        if (isActiveDeviceRef.current && audio) {
             audio.src = song.streamUrl;
             audio.load();
             safePlay(audio).then(() => {
@@ -543,44 +623,60 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 addToListenHistory(song.id).catch((error) => {
                     console.error('Failed to add to listen history:', error);
                 });
-                
-                // Sync playback state
-                const playbackState = {
-                    currentSongId: song.id,
-                    isPlaying: true,
-                    currentTime: 0,
-                    volume: volume,
-                    queue: playlist.map(s => s.id),
-                    lastUpdated: new Date().toISOString()
-                };
-                musicControlService.syncPlaybackState(playbackState).catch(console.error);
             });
+        } else {
+            setIsPlaying(true);
         }
+
+        // Sync playback state
+        const playbackState = {
+            currentSongId: song.id,
+            isPlaying: true,
+            currentTime: 0,
+            volume: Math.round(volume * 100),
+            queue: playlist.map(s => s.id),
+            lastUpdated: new Date().toISOString()
+        };
+        musicControlService.syncPlaybackState(playbackState).catch(console.error);
     }, [playlist, currentIndex, volume]);
 
     // Seek to time
     const seekTo = useCallback((time: number) => {
         const audio = audioRef.current;
-        if (audio) {
+        if (isActiveDeviceRef.current && audio) {
+            // Active device — seek locally
             audio.currentTime = time;
-            setCurrentTime(time);
-            // TODO: Sync seek position to other devices if needed
+        } else {
+            // Controller — send seek command to active device via hub
+            if (!isSyncingRef.current) {
+                musicControlService.seek(time).catch(console.error);
+            }
         }
+        setCurrentTime(time);
     }, []);
 
     // Set volume
     const setVolume = useCallback((vol: number) => {
         setVolumeState(vol);
         setIsMuted(false);
-        // Sync volume to other devices
+        // Send to hub as 0-100 integer (backend scale)
         if (!isSyncingRef.current) {
-            musicControlService.setVolume(vol).catch(console.error);
+            musicControlService.setVolume(Math.round(vol * 100)).catch(console.error);
         }
     }, []);
 
     // Toggle mute
     const toggleMute = useCallback(() => {
         setIsMuted(prev => !prev);
+    }, []);
+
+    // Switch device
+    const switchDevice = useCallback(async (deviceId: string) => {
+        try {
+            await deviceService.switchToDevice(deviceId);
+        } catch (error) {
+            console.error('Failed to switch device:', error);
+        }
     }, []);
 
     const value: PlayContextType = {
@@ -592,6 +688,10 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         duration,
         volume,
         isMuted,
+        isActiveDevice,
+        devices,
+        activeDeviceId,
+        currentDeviceId,
         playSong,
         togglePlayPause,
         nextSong,
@@ -599,6 +699,7 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         seekTo,
         setVolume,
         toggleMute,
+        switchDevice,
     };
 
     return (

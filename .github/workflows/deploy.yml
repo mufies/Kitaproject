@@ -1,0 +1,101 @@
+name: Compile and Deploy via Tailscale
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_push:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Backend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./kita
+          file: ./kita/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/kita-backend:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/kita-backend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/kita-backend:buildcache,mode=max
+
+      - name: Build and Push Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./KitaUI/Ui
+          file: ./KitaUI/Ui/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/kita-frontend:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/kita-frontend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/kita-frontend:buildcache,mode=max
+
+  deploy:
+    name: Deploy to Server via Tailscale
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Setup SSH Context
+        run: |
+          mkdir -p ~/.ssh
+          eval `ssh-agent -s`
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-add ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Transfer Configuration Files
+        run: |
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~/kita/
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no .env ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~/kita/
+
+      - name: Deploy via Docker Compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/kita
+            
+            # Since docker-compose.yml uses image names dynamically,
+            # We must make sure it uses the pulled images instead of building from source in the GH runner context
+            sed -i 's|build:|#build:|g' docker-compose.yml
+            sed -i '/context:/d' docker-compose.yml
+            sed -i '/dockerfile:/d' docker-compose.yml
+            
+            # Add Docker Hub images
+            sed -i '/container_name: kita_backend/i \    image: ${{ secrets.DOCKER_USERNAME }}/kita-backend:latest' docker-compose.yml
+            sed -i '/container_name: kita_frontend/i \    image: ${{ secrets.DOCKER_USERNAME }}/kita-frontend:latest' docker-compose.yml
+            
+            # Log in to Docker on the server (if private repo)
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            
+            # Pull new images and deploy
+            docker compose pull
+            docker compose down
+            docker compose up -d
+
+            echo "Deployment successful!"

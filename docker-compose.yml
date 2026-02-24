@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: kita_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123}
+      POSTGRES_DB: ${POSTGRES_DB:-kita_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - kita_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: kita_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - kita_network
+
+  backend:
+    build:
+      context: ./kita
+      dockerfile: Dockerfile
+    container_name: kita_backend
+    depends_on:
+      - db
+      - redis
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB:-kita_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-123}
+      - ConnectionStrings__Redis=redis:6379
+      - JwtSettings__Key=${JWT_KEY:-SuperSecretKeyThatIsLongEnoughForHmacSha256Signature}
+      - JwtSettings__Issuer=${JWT_ISSUER:-KitaApi}
+      - JwtSettings__Audience=${JWT_AUDIENCE:-KitaClient}
+      - FileStorage__BasePath=/app/Assets
+      - FileStorage__BaseUrl=${FILE_STORAGE_BASE_URL:-http://localhost:8080/Assets}
+      - YouTube__ApiKey=${YOUTUBE_API_KEY}
+      - YouTube__ApplicationName=${YOUTUBE_APP_NAME:-Kita}
+      - Spotify__ClientId=${SPOTIFY_CLIENT_ID}
+      - Spotify__ClientSecret=${SPOTIFY_CLIENT_SECRET}
+      - LiveKit__ApiKey=${LIVEKIT_API_KEY:-devkey}
+      - LiveKit__ApiSecret=${LIVEKIT_API_SECRET:-devsecret1234567890abcdefghijklmnopqrstuvwxyz}
+      - LiveKit__ServerUrl=${LIVEKIT_SERVER_URL:-ws://livekit:7880}
+    ports:
+      - "5064:8080"
+    volumes:
+      - kita_assets:/app/Assets
+    networks:
+      - kita_network
+
+  frontend:
+    build:
+      context: ./KitaUI/Ui
+      dockerfile: Dockerfile
+    container_name: kita_frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:5064}
+      - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:5064}
+    networks:
+      - kita_network
+
+volumes:
+  pgdata:
+  redisdata:
+  kita_assets:
+
+networks:
+  kita_network:
+    driver: bridge

@@ -18,7 +18,7 @@ class UserStatusService {
             }
 
             this.connection = new signalR.HubConnectionBuilder()
-                .withUrl('http://localhost:5064/hubs/userstatus', {
+                .withUrl(`${import.meta.env.VITE_API_URL || 'http://localhost:5064'}/hubs/userstatus`, {
                     accessTokenFactory: () => token
                 })
                 .withAutomaticReconnect()

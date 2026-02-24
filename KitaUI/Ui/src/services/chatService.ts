@@ -22,7 +22,7 @@ class ChatService {
 
             // Create new connection
             this.connection = new signalR.HubConnectionBuilder()
-                .withUrl('http://localhost:5064/hubs/chat', {
+                .withUrl(`${import.meta.env.VITE_API_URL || 'http://localhost:5064'}/hubs/chat`, {
                     accessTokenFactory: () => token
                 })
                 .withAutomaticReconnect()
@@ -140,7 +140,7 @@ class ChatService {
             formData.append('file', imageFile);
 
             const token = localStorage.getItem('auth_token');
-            const response = await fetch('http://localhost:5064/api/message/image', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5064'}/api/message/image`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

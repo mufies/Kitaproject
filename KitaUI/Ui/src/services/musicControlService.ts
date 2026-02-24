@@ -7,16 +7,16 @@ export interface DeviceConnection {
     deviceType: string;
     connectedAt: string;
 }
-
 export interface PlaybackState {
     currentSongId?: string;
     isPlaying: boolean;
-    currentTime: number;
-    volume: number;
+    currentTime: number;        // Will convert to int before sending
+    volume: number;             // Will convert to 0-100 scale
     playlistId?: string;
     queue: string[];
-    lastUpdated: string;
+    lastUpdated: string;        // ISO string, SignalR auto converts to DateTime
 }
+
 
 export interface DeviceList {
     devices: DeviceConnection[];
@@ -26,12 +26,10 @@ export interface DeviceList {
 export class MusicControlService {
     private hubConnection: signalR.HubConnection;
     private currentDeviceId?: string;
-    private deviceName?: string;
-    private deviceType?: string;
 
     constructor() {
         this.hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5064/hubs/music-control", {
+            .withUrl(`${import.meta.env.VITE_API_URL || "http://localhost:5064"}/hubs/music-control`, {
                 accessTokenFactory: () => localStorage.getItem("auth_token") || "",
             })
             .withAutomaticReconnect()
@@ -48,15 +46,7 @@ export class MusicControlService {
 
         this.hubConnection.onreconnected(async () => {
             console.log("MusicControl Hub: Reconnected");
-            // Re-register device after reconnection
-            if (this.deviceName && this.deviceType) {
-                try {
-                    await this.registerDevice(this.deviceName, this.deviceType);
-                    console.log("Device re-registered after reconnection");
-                } catch (error) {
-                    console.error("Failed to re-register device:", error);
-                }
-            }
+            // Re-registration is handled by deviceService
         });
 
         this.hubConnection.onclose(() => {
@@ -104,6 +94,10 @@ export class MusicControlService {
             console.log("Received PlaySong command:", songId, startTime);
         });
 
+        this.hubConnection.on("Seek", (positionSeconds: number) => {
+            console.log("Received Seek command:", positionSeconds);
+        });
+
         this.hubConnection.on("PlaybackStateUpdated", (state: PlaybackState) => {
             console.log("Playback state updated:", state);
         });
@@ -111,12 +105,10 @@ export class MusicControlService {
 
     public async connect() {
         try {
-            // Only start if currently disconnected
             if (this.hubConnection.state === signalR.HubConnectionState.Disconnected) {
                 await this.hubConnection.start();
                 console.log("Connected to MusicControl Hub");
             } else if (this.hubConnection.state === signalR.HubConnectionState.Connecting) {
-                // Wait for connection to complete
                 console.log("Connection in progress, waiting...");
                 while (this.hubConnection.state === signalR.HubConnectionState.Connecting) {
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -142,8 +134,6 @@ export class MusicControlService {
 
     // Device Management
     public async registerDevice(deviceName: string, deviceType: string = "web") {
-        this.deviceName = deviceName;
-        this.deviceType = deviceType;
         await this.hubConnection.invoke("RegisterDevice", deviceName, deviceType);
     }
 
@@ -180,6 +170,10 @@ export class MusicControlService {
         await this.hubConnection.invoke("PlaySong", songId, startTime);
     }
 
+    public async seek(positionSeconds: number) {
+        await this.hubConnection.invoke("Seek", positionSeconds);
+    }
+
     // Playback State
     public async syncPlaybackState(state: PlaybackState) {
         await this.hubConnection.invoke("SyncPlaybackState", state);
@@ -214,6 +208,10 @@ export class MusicControlService {
         this.hubConnection.on("PlaySong", callback);
     }
 
+    public onSeek(callback: (positionSeconds: number) => void) {
+        this.hubConnection.on("Seek", callback);
+    }
+
     public onPlaybackStateUpdated(callback: (state: PlaybackState) => void) {
         this.hubConnection.on("PlaybackStateUpdated", callback);
     }
@@ -237,6 +235,53 @@ export class MusicControlService {
     public getConnectionState(): signalR.HubConnectionState {
         return this.hubConnection.state;
     }
+
+
+    //  Remove Event Listener
+    public offPlay(callback: () => void) {
+        this.hubConnection.off("Play", callback);
+    }
+
+    public offPause(callback: () => void) {
+        this.hubConnection.off("Pause", callback);
+    }
+
+    public offNext(callback: () => void) {
+        this.hubConnection.off("Next", callback);
+    }
+
+    public offPrevious(callback: () => void) {
+        this.hubConnection.off("Previous", callback);
+    }
+
+    public offSetVolume(callback: (volume: number) => void) {
+        this.hubConnection.off("SetVolume", callback);
+    }
+
+    public offPlaySong(callback: (songId: string, startTime: number) => void) {
+        this.hubConnection.off("PlaySong", callback);
+    }
+
+    public offSeek(callback: (positionSeconds: number) => void) {
+        this.hubConnection.off("Seek", callback);
+    }
+
+    public offPlaybackStateUpdated(callback: (state: PlaybackState) => void) {
+        this.hubConnection.off("PlaybackStateUpdated", callback);
+    }
+
+    public offDeviceListUpdated(callback: (deviceList: DeviceList) => void) {
+        this.hubConnection.off("DeviceListUpdated", callback);
+    }
+
+    public offActiveDeviceChanged(callback: (activeDevice: DeviceConnection) => void) {
+        this.hubConnection.off("ActiveDeviceChanged", callback);
+    }
+
+    public offDeviceRegistered(callback: (deviceId: string) => void) {
+        this.hubConnection.off("DeviceRegistered", callback);
+    }
+
 }
 
 // Export singleton instance

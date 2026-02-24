@@ -27,7 +27,6 @@ export const AudioControl: React.FC = () => {
         seekTo,
         setVolume,
         toggleMute,
-        musicControlService,
     } = usePlay();
 
     const [isHoveringSeek, setIsHoveringSeek] = useState(false);
@@ -193,7 +192,7 @@ export const AudioControl: React.FC = () => {
                     <Mic2 size={18} />
                 </button>
                 <div className="hidden md:block">
-                    <DeviceSelector musicControlService={musicControlService} />
+                    <DeviceSelector />
                 </div>
 
                 <div className="flex items-center gap-2 ml-2 group"
