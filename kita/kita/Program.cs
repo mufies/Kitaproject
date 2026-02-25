@@ -170,7 +170,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(frontendUrl, "http://localhost:5174")
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials(); // Required for SignalR
+              .AllowCredentials(); 
     });
 });
 
