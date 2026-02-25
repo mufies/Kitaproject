@@ -171,7 +171,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(frontendUrl, "http://localhost:5174", "http://localhost:5173")
+        policy.WithOrigins(frontendUrl, "http://localhost:5174", "http://localhost:5173","https://kiseki.id.vn")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); 
