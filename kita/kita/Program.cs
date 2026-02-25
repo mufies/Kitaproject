@@ -159,15 +159,19 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// Get Frontend URL from config or .env
-var frontendUrl = builder.Configuration["VITE_FRONTEND_URL"] ?? "http://localhost:5173";
+// Get Frontend URL from config or .env (DotNetEnv loads into process env vars)
+var frontendUrl = Environment.GetEnvironmentVariable("VITE_FRONTEND_URL")
+               ?? builder.Configuration["VITE_FRONTEND_URL"]
+               ?? "http://localhost:5173";
+
+Console.WriteLine($"CORS AllowedOrigin: {frontendUrl}");
 
 // Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(frontendUrl, "http://localhost:5174")
+        policy.WithOrigins(frontendUrl, "http://localhost:5174", "http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); 
@@ -211,10 +215,10 @@ foreach (var dir in assetDirectories)
     });
 }
 
-app.UseHttpsRedirection();
-
-// Use CORS
+// Use CORS before HTTPS redirection so preflight OPTIONS requests get proper headers
 app.UseCors("AllowFrontend");
+
+app.UseHttpsRedirection();
 
 app.UseMiddleware<Kita.Middleware.GlobalExceptionHandler>();
 
