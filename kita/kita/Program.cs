@@ -189,6 +189,9 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+
+app.UseCors("AllowFrontend");
+
 // Configure static files
 var basePath = app.Configuration["FileStorage:BasePath"] ?? Path.Combine(app.Environment.ContentRootPath, "Assets");
 
@@ -215,9 +218,6 @@ foreach (var dir in assetDirectories)
     });
 }
 
-// Use CORS before HTTPS redirection so preflight OPTIONS requests get proper headers
-app.UseCors("AllowFrontend");
-
 app.UseHttpsRedirection();
 
 app.UseMiddleware<Kita.Middleware.GlobalExceptionHandler>();
@@ -227,10 +227,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Map SignalR Hub
-app.MapHub<ChatHub>("/hubs/chat");
-app.MapHub<VoiceHub>("/hubs/voice");
-app.MapHub<MusicControlHub>("/hubs/music-control");
-app.MapHub<UserStatusHub>("/hubs/userstatus");
+// Map SignalR Hubs — RequireCors is mandatory in ASP.NET Core 6+ for hubs
+// to honour the CORS policy on preflight /negotiate requests.
+app.MapHub<ChatHub>("/hubs/chat").RequireCors("AllowFrontend");
+app.MapHub<VoiceHub>("/hubs/voice").RequireCors("AllowFrontend");
+app.MapHub<MusicControlHub>("/hubs/music-control").RequireCors("AllowFrontend");
+app.MapHub<UserStatusHub>("/hubs/userstatus").RequireCors("AllowFrontend");
 
 app.Run();
