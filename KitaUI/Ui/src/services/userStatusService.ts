@@ -33,12 +33,20 @@ class UserStatusService {
                 this.statusCallbacks.forEach(cb => cb(status));
             });
 
+            this.connection.onreconnecting(() => {
+                console.log('🟡 UserStatus connection reconnecting...');
+            });
+
+            this.connection.onreconnected(() => {
+                console.log('🟢 UserStatus connection reconnected');
+            });
+
             this.connection.onclose(() => {
-                console.log('UserStatus connection closed');
+                console.log('🔴 UserStatus connection closed');
             });
 
             await this.connection.start();
-            console.log('UserStatus connection established');
+            console.log('🟢 UserStatus connection established');
 
         } catch (err) {
             console.error('Failed to connect to UserStatusHub:', err);
@@ -116,7 +124,6 @@ class UserStatusService {
     onStatusChanged(callback: (status: UserStatus) => void) {
         this.statusCallbacks.push(callback);
 
-        // Return unsubscribe function
         return () => {
             this.statusCallbacks = this.statusCallbacks.filter(cb => cb !== callback);
         };

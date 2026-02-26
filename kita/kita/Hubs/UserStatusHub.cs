@@ -42,29 +42,45 @@ namespace Kita.Hubs
         public override async Task OnConnectedAsync()
         {
             var userId = GetUserId();
+            Console.WriteLine($"🟢 User {userId} connected to UserStatusHub");
             await base.OnConnectedAsync();
             await _userService.SetActiveAsync(Guid.Parse(userId), true);
             
             await UpdateUserStatus(userId, true, null);
             
-            // Broadcast to ALL clients
+            // Broadcast to ALL clients that this user is now online
+            Console.WriteLine($"🟢 Broadcasting UserStatusChanged for {userId} (online=true) to all clients");
             await Clients.All.SendAsync("UserStatusChanged", new UserStatusInfo
             {
                 UserId = userId,
                 IsOnline = true,
                 CurrentlyPlayingSong = await GetCurrentlyPlayingSongFromStorage(userId)
             });
+            
+            // Send all currently online users to the newly connected client
+            Console.WriteLine($"🟢 Sending all online users status to newly connected user {userId}");
+            var onlineUsers = _userStatuses.Values.Where(u => u.IsOnline).ToList();
+            foreach (var onlineUser in onlineUsers)
+            {
+                if (onlineUser.UserId != userId) // Don't send their own status back
+                {
+                    Console.WriteLine($"   - Sending status for {onlineUser.UserId} (online={onlineUser.IsOnline})");
+                    await Clients.Caller.SendAsync("UserStatusChanged", onlineUser);
+                }
+            }
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var userId = GetUserId();
+            Console.WriteLine($"🔴 User {userId} disconnected from UserStatusHub");
             await base.OnDisconnectedAsync(exception);
             await _userService.SetActiveAsync(Guid.Parse(userId), false);
             
             await UpdateUserStatus(userId, false, null);
             
             // Broadcast to ALL clients
+            Console.WriteLine($"🔴 Broadcasting UserStatusChanged for {userId} (online=false) to all clients");
             await Clients.All.SendAsync("UserStatusChanged", new UserStatusInfo
             {
                 UserId = userId,
@@ -115,18 +131,46 @@ namespace Kita.Hubs
 
         public async Task<UserStatusInfo> GetUserStatus(string targetUserId)
         {
+            Console.WriteLine($"🔵 GetUserStatus called for: {targetUserId}");
             
+            // Check in-memory first
             if (_userStatuses.TryGetValue(targetUserId, out var status))
             {
+                Console.WriteLine($"🟢 Found in memory: {targetUserId}, online={status.IsOnline}");
                 return status;
             }
             
+            Console.WriteLine($"🟡 Not in memory, checking database for: {targetUserId}");
+            
+            // If not in memory, check database for IsActive status
             var songInfo = await GetCurrentlyPlayingSongFromStorage(targetUserId);
+            bool isActive = false;
+            
+            try
+            {
+                if (Guid.TryParse(targetUserId, out var userGuid))
+                {
+                    var user = await _userService.GetUserProfileAsync(userGuid);
+                    if (user.Success && user.Data != null)
+                    {
+                        isActive = user.Data.IsActive;
+                        Console.WriteLine($"🟢 Database IsActive for {targetUserId}: {isActive}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"🔴 Failed to get user profile for {targetUserId}: {user.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"🔴 Failed to get user active status: {ex.Message}");
+            }
             
             return new UserStatusInfo
             {
                 UserId = targetUserId,
-                IsOnline = false,
+                IsOnline = isActive,
                 CurrentlyPlayingSong = songInfo
             };
         }
@@ -134,6 +178,7 @@ namespace Kita.Hubs
 
         public async Task<UserStatusInfo[]> GetUsersStatus(string[] userIds)
         {
+            Console.WriteLine($"🔵 GetUsersStatus called for {userIds.Length} users");
             var statuses = new List<UserStatusInfo>();
             
             foreach (var userId in userIds)
@@ -142,6 +187,7 @@ namespace Kita.Hubs
                 statuses.Add(status);
             }
             
+            Console.WriteLine($"🟢 Returning {statuses.Count} statuses");
             return statuses.ToArray();
         }
 

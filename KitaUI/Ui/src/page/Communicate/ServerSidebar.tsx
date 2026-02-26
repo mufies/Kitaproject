@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Hash, Volume2, Settings, MicOff, Headphones, ChevronDown, Pencil, Trash2, MoreVertical, X, Check, Copy, Link, Users, LogOut } from 'lucide-react';
+import { Plus, Hash, Volume2, Settings, MicOff, Headphones, ChevronDown, Pencil, Trash2, MoreVertical, X, Check, Copy, Link, Users, LogOut, AlertTriangle } from 'lucide-react';
 import { channelService } from '../../services/channelService';
 import { serverService } from '../../services/serverService';
 import { serverInviteService } from '../../services/serverInviteService';
@@ -504,7 +504,7 @@ export default function ServerSidebar({ server, currentChannelId, onChannelSelec
                             </div>
 
                             {/* Content */}
-                            <div className="flex-1 bg-[#1a141a] rounded-r-2xl p-6 overflow-y-auto">
+                            <div className="flex-1 bg-[#1a141a] rounded-r-2xl p-6 overflow-y-auto relative">
                                 <div className="flex justify-between items-center mb-6">
                                     <h2 className="text-xl font-bold text-white">
                                         {settingsTab === 'overview' ? 'Server Overview' : 'Invites'}
@@ -597,6 +597,30 @@ export default function ServerSidebar({ server, currentChannelId, onChannelSelec
                                             <p className="text-sm text-white/40 italic">
                                                 Only the server owner can edit server settings.
                                             </p>
+                                        )}
+
+                                        {/* Danger Zone - Owner only */}
+                                        {isOwner && (
+                                            <div className="mt-8 pt-6 border-t border-red-500/20">
+                                                <div className="bg-red-500/10 rounded-lg p-4 border border-red-500/30">
+                                                    <div className="flex items-start gap-3">
+                                                        <AlertTriangle size={20} className="text-red-400 flex-shrink-0 mt-0.5" />
+                                                        <div className="flex-1">
+                                                            <h4 className="text-red-400 font-semibold text-sm mb-1">Danger Zone</h4>
+                                                            <p className="text-white/60 text-xs mb-3">
+                                                                Deleting this server will permanently remove all channels, messages, and members. This action cannot be undone.
+                                                            </p>
+                                                            <button
+                                                                onClick={deleteServer}
+                                                                className="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                                Remove Server
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                 )}

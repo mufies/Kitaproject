@@ -28,6 +28,7 @@ export default function KitaChatPage() {
     // Current user id (from JWT)
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
+    // Connect to ChatHub on mount to receive server-level events
     useEffect(() => {
         const token = localStorage.getItem('auth_token');
         if (token) {
@@ -37,8 +38,23 @@ export default function KitaChatPage() {
                 const payload = JSON.parse(window.atob(base64));
                 const nameIdentifierClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
                 setCurrentUserId(payload[nameIdentifierClaim] || payload.sub || payload.nameid);
-            } catch { /* ignore */ }
+
+                // Connect to ChatHub to receive ServerLeft events
+                if (!chatService.isConnected()) {
+                    chatService.connect(token).then(() => {
+                        console.log('🟢 ChatHub connected in KitaChatPage');
+                    }).catch(err => {
+                        console.error('🔴 Failed to connect to ChatHub:', err);
+                    });
+                }
+            } catch (e) {
+                console.error('🔴 Failed to parse token:', e);
+            }
         }
+
+        return () => {
+            // Don't disconnect here as ChatChannel might be using it
+        };
     }, []);
 
     // Load members when server changes
@@ -54,7 +70,9 @@ export default function KitaChatPage() {
 
     // Setup User Status Listener
     useEffect(() => {
+        console.log('🟡 Setting up UserStatus listener in KitaChatPage');
         const unsubscribe = userStatusService.onStatusChanged((status) => {
+            console.log('🟡 UserStatus changed:', status.userId, 'online:', status.isOnline);
             setUserStatuses(prev => {
                 const next = new Map(prev);
                 next.set(status.userId, status);
@@ -62,25 +80,50 @@ export default function KitaChatPage() {
             });
         });
 
-        // Setup Chat Service Listeners globally for server level events
+        return () => {
+            console.log('🟡 Cleaning up UserStatus listener in KitaChatPage');
+            unsubscribe();
+        };
+    }, []);
+
+    // Setup Server Left Listener with proper dependencies
+    useEffect(() => {
         const handleServerLeft = (serverId: string, userId: string) => {
-            if (currentUserId && userId.toLowerCase() === currentUserId.toLowerCase()) {
+            console.log('🔴 ServerLeft event:', { serverId, userId, currentUserId, currentServerId: currentServer?.id });
+            
+            // Normalize IDs for comparison
+            const normalizedUserId = userId.toLowerCase();
+            const normalizedCurrentUserId = currentUserId?.toLowerCase();
+            
+            // If I was kicked/left
+            if (normalizedCurrentUserId && normalizedUserId === normalizedCurrentUserId) {
                 if (currentServer?.id === serverId) {
+                    console.log('🔴 I was kicked/left from current server');
                     setCurrentServer(null);
                     setCurrentChannel(null);
+                    setMembers([]);
                 }
-                // Rely on ServerList or window.location.reload() to refresh the servers list
-                // the event is just received so we ensure state is matched globally on both.
-                // In our implementation kick/leave trigger reload.
-            } else if (currentServer?.id === serverId) {
-                setMembers(prev => prev.filter(m => m.userId.toLowerCase() !== userId.toLowerCase()));
+            } 
+            // If someone else left/was kicked from my current server
+            else if (currentServer?.id === serverId) {
+                console.log('🔴 Removing member from list:', userId);
+                setMembers(prev => {
+                    const filtered = prev.filter(m => m.userId.toLowerCase() !== normalizedUserId);
+                    console.log('🔴 Members after removal:', filtered.length);
+                    return filtered;
+                });
+                // Also remove their status
+                setUserStatuses(prev => {
+                    const next = new Map(prev);
+                    next.delete(userId);
+                    return next;
+                });
             }
         };
 
         chatService.onServerLeft(handleServerLeft);
 
         return () => {
-            unsubscribe();
             chatService.offServerLeft(handleServerLeft);
         };
     }, [currentServer?.id, currentUserId]);
@@ -88,15 +131,49 @@ export default function KitaChatPage() {
     // Initial Status Fetch for current members
     useEffect(() => {
         if (members.length > 0) {
-            userStatusService.getUsersStatus(members.map(m => m.userId)).then(statuses => {
-                setUserStatuses(prev => {
-                    const next = new Map(prev);
-                    statuses.forEach(s => next.set(s.userId, s));
-                    return next;
-                });
-            });
+            console.log('🟢 Fetching statuses for', members.length, 'members');
+            const userIds = members.map(m => m.userId);
+            
+            // Retry logic to ensure UserStatusHub is connected
+            const fetchStatuses = async () => {
+                let attempts = 0;
+                const maxAttempts = 3;
+                
+                while (attempts < maxAttempts) {
+                    try {
+                        const statuses = await userStatusService.getUsersStatus(userIds);
+                        if (statuses.length > 0) {
+                            console.log('🟢 Received', statuses.length, 'statuses');
+                            setUserStatuses(prev => {
+                                const next = new Map(prev);
+                                statuses.forEach(s => {
+                                    console.log(`🟢 Status for ${s.userId}: online=${s.isOnline}`);
+                                    next.set(s.userId, s);
+                                });
+                                return next;
+                            });
+                            break;
+                        } else {
+                            console.log('🟡 No statuses received, retrying...', attempts + 1);
+                            attempts++;
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        }
+                    } catch (err) {
+                        console.error('🔴 Failed to fetch user statuses, attempt', attempts + 1, err);
+                        attempts++;
+                        if (attempts < maxAttempts) {
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        }
+                    }
+                }
+            };
+            
+            fetchStatuses();
+        } else {
+            // Clear statuses when no members
+            setUserStatuses(new Map());
         }
-    }, [members]);
+    }, [members]); // Re-fetch when members array changes
 
     // Derive current user's role in this server
     const currentUserRole = members.find(m => m.userId === currentUserId)?.role;
@@ -131,10 +208,23 @@ export default function KitaChatPage() {
     const handleKickMember = async (member: ServerMemberDto) => {
         if (!currentServer) return;
         try {
+            console.log('🟡 Kicking member:', member.userId, member.username);
             await serverService.kickMember(currentServer.id, member.userId);
-            setMembers(prev => prev.filter(m => m.userId !== member.userId));
+            // Remove from local state immediately (will also be removed by ServerLeft event)
+            setMembers(prev => {
+                const filtered = prev.filter(m => m.userId !== member.userId);
+                console.log('🟡 Members after kick:', filtered.length);
+                return filtered;
+            });
+            // Remove their status
+            setUserStatuses(prev => {
+                const next = new Map(prev);
+                next.delete(member.userId);
+                return next;
+            });
         } catch (err) {
-            console.error("Failed to kick member", err);
+            console.error("🔴 Failed to kick member", err);
+            alert('Failed to kick member: ' + (err as Error).message);
         }
     };
 

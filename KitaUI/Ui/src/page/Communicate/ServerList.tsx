@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, X, LogIn, Sparkles } from 'lucide-react';
 import { serverService } from '../../services/serverService';
 import { serverInviteService } from '../../services/serverInviteService';
+import { chatService } from '../../services/chatService';
 import type { ServerDto } from '../../types/api';
 
 interface ServerListProps {
@@ -22,6 +23,59 @@ export default function ServerList({ currentServerId, onServerSelect }: ServerLi
     useEffect(() => {
         loadServers();
     }, []);
+
+    // Listen for ServerLeft events to remove servers when user is kicked/left
+    useEffect(() => {
+        const token = localStorage.getItem('auth_token');
+        if (!token) return;
+
+        // Get current user ID
+        let currentUserId: string | null = null;
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(window.atob(base64));
+            const nameIdentifierClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
+            currentUserId = payload[nameIdentifierClaim] || payload.sub || payload.nameid;
+        } catch (e) {
+            console.error('Failed to parse token:', e);
+            return;
+        }
+
+        // Connect to ChatHub if not connected
+        if (!chatService.isConnected()) {
+            chatService.connect(token).catch(err => {
+                console.error('Failed to connect to ChatHub in ServerList:', err);
+            });
+        }
+
+        const handleServerLeft = (serverId: string, userId: string) => {
+            console.log('🔴 ServerLeft in ServerList:', { serverId, userId, currentUserId });
+            
+            // Normalize IDs for comparison
+            const normalizedUserId = userId.toLowerCase();
+            const normalizedCurrentUserId = currentUserId?.toLowerCase();
+            
+            // If I was kicked/left from a server
+            if (normalizedCurrentUserId && normalizedUserId === normalizedCurrentUserId) {
+                console.log('🔴 Removing server from list:', serverId);
+                setServers(prev => {
+                    const filtered = prev.filter(s => s.id !== serverId);
+                    // If the removed server was selected, clear selection
+                    if (currentServerId === serverId) {
+                        onServerSelect(filtered[0] || null as any);
+                    }
+                    return filtered;
+                });
+            }
+        };
+
+        chatService.onServerLeft(handleServerLeft);
+
+        return () => {
+            chatService.offServerLeft(handleServerLeft);
+        };
+    }, [currentServerId, onServerSelect]);
 
     const loadServers = async () => {
         try {

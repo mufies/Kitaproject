@@ -139,6 +139,17 @@ class ChatService {
         this.serverLeftCallbacks = [];
     }
 
+    // Clear only channel-specific callbacks (messages, typing) but keep server-level callbacks
+    clearChannelCallbacks() {
+        this.messageCallbacks = [];
+        this.messageEditCallbacks = [];
+        this.messageDeleteCallbacks = [];
+        this.typingCallbacks = [];
+        this.stoppedTypingCallbacks = [];
+        this.reactionChangedCallbacks = [];
+        // Keep serverLeftCallbacks intact!
+    }
+
     async fetchChannelMessages(channelId: string, take: number = 30, skip: number = 0): Promise<MessageDto[]> {
         try {
             const response = await api.get<ApiResponse<MessageDto[]>>(

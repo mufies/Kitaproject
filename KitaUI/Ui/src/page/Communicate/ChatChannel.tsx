@@ -165,7 +165,8 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
 
         return () => {
             leaveChannel();
-            chatService.clearCallbacks();
+            // Clear only channel-specific callbacks, keep server-level callbacks
+            chatService.clearChannelCallbacks();
         };
     }, [channel.id]);
 
@@ -203,8 +204,9 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
             if (chatService.isConnected()) {
                 await chatService.joinChannel(channel.id);
 
-                // clear any old callbacks to avoid duplicated events
-                chatService.clearCallbacks();
+                // clear any old channel-specific callbacks to avoid duplicated events
+                // but keep server-level callbacks (like ServerLeft) intact
+                chatService.clearChannelCallbacks();
 
                 chatService.onMessageReceived((msg) => {
                     if (msg.channelId === channel.id) {
