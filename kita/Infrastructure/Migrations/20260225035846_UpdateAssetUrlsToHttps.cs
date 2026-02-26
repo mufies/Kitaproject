@@ -27,8 +27,6 @@ namespace Infrastructure.Migrations
                 UPDATE ""Albums"" SET ""ImageUrl"" = REPLACE(""ImageUrl"", 'http://100.98.82.105:5064/Assets', 'https://api.kiseki.id.vn/Assets') WHERE ""ImageUrl"" LIKE 'http://100.98.82.105:5064/Assets%';
                 UPDATE ""Servers"" SET ""IconUrl"" = REPLACE(""IconUrl"", 'http://100.98.82.105:5064/Assets', 'https://api.kiseki.id.vn/Assets') WHERE ""IconUrl"" LIKE 'http://100.98.82.105:5064/Assets%';
                 UPDATE ""Messages"" SET ""ImageUrl"" = REPLACE(""ImageUrl"", 'http://100.98.82.105:5064/Assets', 'https://api.kiseki.id.vn/Assets') WHERE ""ImageUrl"" LIKE 'http://100.98.82.105:5064/Assets%';
-                UPDATE ""Messages"" SET ""VideoUrl"" = REPLACE(""VideoUrl"", 'http://100.98.82.105:5064/Assets', 'https://api.kiseki.id.vn/Assets') WHERE ""VideoUrl"" LIKE 'http://100.98.82.105:5064/Assets%';
-                UPDATE ""Messages"" SET ""FileUrl"" = REPLACE(""FileUrl"", 'http://100.98.82.105:5064/Assets', 'https://api.kiseki.id.vn/Assets') WHERE ""FileUrl"" LIKE 'http://100.98.82.105:5064/Assets%';
             ");
         }
 
