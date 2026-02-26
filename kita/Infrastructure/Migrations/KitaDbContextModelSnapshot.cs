@@ -678,7 +678,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2026, 2, 25, 3, 58, 45, 992, DateTimeKind.Utc).AddTicks(2679),
+                            CreatedAt = new DateTime(2026, 2, 26, 1, 49, 52, 735, DateTimeKind.Utc).AddTicks(630),
                             Email = "admin@kita.com",
                             IsActive = true,
                             IsPremium = false,
@@ -686,7 +686,7 @@ namespace Infrastructure.Migrations
                             PasswordHash = "$2a$11$5glWJIvKFoXWFwYIKJVB5ONySehuC4cMyghaPfEdybGcBazIDZsmy",
                             Role = "Admin",
                             Subscription = 0,
-                            UpdatedAt = new DateTime(2026, 2, 25, 3, 58, 45, 992, DateTimeKind.Utc).AddTicks(2679),
+                            UpdatedAt = new DateTime(2026, 2, 26, 1, 49, 52, 735, DateTimeKind.Utc).AddTicks(631),
                             UserName = "Admin"
                         });
                 });
