@@ -26,6 +26,8 @@ export interface DeviceList {
 export class MusicControlService {
     private hubConnection: signalR.HubConnection;
     private currentDeviceId?: string;
+    private connecting: boolean = false;
+    private connectionPromise: Promise<void> | null = null;
 
     constructor() {
         this.hubConnection = new signalR.HubConnectionBuilder()
@@ -104,21 +106,38 @@ export class MusicControlService {
     }
 
     public async connect() {
+        // If already connected, return immediately
+        if (this.hubConnection.state === signalR.HubConnectionState.Connected) {
+            return;
+        }
+
+        // If currently connecting, wait for that connection to complete
+        if (this.connecting && this.connectionPromise) {
+            return this.connectionPromise;
+        }
+
+        // Mark as connecting and create new connection promise
+        this.connecting = true;
+        this.connectionPromise = this._connect();
+        
+        try {
+            await this.connectionPromise;
+        } finally {
+            this.connecting = false;
+            this.connectionPromise = null;
+        }
+    }
+
+    private async _connect() {
         try {
             if (this.hubConnection.state === signalR.HubConnectionState.Disconnected) {
                 await this.hubConnection.start();
                 console.log("Connected to MusicControl Hub");
-            } else if (this.hubConnection.state === signalR.HubConnectionState.Connecting) {
-                console.log("Connection in progress, waiting...");
-                while (this.hubConnection.state === signalR.HubConnectionState.Connecting) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
-                console.log("Connection completed");
-            } else {
-                console.log(`Already ${this.hubConnection.state}, skipping connect`);
             }
         } catch (error) {
             console.error("Error connecting to MusicControl Hub:", error);
+            this.connecting = false;
+            this.connectionPromise = null;
             throw error;
         }
     }

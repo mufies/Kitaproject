@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { userStatusService } from '../services/userStatusService';
 
 interface AuthContextType {
@@ -34,13 +34,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
     const [userRole, setUserRole] = useState<string | null>(null);
+    const connectAttemptedRef = useRef(false);
 
     useEffect(() => {
         let isSubscribed = true;
 
         // Check for existing token in localStorage
         const storedToken = localStorage.getItem('auth_token');
-        if (storedToken && isSubscribed) {
+        if (storedToken && isSubscribed && !connectAttemptedRef.current) {
+            connectAttemptedRef.current = true;
             setToken(storedToken);
             setIsAuthenticated(true);
             // Decode JWT to get role

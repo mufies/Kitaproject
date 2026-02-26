@@ -5,6 +5,8 @@ import api from './api';
 
 class ChatService {
     private connection: signalR.HubConnection | null = null;
+    private connecting: boolean = false;
+    private connectionPromise: Promise<void> | null = null;
     private messageCallbacks: ((message: MessageDto) => void)[] = [];
     private messageEditCallbacks: ((message: MessageDto) => void)[] = [];
     private messageDeleteCallbacks: ((messageId: string) => void)[] = [];
@@ -15,10 +17,29 @@ class ChatService {
     private memberJoinedCallbacks: ((serverId: string, userId: string) => void)[] = [];
 
     async connect(token: string) {
+        // If already connected, return immediately
         if (this.connection?.state === signalR.HubConnectionState.Connected) {
             return;
         }
 
+        // If currently connecting, wait for that connection to complete
+        if (this.connecting && this.connectionPromise) {
+            return this.connectionPromise;
+        }
+
+        // Mark as connecting and create new connection promise
+        this.connecting = true;
+        this.connectionPromise = this._connect(token);
+        
+        try {
+            await this.connectionPromise;
+        } finally {
+            this.connecting = false;
+            this.connectionPromise = null;
+        }
+    }
+
+    private async _connect(token: string) {
         try {
             // Stop old connection
             if (this.connection) {
@@ -73,6 +94,8 @@ class ChatService {
 
         } catch (err) {
             this.connection = null;
+            this.connecting = false;
+            this.connectionPromise = null;
             throw err;
         }
     }

@@ -28,17 +28,14 @@ namespace Kita.Service.Services
 
         public async Task<ApiResponse<ServerInviteDto>> CreateInviteAsync(Guid serverId, CreateServerInviteDto dto, Guid creatorId)
         {
-            // Check if server exists
             var server = await _serverRepository.GetByIdAsync(serverId);
             if (server == null)
                 return ApiResponse<ServerInviteDto>.Fail("Server not found.");
 
-            // Check if user is a member of the server
             var membership = await _serverMemberRepository.FindAsync(sm => sm.ServerId == serverId && sm.UserId == creatorId);
             if (!membership.Any())
                 return ApiResponse<ServerInviteDto>.Fail("You must be a member of the server to create invites.");
 
-            // Generate unique invite code
             string code;
             bool codeExists;
             do
@@ -48,7 +45,6 @@ namespace Kita.Service.Services
                 codeExists = existingInvites.Any();
             } while (codeExists);
 
-            // Create invite
             var invite = new ServerInvite
             {
                 Code = code,
@@ -97,14 +93,12 @@ namespace Kita.Service.Services
             if (invite.MaxUses.HasValue && invite.Uses >= invite.MaxUses.Value)
                 return ApiResponse<ServerInviteDto>.Fail("Invite has reached maximum uses.");
 
-            // Check if user is already a member
             var existingMembership = await _serverMemberRepository.FindAsync(
                 sm => sm.ServerId == invite.ServerId && sm.UserId == userId);
 
             bool isNewMember = !existingMembership.Any();
             if (isNewMember)
             {
-                // Add user to server
                 var member = new ServerMember
                 {
                     ServerId = invite.ServerId,
@@ -115,7 +109,6 @@ namespace Kita.Service.Services
                 await _serverMemberRepository.AddAsync(member);
             }
 
-            // Increment uses
             invite.Uses++;
             await _inviteRepository.UpdateAsync(invite);
             await _inviteRepository.SaveChangesAsync();

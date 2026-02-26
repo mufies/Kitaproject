@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
 import ServerList from './ServerList';
@@ -16,6 +16,7 @@ import Navigator from '../../components/navigator';
 export default function KitaChatPage() {
     const [currentServer, setCurrentServer] = useState<ServerDto | null>(null);
     const [currentChannel, setCurrentChannel] = useState<ChannelDto | null>(null);
+    const connectAttemptedRef = useRef(false);
 
     // Global State for Popover
     const [selectedMember, setSelectedMember] = useState<ServerMemberDto | null>(null);
@@ -31,7 +32,7 @@ export default function KitaChatPage() {
     // Connect to ChatHub on mount to receive server-level events
     useEffect(() => {
         const token = localStorage.getItem('auth_token');
-        if (token) {
+        if (token && !connectAttemptedRef.current) {
             try {
                 const base64Url = token.split('.')[1];
                 const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -39,12 +40,14 @@ export default function KitaChatPage() {
                 const nameIdentifierClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
                 setCurrentUserId(payload[nameIdentifierClaim] || payload.sub || payload.nameid);
 
-                // Connect to ChatHub to receive ServerLeft events
+                // Connect to ChatHub to receive ServerLeft events (but only once to prevent race conditions)
                 if (!chatService.isConnected()) {
+                    connectAttemptedRef.current = true;
                     chatService.connect(token).then(() => {
                         console.log('🟢 ChatHub connected in KitaChatPage');
                     }).catch(err => {
                         console.error('🔴 Failed to connect to ChatHub:', err);
+                        connectAttemptedRef.current = false; // Allow retry on failure
                     });
                 }
             } catch (e) {

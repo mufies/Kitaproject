@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Plus, X, LogIn, Sparkles } from 'lucide-react';
 import { serverService } from '../../services/serverService';
 import { serverInviteService } from '../../services/serverInviteService';
@@ -13,6 +13,7 @@ interface ServerListProps {
 export default function ServerList({ currentServerId, onServerSelect }: ServerListProps) {
     const [servers, setServers] = useState<ServerDto[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const connectAttemptedRef = useRef(false);
     const [modalTab, setModalTab] = useState<'create' | 'join'>('create');
     const [newServerName, setNewServerName] = useState("");
     const [inviteCode, setInviteCode] = useState("");
@@ -42,10 +43,12 @@ export default function ServerList({ currentServerId, onServerSelect }: ServerLi
             return;
         }
 
-        // Connect to ChatHub if not connected
-        if (!chatService.isConnected()) {
+        // Connect to ChatHub if not connected (but only once to prevent race conditions)
+        if (!chatService.isConnected() && !connectAttemptedRef.current) {
+            connectAttemptedRef.current = true;
             chatService.connect(token).catch(err => {
                 console.error('Failed to connect to ChatHub in ServerList:', err);
+                connectAttemptedRef.current = false; // Allow retry on failure
             });
         }
 
