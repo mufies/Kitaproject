@@ -17,6 +17,7 @@ namespace Kita.Service.DTOs.Server
         public bool IsRevoked { get; set; }
         public bool IsExpired { get; set; }
         public bool IsValid { get; set; }
+        public bool IsNewMember { get; set; }
     }
 
     public class CreateServerInviteDto

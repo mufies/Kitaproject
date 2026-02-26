@@ -128,6 +128,30 @@ export default function KitaChatPage() {
         };
     }, [currentServer?.id, currentUserId]);
 
+    // Setup Member Joined Listener
+    useEffect(() => {
+        const handleMemberJoined = (serverId: string, userId: string) => {
+            console.log('🟢 MemberJoined event:', { serverId, userId, currentServerId: currentServer?.id });
+            
+            // If someone joined my current server, reload members
+            if (currentServer?.id === serverId) {
+                console.log('🟢 Reloading members after new member joined');
+                serverService.getServerMembers(serverId)
+                    .then(data => {
+                        setMembers(data);
+                        console.log('🟢 Members updated:', data.length);
+                    })
+                    .catch(err => console.error('Failed to reload members', err));
+            }
+        };
+
+        chatService.onMemberJoined(handleMemberJoined);
+
+        return () => {
+            chatService.offMemberJoined(handleMemberJoined);
+        };
+    }, [currentServer?.id]);
+
     // Initial Status Fetch for current members
     useEffect(() => {
         if (members.length > 0) {

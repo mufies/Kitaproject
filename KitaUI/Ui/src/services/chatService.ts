@@ -12,6 +12,7 @@ class ChatService {
     private stoppedTypingCallbacks: ((userId: string, channelId: string) => void)[] = [];
     private reactionChangedCallbacks: ((message: MessageDto) => void)[] = [];
     private serverLeftCallbacks: ((serverId: string, userId: string) => void)[] = [];
+    private memberJoinedCallbacks: ((serverId: string, userId: string) => void)[] = [];
 
     async connect(token: string) {
         if (this.connection?.state === signalR.HubConnectionState.Connected) {
@@ -59,6 +60,10 @@ class ChatService {
 
             this.connection.on('ServerLeft', (serverId: string, userId: string) => {
                 this.serverLeftCallbacks.forEach(cb => cb(serverId, userId));
+            });
+
+            this.connection.on('MemberJoined', (serverId: string, userId: string) => {
+                this.memberJoinedCallbacks.forEach(cb => cb(serverId, userId));
             });
 
             this.connection.onclose(() => {
@@ -129,6 +134,14 @@ class ChatService {
         this.serverLeftCallbacks = this.serverLeftCallbacks.filter(cb => cb !== callback);
     }
 
+    onMemberJoined(callback: (serverId: string, userId: string) => void) {
+        this.memberJoinedCallbacks.push(callback);
+    }
+
+    offMemberJoined(callback: (serverId: string, userId: string) => void) {
+        this.memberJoinedCallbacks = this.memberJoinedCallbacks.filter(cb => cb !== callback);
+    }
+
     clearCallbacks() {
         this.messageCallbacks = [];
         this.messageEditCallbacks = [];
@@ -137,6 +150,7 @@ class ChatService {
         this.stoppedTypingCallbacks = [];
         this.reactionChangedCallbacks = [];
         this.serverLeftCallbacks = [];
+        this.memberJoinedCallbacks = [];
     }
 
     // Clear only channel-specific callbacks (messages, typing) but keep server-level callbacks

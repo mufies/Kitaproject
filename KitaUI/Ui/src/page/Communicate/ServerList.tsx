@@ -70,10 +70,26 @@ export default function ServerList({ currentServerId, onServerSelect }: ServerLi
             }
         };
 
+        const handleMemberJoined = (serverId: string, userId: string) => {
+            console.log('🟢 MemberJoined in ServerList:', { serverId, userId, currentUserId });
+            
+            // Normalize IDs for comparison
+            const normalizedUserId = userId.toLowerCase();
+            const normalizedCurrentUserId = currentUserId?.toLowerCase();
+            
+            // If I joined a new server, reload the server list
+            if (normalizedCurrentUserId && normalizedUserId === normalizedCurrentUserId) {
+                console.log('🟢 Reloading server list after joining new server');
+                loadServers();
+            }
+        };
+
         chatService.onServerLeft(handleServerLeft);
+        chatService.onMemberJoined(handleMemberJoined);
 
         return () => {
             chatService.offServerLeft(handleServerLeft);
+            chatService.offMemberJoined(handleMemberJoined);
         };
     }, [currentServerId, onServerSelect]);
 

@@ -1,10 +1,12 @@
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Kita.Hubs;
 using Kita.Service.DTOs.Server;
 using Kita.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Kita.Controllers
 {
@@ -12,10 +14,12 @@ namespace Kita.Controllers
     public class ServerInviteController : BaseApiController
     {
         private readonly IServerInviteService _serverInviteService;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public ServerInviteController(IServerInviteService serverInviteService)
+        public ServerInviteController(IServerInviteService serverInviteService, IHubContext<ChatHub> hubContext)
         {
             _serverInviteService = serverInviteService;
+            _hubContext = hubContext;
         }
 
         [HttpPost("{serverId}")]
@@ -39,6 +43,13 @@ namespace Kita.Controllers
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var result = await _serverInviteService.UseInviteAsync(useInviteDto.Code, userId);
+            
+            // Broadcast MemberJoined event if this was a new member
+            if (result.Success && result.Data?.IsNewMember == true)
+            {
+                await _hubContext.Clients.All.SendAsync("MemberJoined", result.Data.ServerId.ToString(), userId.ToString());
+            }
+            
             return HandleResult(result);
         }
 

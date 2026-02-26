@@ -101,7 +101,8 @@ namespace Kita.Service.Services
             var existingMembership = await _serverMemberRepository.FindAsync(
                 sm => sm.ServerId == invite.ServerId && sm.UserId == userId);
 
-            if (!existingMembership.Any())
+            bool isNewMember = !existingMembership.Any();
+            if (isNewMember)
             {
                 // Add user to server
                 var member = new ServerMember
@@ -120,9 +121,14 @@ namespace Kita.Service.Services
             await _inviteRepository.SaveChangesAsync();
 
             var server = await _serverRepository.GetByIdAsync(invite.ServerId);
-            return new ApiResponse<ServerInviteDto>(
+            var response = new ApiResponse<ServerInviteDto>(
                 MapToDto(invite, server?.Name ?? "Unknown", string.Empty),
                 "Successfully joined the server.");
+            
+            // Add metadata to indicate if this was a new member (for SignalR broadcasting)
+            response.Data.IsNewMember = isNewMember;
+            
+            return response;
         }
 
         public async Task<ApiResponse<bool>> RevokeInviteAsync(Guid inviteId, Guid userId)
