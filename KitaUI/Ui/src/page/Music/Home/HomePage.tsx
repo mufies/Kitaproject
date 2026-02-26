@@ -54,7 +54,6 @@ const HomePage: React.FC = () => {
                 setFollowedArtists(artists.slice(0, 5));
                 setRecentSongs(songs);
             } catch (error) {
-                console.error('Failed to fetch sidebar data:', error);
             }
         };
         fetchSidebarData();
@@ -77,7 +76,6 @@ const HomePage: React.FC = () => {
             ]);
             setSearchResults({ songs: songs.slice(0, 5), artists: artists.slice(0, 5) });
         } catch (error) {
-            console.error("Search error:", error);
         } finally {
             setIsSearching(false);
         }
@@ -108,16 +106,13 @@ const HomePage: React.FC = () => {
                 { name: playlistName, description: playlistDescription, isPublic: playlistIsPublic },
                 playlistCoverFile || undefined
             );
-            // Reset form
             setPlaylistName("");
             setPlaylistDescription("");
             setPlaylistIsPublic(true);
             setPlaylistCoverFile(null);
             setIsCreatePlaylistOpen(false);
-            // Refresh page or playlist list
             window.location.reload();
         } catch (error) {
-            console.error("Error creating playlist:", error);
         } finally {
             setIsCreatingPlaylist(false);
         }

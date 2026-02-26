@@ -43,5 +43,13 @@ export const serverService = {
 
     async deleteServer(id: string): Promise<void> {
         await api.delete<ApiResponse<void>>(`/server/${id}`);
+    },
+
+    async kickMember(serverId: string, memberUserId: string): Promise<void> {
+        await api.delete<ApiResponse<boolean>>(`/server/${serverId}/members/${memberUserId}`);
+    },
+
+    async leaveServer(serverId: string): Promise<void> {
+        await api.post<ApiResponse<boolean>>(`/server/${serverId}/leave`);
     }
 };

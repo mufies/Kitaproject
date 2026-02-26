@@ -162,7 +162,6 @@ export interface MessageDto {
     replyToId?: string;
     replyToContent?: string;
     replyToSenderName?: string;
-    reactions?: { userId: string, emoji: string }[];
 }
 
 export interface CreateMessageDto {

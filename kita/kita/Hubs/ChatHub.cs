@@ -95,7 +95,7 @@ namespace Kita.Hubs
 
         }
 
-        public async Task SendMessage(string channelId, string content)
+        public async Task SendMessage(string channelId, string content, string? replyToId = null, string? replyToContent = null, string? replyToSenderName = null)
         {
             var userId = GetUserId();
             
@@ -121,10 +121,19 @@ namespace Kita.Hubs
                 return;
             }
 
+            Guid? replyToGuid = null;
+            if (replyToId != null && Guid.TryParse(replyToId, out var parsedReplyId))
+            {
+                replyToGuid = parsedReplyId;
+            }
+
             var createMessageDto = new CreateMessageDto
             {
                 Content = content,
-                ChannelId = channelGuid
+                ChannelId = channelGuid,
+                ReplyToId = replyToGuid,
+                ReplyToContent = replyToContent,
+                ReplyToSenderName = replyToSenderName
             };
 
             var result = await _messageService.SendMessageAsync(createMessageDto, userId);
@@ -253,7 +262,8 @@ namespace Kita.Hubs
             if (!Guid.TryParse(channelId, out var channelGuid)) return;
             
             var userId = GetUserId();
-            var username = Context.User?.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
+            var userProfileInfo = await _userService.GetUserProfileAsync(userId);
+            var username = userProfileInfo.Data?.UserName ?? "Unknown";
             var groupName = GetChannelGroupName(channelGuid);
 
             await Clients.OthersInGroup(groupName).SendAsync("UserTyping", userId, username, channelId);
@@ -264,10 +274,47 @@ namespace Kita.Hubs
             if (!Guid.TryParse(channelId, out var channelGuid)) return;
             
             var userId = GetUserId();
-            var username = Context.User?.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
+            var userProfileInfo = await _userService.GetUserProfileAsync(userId);
+            var username = userProfileInfo.Data?.UserName ?? "Unknown";
             var groupName = GetChannelGroupName(channelGuid);
 
             await Clients.OthersInGroup(groupName).SendAsync("UserStoppedTyping", userId, username, channelId);
+        }
+
+        public async Task ToggleReaction(string messageId, string channelId, string emoji)
+        {
+            var userId = GetUserId();
+
+            if (!Guid.TryParse(messageId, out var messageGuid))
+            {
+                await Clients.Caller.SendAsync("Error", "Invalid message ID");
+                return;
+            }
+
+            if (!Guid.TryParse(channelId, out var channelGuid))
+            {
+                await Clients.Caller.SendAsync("Error", "Invalid channel ID");
+                return;
+            }
+
+            var result = await _messageService.ToggleReactionAsync(messageGuid, emoji, userId);
+
+            if (result.Success)
+            {
+                var groupName = GetChannelGroupName(channelGuid);
+                await Clients.Group(groupName).SendAsync("MessageReactionChanged", result.Data);
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("Error", result.Message ?? "Failed to toggle reaction");
+            }
+        }
+
+        public async Task LeaveServer(string serverId)
+        {
+            var userId = GetUserId();
+
+            await Clients.Caller.SendAsync("ServerLeft", serverId, userId);
         }
 
         private Guid GetUserId()

@@ -1,0 +1,10 @@
+--- /home/mufies/Code/Kitaproject/KitaUI/Ui/src/types/api.ts
++++ /home/mufies/Code/Kitaproject/KitaUI/Ui/src/types/api.ts
+@@ -69,6 +69,7 @@
+     channelId: string;
+     isEdited: boolean;
+     replyToId?: string;
+     replyToContent?: string;
+     replyToSenderName?: string;
++    reactions?: { userId: string, emoji: string }[];
+ }

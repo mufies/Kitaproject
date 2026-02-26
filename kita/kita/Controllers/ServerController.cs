@@ -6,6 +6,8 @@ using Kita.Service.DTOs.Server;
 using Kita.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Kita.Hubs;
 
 namespace Kita.Controllers
 {
@@ -13,10 +15,12 @@ namespace Kita.Controllers
     public class ServerController : BaseApiController
     {
         private readonly IServerService _serverService;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public ServerController(IServerService serverService)
+        public ServerController(IServerService serverService, IHubContext<ChatHub> hubContext)
         {
             _serverService = serverService;
+            _hubContext = hubContext;
         }
 
         [HttpPost]
@@ -69,6 +73,35 @@ namespace Kita.Controllers
         public async Task<IActionResult> DeleteServer(Guid id)
         {
             var result = await _serverService.DeleteServerAsync(id);
+            return HandleResult(result);
+        }
+
+        [HttpDelete("{id}/members/{userId}")]
+        public async Task<IActionResult> RemoveMember(Guid id, Guid userId)
+        {
+            var requesterId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _serverService.RemoveMemberAsync(id, userId, requesterId);
+            
+            if (result.Success)
+            {
+                // Note: to properly notify, ideally we broadcast to a server-wide group, but for now we broadcast globally or directly
+                await _hubContext.Clients.All.SendAsync("ServerLeft", id.ToString(), userId.ToString());
+            }
+
+            return HandleResult(result);
+        }
+
+        [HttpPost("{id}/leave")]
+        public async Task<IActionResult> LeaveServer(Guid id)
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _serverService.LeaveServerAsync(id, userId);
+
+            if (result.Success)
+            {
+                await _hubContext.Clients.All.SendAsync("ServerLeft", id.ToString(), userId.ToString());
+            }
+
             return HandleResult(result);
         }
     }

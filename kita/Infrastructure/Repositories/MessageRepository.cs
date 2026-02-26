@@ -17,6 +17,7 @@ namespace Kita.Infrastructure.Repositories
         {
             return await _dbSet
                 .Include(m => m.Sender)
+                .Include(m => m.MessageReactions)
                 .Where(m => m.ChannelId == channelId)
                 .OrderByDescending(m => m.SentAt)
                 .Skip(skip)
@@ -27,8 +28,17 @@ namespace Kita.Infrastructure.Repositories
 
         public async Task<Message?> GetMessageWithSenderAsync(Guid messageId)
         {
+            // Detach any tracked instances to ensure fresh data
+            var tracked = _context.ChangeTracker.Entries<Message>()
+                .FirstOrDefault(e => e.Entity.Id == messageId);
+            if (tracked != null)
+            {
+                tracked.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            }
+
             return await _dbSet
                 .Include(m => m.Sender)
+                .Include(m => m.MessageReactions)
                 .FirstOrDefaultAsync(m => m.Id == messageId);
         }
 

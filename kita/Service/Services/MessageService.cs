@@ -16,11 +16,13 @@ namespace Kita.Service.Services
     public class MessageService : IMessageService
     {
         private readonly IMessageRepository _messageRepository;
+        private readonly IBaseRepository<MessageReaction> _reactionRepository;
         private readonly IConfiguration _configuration;
 
-        public MessageService(IMessageRepository messageRepository, IConfiguration configuration)
+        public MessageService(IMessageRepository messageRepository, IBaseRepository<MessageReaction> reactionRepository, IConfiguration configuration)
         {
             _messageRepository = messageRepository;
+            _reactionRepository = reactionRepository;
             _configuration = configuration;
         }
 
@@ -31,7 +33,10 @@ namespace Kita.Service.Services
                 Content = createMessageDto.Content,
                 ChannelId = createMessageDto.ChannelId,
                 SenderId = senderId,
-                SentAt = DateTime.UtcNow
+                SentAt = DateTime.UtcNow,
+                ReplyToId = createMessageDto.ReplyToId,
+                ReplyToContent = createMessageDto.ReplyToContent,
+                ReplyToSenderName = createMessageDto.ReplyToSenderName
             };
 
             await _messageRepository.AddAsync(message);
@@ -143,8 +148,42 @@ namespace Kita.Service.Services
             return new ApiResponse<bool>(true, "Message deleted successfully.");
         }
 
+        public async Task<ApiResponse<MessageDto>> ToggleReactionAsync(Guid messageId, string emoji, Guid userId)
+        {
+            var message = await _messageRepository.GetByIdAsync(messageId);
+            if (message == null)
+                return ApiResponse<MessageDto>.Fail("Message not found.", code: 404);
+
+            var existingReactions = await _reactionRepository.FindAsync(r => r.MessageId == messageId && r.UserId == userId && r.Emoji == emoji);
+            var reaction = existingReactions.FirstOrDefault();
+
+            if (reaction != null)
+            {
+                // Remove reaction
+                await _reactionRepository.DeleteAsync(reaction.Id);
+            }
+            else
+            {
+                // Add reaction
+                var newReaction = new MessageReaction
+                {
+                    MessageId = messageId,
+                    UserId = userId,
+                    Emoji = emoji
+                };
+                await _reactionRepository.AddAsync(newReaction);
+            }
+
+            await _reactionRepository.SaveChangesAsync();
+
+            // Refetch message with sender & reactions
+            var updatedMessage = await _messageRepository.GetMessageWithSenderAsync(messageId);
+            return new ApiResponse<MessageDto>(MapToDto(updatedMessage!), "Reaction toggled successfully.");
+        }
+
         private static MessageDto MapToDto(Message message)
         {
+            var reactions = message.MessageReactions?.Select(r => new MessageReactionDto { UserId = r.UserId, Emoji = r.Emoji }).ToList() ?? new List<MessageReactionDto>();
             return new MessageDto
             {
                 Id = message.Id,
@@ -155,7 +194,11 @@ namespace Kita.Service.Services
                 SenderName = message.Sender?.UserName ?? "Unknown",
                 SenderAvatarUrl = message.Sender?.AvatarUrl,
                 ChannelId = message.ChannelId,
-                IsEdited = message.IsEdited
+                IsEdited = message.IsEdited,
+                ReplyToId = message.ReplyToId,
+                ReplyToContent = message.ReplyToContent,
+                ReplyToSenderName = message.ReplyToSenderName,
+                Reactions = reactions
             };
         }
 

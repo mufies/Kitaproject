@@ -8,6 +8,10 @@ class ChatService {
     private messageCallbacks: ((message: MessageDto) => void)[] = [];
     private messageEditCallbacks: ((message: MessageDto) => void)[] = [];
     private messageDeleteCallbacks: ((messageId: string) => void)[] = [];
+    private typingCallbacks: ((userId: string, username: string, channelId: string) => void)[] = [];
+    private stoppedTypingCallbacks: ((userId: string, channelId: string) => void)[] = [];
+    private reactionChangedCallbacks: ((message: MessageDto) => void)[] = [];
+    private serverLeftCallbacks: ((serverId: string, userId: string) => void)[] = [];
 
     async connect(token: string) {
         if (this.connection?.state === signalR.HubConnectionState.Connected) {
@@ -41,6 +45,22 @@ class ChatService {
                 this.messageDeleteCallbacks.forEach(cb => cb(message.id));
             });
 
+            this.connection.on('UserTyping', (userId: string, username: string, channelId: string) => {
+                this.typingCallbacks.forEach(cb => cb(userId, username, channelId));
+            });
+
+            this.connection.on('UserStoppedTyping', (userId: string, _username: string, channelId: string) => {
+                this.stoppedTypingCallbacks.forEach(cb => cb(userId, channelId));
+            });
+
+            this.connection.on('MessageReactionChanged', (message: MessageDto) => {
+                this.reactionChangedCallbacks.forEach(cb => cb(message));
+            });
+
+            this.connection.on('ServerLeft', (serverId: string, userId: string) => {
+                this.serverLeftCallbacks.forEach(cb => cb(serverId, userId));
+            });
+
             this.connection.onclose(() => {
             });
 
@@ -62,9 +82,19 @@ class ChatService {
         await this.connection!.invoke('LeaveChannel', channelId);
     }
 
-    async sendMessage(channelId: string, content: string) {
+    async sendMessage(channelId: string, content: string, replyToId?: string, replyToContent?: string, replyToSenderName?: string) {
         if (!this.isConnected()) throw new Error('Not connected');
-        await this.connection!.invoke('SendMessage', channelId, content);
+        await this.connection!.invoke('SendMessage', channelId, content, replyToId ?? null, replyToContent ?? null, replyToSenderName ?? null);
+    }
+
+    async startTyping(channelId: string) {
+        if (!this.isConnected()) return;
+        try { await this.connection!.invoke('StartTyping', channelId); } catch { /* ignore */ }
+    }
+
+    async stopTyping(channelId: string) {
+        if (!this.isConnected()) return;
+        try { await this.connection!.invoke('StopTyping', channelId); } catch { /* ignore */ }
     }
 
     onMessageReceived(callback: (message: MessageDto) => void) {
@@ -79,14 +109,37 @@ class ChatService {
         this.messageDeleteCallbacks.push(callback);
     }
 
+    onUserTyping(callback: (userId: string, username: string, channelId: string) => void) {
+        this.typingCallbacks.push(callback);
+    }
+
+    onStoppedTyping(callback: (userId: string, channelId: string) => void) {
+        this.stoppedTypingCallbacks.push(callback);
+    }
+
+    onMessageReactionChanged(callback: (message: MessageDto) => void) {
+        this.reactionChangedCallbacks.push(callback);
+    }
+
+    onServerLeft(callback: (serverId: string, userId: string) => void) {
+        this.serverLeftCallbacks.push(callback);
+    }
+
+    offServerLeft(callback: (serverId: string, userId: string) => void) {
+        this.serverLeftCallbacks = this.serverLeftCallbacks.filter(cb => cb !== callback);
+    }
+
     clearCallbacks() {
         this.messageCallbacks = [];
         this.messageEditCallbacks = [];
         this.messageDeleteCallbacks = [];
+        this.typingCallbacks = [];
+        this.stoppedTypingCallbacks = [];
+        this.reactionChangedCallbacks = [];
+        this.serverLeftCallbacks = [];
     }
 
-    // REST API methods
-    async fetchChannelMessages(channelId: string, take: number = 50, skip: number = 0): Promise<MessageDto[]> {
+    async fetchChannelMessages(channelId: string, take: number = 30, skip: number = 0): Promise<MessageDto[]> {
         try {
             const response = await api.get<ApiResponse<MessageDto[]>>(
                 `/channel/${channelId}/messages?take=${take}&skip=${skip}`
@@ -111,9 +164,19 @@ class ChatService {
     async deleteMessage(channelId: string, messageId: string): Promise<void> {
         if (!this.isConnected()) throw new Error('Not connected');
         try {
-            await this.connection!.invoke('DeleteMessage', messageId, channelId);
+            await this.connection!.invoke('DeleteMessage', messageId, channelId, null);
         } catch (err) {
             console.error('Failed to delete message:', err);
+            throw err;
+        }
+    }
+
+    async toggleReaction(messageId: string, channelId: string, emoji: string): Promise<void> {
+        if (!this.isConnected()) throw new Error('Not connected');
+        try {
+            await this.connection!.invoke('ToggleReaction', messageId, channelId, emoji);
+        } catch (err) {
+            console.error('Failed to toggle reaction:', err);
             throw err;
         }
     }
@@ -163,7 +226,6 @@ class ChatService {
                     }
                 } catch (hubError) {
                     console.error('Failed to notify hub about image:', hubError);
-                    // Don't throw here, as the upload was successful
                 }
             }
 

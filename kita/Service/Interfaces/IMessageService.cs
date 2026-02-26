@@ -15,5 +15,6 @@ namespace Kita.Service.Interfaces
         Task<ApiResponse<MessageDto>> GetMessageByIdAsync(Guid messageId);
         Task<ApiResponse<MessageDto>> UpdateMessageAsync(Guid messageId, UpdateMessageDto updateMessageDto, Guid userId);
         Task<ApiResponse<bool>> DeleteMessageAsync(Guid messageId, Guid userId);
+        Task<ApiResponse<MessageDto>> ToggleReactionAsync(Guid messageId, string emoji, Guid userId);
     }
 }

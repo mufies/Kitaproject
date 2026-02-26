@@ -14,6 +14,7 @@ namespace Kita.Infrastructure.Repositories
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(Guid id);
+        void Delete(T entity);
         Task SaveChangesAsync();
     }
 }

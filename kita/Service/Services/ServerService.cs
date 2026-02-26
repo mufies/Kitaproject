@@ -189,6 +189,54 @@ namespace Kita.Service.Services
 
             return new ApiResponse<bool>(true, "Server deleted successfully.");
         }
+
+        public async Task<ApiResponse<bool>> RemoveMemberAsync(Guid serverId, Guid targetUserId, Guid requesterId)
+        {
+            var server = await _serverRepository.GetByIdAsync(serverId);
+            if (server == null) return ApiResponse<bool>.Fail("Server not found.", code: 404);
+
+            // Only owner can kick members
+            if (server.OwnerId != requesterId)
+                return ApiResponse<bool>.Fail("Only the server owner can remove members.", code: 403);
+
+            // Cannot kick the owner
+            if (targetUserId == server.OwnerId)
+                return ApiResponse<bool>.Fail("Cannot remove the server owner.", code: 400);
+
+            var members = await _serverMemberRepository.FindAsync(
+                m => m.ServerId == serverId && m.UserId == targetUserId);
+
+            var member = members.FirstOrDefault();
+            if (member == null)
+                return ApiResponse<bool>.Fail("Member not found.", code: 404);
+
+            _serverMemberRepository.Delete(member);
+            await _serverMemberRepository.SaveChangesAsync();
+
+            return new ApiResponse<bool>(true, "Member removed successfully.");
+        }
+
+        public async Task<ApiResponse<bool>> LeaveServerAsync(Guid serverId, Guid userId)
+        {
+            var server = await _serverRepository.GetByIdAsync(serverId);
+            if (server == null) return ApiResponse<bool>.Fail("Server not found.", code: 404);
+
+            // Owner cannot leave, they must transfer ownership or delete the server
+            if (server.OwnerId == userId)
+                return ApiResponse<bool>.Fail("Server owner cannot leave the server.", code: 400);
+
+            var members = await _serverMemberRepository.FindAsync(
+                m => m.ServerId == serverId && m.UserId == userId);
+
+            var member = members.FirstOrDefault();
+            if (member == null)
+                return ApiResponse<bool>.Fail("You are not a member of this server.", code: 400);
+
+            _serverMemberRepository.Delete(member);
+            await _serverMemberRepository.SaveChangesAsync();
+
+            return new ApiResponse<bool>(true, "Successfully left the server.");
+        }
     }
 }
 

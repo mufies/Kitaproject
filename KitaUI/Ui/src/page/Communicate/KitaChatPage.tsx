@@ -10,6 +10,7 @@ import UserStatusPopover from './UserStatusPopover';
 import type { ServerDto, ChannelDto, ServerMemberDto, UserStatus } from '../../types/api';
 import { userStatusService } from '../../services/userStatusService';
 import { serverService } from '../../services/serverService';
+import { chatService } from '../../services/chatService';
 import Navigator from '../../components/navigator';
 
 export default function KitaChatPage() {
@@ -23,6 +24,22 @@ export default function KitaChatPage() {
     // Hoisted State
     const [members, setMembers] = useState<ServerMemberDto[]>([]);
     const [userStatuses, setUserStatuses] = useState<Map<string, UserStatus>>(new Map());
+
+    // Current user id (from JWT)
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const payload = JSON.parse(window.atob(base64));
+                const nameIdentifierClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
+                setCurrentUserId(payload[nameIdentifierClaim] || payload.sub || payload.nameid);
+            } catch { /* ignore */ }
+        }
+    }, []);
 
     // Load members when server changes
     useEffect(() => {
@@ -44,18 +61,34 @@ export default function KitaChatPage() {
                 return next;
             });
         });
-        return () => unsubscribe();
-    }, []);
+
+        // Setup Chat Service Listeners globally for server level events
+        const handleServerLeft = (serverId: string, userId: string) => {
+            if (currentUserId && userId.toLowerCase() === currentUserId.toLowerCase()) {
+                if (currentServer?.id === serverId) {
+                    setCurrentServer(null);
+                    setCurrentChannel(null);
+                }
+                // Rely on ServerList or window.location.reload() to refresh the servers list
+                // the event is just received so we ensure state is matched globally on both.
+                // In our implementation kick/leave trigger reload.
+            } else if (currentServer?.id === serverId) {
+                setMembers(prev => prev.filter(m => m.userId.toLowerCase() !== userId.toLowerCase()));
+            }
+        };
+
+        chatService.onServerLeft(handleServerLeft);
+
+        return () => {
+            unsubscribe();
+            chatService.offServerLeft(handleServerLeft);
+        };
+    }, [currentServer?.id, currentUserId]);
 
     // Initial Status Fetch for current members
     useEffect(() => {
         if (members.length > 0) {
-            const userIds = members.map(m => m.userId);
-            userStatusService.getUsersStatus(userIds).then(statuses => {
-                const statusMap = new Map<string, UserStatus>();
-                statuses.forEach(status => {
-                    statusMap.set(status.userId, status);
-                });
+            userStatusService.getUsersStatus(members.map(m => m.userId)).then(statuses => {
                 setUserStatuses(prev => {
                     const next = new Map(prev);
                     statuses.forEach(s => next.set(s.userId, s));
@@ -65,6 +98,9 @@ export default function KitaChatPage() {
         }
     }, [members]);
 
+    // Derive current user's role in this server
+    const currentUserRole = members.find(m => m.userId === currentUserId)?.role;
+
     const handleMemberClick = (
         target: EventTarget,
         memberInfo: { id?: string | null, userId?: string, username?: string, avatarUrl?: string }
@@ -72,15 +108,12 @@ export default function KitaChatPage() {
         const rect = (target as HTMLElement).getBoundingClientRect();
         setPopoverAnchor(rect);
 
-        // Try to find full member info from the loaded list
         const existingMember = members.find(m => m.userId === memberInfo.userId);
-
         if (existingMember) {
             setSelectedMember(existingMember);
         } else if (memberInfo.userId && memberInfo.username) {
-            // Create temporary member object if not found in list (e.g. not loaded or unexpected)
             setSelectedMember({
-                id: memberInfo.id || memberInfo.userId, // fallback
+                id: memberInfo.id || memberInfo.userId,
                 userId: memberInfo.userId,
                 username: memberInfo.username,
                 avatarUrl: memberInfo.avatarUrl,
@@ -93,6 +126,16 @@ export default function KitaChatPage() {
     const closePopover = () => {
         setSelectedMember(null);
         setPopoverAnchor(null);
+    };
+
+    const handleKickMember = async (member: ServerMemberDto) => {
+        if (!currentServer) return;
+        try {
+            await serverService.kickMember(currentServer.id, member.userId);
+            setMembers(prev => prev.filter(m => m.userId !== member.userId));
+        } catch (err) {
+            console.error("Failed to kick member", err);
+        }
     };
 
     return (
@@ -119,9 +162,7 @@ export default function KitaChatPage() {
                 <div className="flex-1 flex flex-col min-w-0 bg-[#0a0a0a] relative rounded-l-[24px] overflow-hidden ml-1 border-l border-white/5 shadow-2xl">
                     {!currentServer ? (
                         <div className="flex items-center justify-center h-full flex-col gap-6 p-8 relative overflow-hidden">
-                            {/* Ambient Background Glow */}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#FF8C00]/5 rounded-full blur-[100px] pointer-events-none" />
-
                             <div className="relative z-10">
                                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#FF8C00]/20 to-[#FF4D00]/10 flex items-center justify-center animate-pulse shadow-[0_0_30px_rgba(255,140,0,0.2)]">
                                     <MessageCircle size={40} className="text-[#FF8C00]" />
@@ -171,6 +212,9 @@ export default function KitaChatPage() {
                         members={members}
                         userStatuses={userStatuses}
                         onMemberClick={(e, member) => handleMemberClick(e.target, member)}
+                        currentUserRole={currentUserRole}
+                        serverId={currentServer.id}
+                        onKickMember={handleKickMember}
                     />
                 )}
             </div>

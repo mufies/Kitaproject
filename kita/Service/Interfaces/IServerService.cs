@@ -16,5 +16,7 @@ namespace Kita.Service.Interfaces
         Task<ApiResponse<ServerDto>> UpdateServerAsync(Guid serverId, UpdateServerDto updateServerDto, Guid userId);
         Task<ApiResponse<string>> UploadServerIconAsync(Guid serverId, IFormFile file, Guid userId);
         Task<ApiResponse<bool>> DeleteServerAsync(Guid serverId);
+        Task<ApiResponse<bool>> RemoveMemberAsync(Guid serverId, Guid targetUserId, Guid requesterId);
+        Task<ApiResponse<bool>> LeaveServerAsync(Guid serverId, Guid userId);
     }
 }

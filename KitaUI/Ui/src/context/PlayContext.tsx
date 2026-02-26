@@ -204,41 +204,48 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // Became inactive — pause local audio
                 audioRef.current.pause();
             } else if (info.isActiveDevice && !wasActive) {
-                // Just became the ACTIVE device — start playing current song
+                // Just became the ACTIVE device
                 const song = currentSongRef.current;
                 const audio = audioRef.current;
-                if (song && audio) {
-                    console.log('[PlayContext] Became active device, starting playback of:', song.title, 'at', currentTimeRef.current);
-                    if (audio.src !== song.streamUrl) {
-                        audio.src = song.streamUrl;
-                        audio.load();
-                    }
-                    audio.currentTime = currentTimeRef.current;
-                    safePlay(audio).then(() => {
-                        setIsPlaying(true);
-                    }).catch(console.error);
-                } else if (!song) {
-                    // No song loaded yet — get from server
-                    try {
-                        const state = await musicControlService.getPlaybackState();
-                        if (state && state.currentSongId && audio) {
-                            const response = await getSongById(state.currentSongId);
-                            const fetchedSong = response?.data;
-                            if (fetchedSong) {
-                                setCurrentSong(fetchedSong);
-                                currentSongRef.current = fetchedSong;
-                                lastSyncedSongIdRef.current = fetchedSong.id;
-                                const startTime = state.currentTime || 0;
-                                currentTimeRef.current = startTime;
-                                audio.src = fetchedSong.streamUrl;
-                                audio.load();
-                                audio.currentTime = startTime;
+
+                // Always fetch server playback state first so we don't auto-play
+                // when the user just opened the page and nothing was playing.
+                try {
+                    const state = await musicControlService.getPlaybackState();
+                    const shouldPlay = state?.isPlaying === true;
+
+                    if (song && audio) {
+                        console.log('[PlayContext] Became active device, shouldPlay:', shouldPlay, 'song:', song.title);
+                        if (audio.src !== song.streamUrl) {
+                            audio.src = song.streamUrl;
+                            audio.load();
+                        }
+                        audio.currentTime = currentTimeRef.current;
+                        if (shouldPlay) {
+                            safePlay(audio).then(() => {
+                                setIsPlaying(true);
+                            }).catch(console.error);
+                        }
+                    } else if (!song && state?.currentSongId) {
+                        // No song loaded locally yet — restore from server state
+                        const response = await getSongById(state.currentSongId);
+                        const fetchedSong = response?.data;
+                        if (fetchedSong && audio) {
+                            setCurrentSong(fetchedSong);
+                            currentSongRef.current = fetchedSong;
+                            lastSyncedSongIdRef.current = fetchedSong.id;
+                            const startTime = state.currentTime || 0;
+                            currentTimeRef.current = startTime;
+                            audio.src = fetchedSong.streamUrl;
+                            audio.load();
+                            audio.currentTime = startTime;
+                            if (shouldPlay) {
                                 safePlay(audio).then(() => setIsPlaying(true)).catch(console.error);
                             }
                         }
-                    } catch (err) {
-                        console.error('[PlayContext] Failed to fetch song on device activation:', err);
                     }
+                } catch (err) {
+                    console.error('[PlayContext] Failed to fetch playback state on device activation:', err);
                 }
             }
         });

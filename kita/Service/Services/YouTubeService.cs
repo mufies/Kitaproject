@@ -17,10 +17,13 @@ namespace Kita.Service.Services
     public class YouTubeService : IYouTubeService
     {
         private readonly YoutubeClient _youtubeClient;
+        private readonly string _assetsBasePath;
 
         public YouTubeService(IConfiguration configuration)
         {
             _youtubeClient = new YoutubeClient();
+            _assetsBasePath = configuration["FileStorage:BasePath"] 
+                ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "Assets");
         }
 
         public async Task<ApiResponse<YoutubePlaylistVideoDto>> GetPlaylistVideosAsync(string playlistId)
@@ -136,8 +139,7 @@ namespace Kita.Service.Services
                 var sanitizedTitle = string.Join("_", video.Title.Split(System.IO.Path.GetInvalidFileNameChars()));
                 var fileName = $"{sanitizedTitle}.mp3";
                 
-                var projectRoot = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "..");
-                var assetsPath = System.IO.Path.Combine(projectRoot, "Assets", "Music");
+                var assetsPath = System.IO.Path.Combine(_assetsBasePath, "Music");
                 
                 if (!System.IO.Directory.Exists(assetsPath))
                 {
@@ -145,6 +147,7 @@ namespace Kita.Service.Services
                 }
                 
                 var filePath = System.IO.Path.Combine(assetsPath, fileName);
+                Console.WriteLine($"[YouTubeService] Saving audio to: {filePath}");
                 
                 await using (var fileStream = System.IO.File.Create(filePath))
                 {

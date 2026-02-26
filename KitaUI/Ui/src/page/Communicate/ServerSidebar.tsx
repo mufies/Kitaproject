@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Hash, Volume2, Settings, MicOff, Headphones, ChevronDown, Pencil, Trash2, MoreVertical, X, Check, Copy, Link, Users } from 'lucide-react';
+import { Plus, Hash, Volume2, Settings, MicOff, Headphones, ChevronDown, Pencil, Trash2, MoreVertical, X, Check, Copy, Link, Users, LogOut } from 'lucide-react';
 import { channelService } from '../../services/channelService';
 import { serverService } from '../../services/serverService';
 import { serverInviteService } from '../../services/serverInviteService';
@@ -25,6 +25,7 @@ export default function ServerSidebar({ server, currentChannelId, onChannelSelec
 
     // Server Settings Modal State
     const [isServerSettingsOpen, setIsServerSettingsOpen] = useState(false);
+    const [isServerDropdownOpen, setIsServerDropdownOpen] = useState(false);
     const [settingsTab, setSettingsTab] = useState<'overview' | 'invites'>('overview');
     const [serverName, setServerName] = useState(server.name);
     const [isSaving, setIsSaving] = useState(false);
@@ -166,6 +167,26 @@ export default function ServerSidebar({ server, currentChannelId, onChannelSelec
             console.error("Failed to update server", error);
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const deleteServer = async () => {
+        if (!confirm("Are you sure you want to delete this server? This action cannot be undone.")) return;
+        try {
+            await serverService.deleteServer(server.id);
+            window.location.reload();
+        } catch (error) {
+            console.error("Failed to delete server", error);
+        }
+    };
+
+    const leaveServer = async () => {
+        if (!confirm("Are you sure you want to leave this server?")) return;
+        try {
+            await serverService.leaveServer(server.id);
+            window.location.reload();
+        } catch (error) {
+            console.error("Failed to leave server", error);
         }
     };
 
@@ -312,14 +333,51 @@ export default function ServerSidebar({ server, currentChannelId, onChannelSelec
     };
 
     return (
-        <div className="w-60 bg-[#120c12] flex flex-col border-r border-[#ffffff0d] h-full flex-shrink-0" onClick={() => setContextMenuChannelId(null)}>
+        <div className="w-60 bg-[#120c12] flex flex-col border-r border-[#ffffff0d] h-full flex-shrink-0" onClick={() => { setContextMenuChannelId(null); setIsServerDropdownOpen(false); }}>
             {/* Server Header */}
-            <div
-                onClick={openServerSettings}
-                className="h-12 px-4 flex items-center justify-between border-b border-[#ffffff0d] hover:bg-[#ffffff05] cursor-pointer transition-colors shadow-sm"
-            >
-                <h1 className="font-bold text-white truncate text-sm tracking-wide">{server.name}</h1>
-                <ChevronDown size={14} className="text-white/70" />
+            <div className="relative">
+                <div
+                    onClick={(e) => { e.stopPropagation(); setIsServerDropdownOpen(!isServerDropdownOpen); }}
+                    className="h-12 px-4 flex items-center justify-between border-b border-[#ffffff0d] hover:bg-[#ffffff05] cursor-pointer transition-colors shadow-sm"
+                >
+                    <h1 className="font-bold text-white truncate text-sm tracking-wide">{server.name}</h1>
+                    <ChevronDown size={14} className={`text-white/70 transition-transform ${isServerDropdownOpen ? 'rotate-180' : ''}`} />
+                </div>
+
+                {isServerDropdownOpen && (
+                    <div
+                        className="absolute top-12 left-2 right-2 bg-[#1a141a] rounded-lg shadow-xl border border-[#ffffff15] py-1.5 z-[100]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => { setIsServerDropdownOpen(false); openServerSettings(); }}
+                            className="w-full px-3 py-2 text-left text-sm text-[#ffffff90] hover:text-white hover:bg-[#ffffff10] flex items-center justify-between transition-colors"
+                        >
+                            <span className="font-medium">Server Settings</span>
+                            <Settings size={14} />
+                        </button>
+
+                        <div className="my-1 border-t border-[#ffffff0a]" />
+
+                        {isOwner ? (
+                            <button
+                                onClick={() => { setIsServerDropdownOpen(false); deleteServer(); }}
+                                className="w-full px-3 py-2 text-left text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center justify-between transition-colors"
+                            >
+                                <span className="font-medium">Delete Server</span>
+                                <Trash2 size={14} />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => { setIsServerDropdownOpen(false); leaveServer(); }}
+                                className="w-full px-3 py-2 text-left text-sm text-[#ef444490] hover:text-[#ef4444] hover:bg-[#ef444415] flex items-center justify-between transition-colors"
+                            >
+                                <span className="font-medium">Leave Server</span>
+                                <LogOut size={14} />
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Channels */}

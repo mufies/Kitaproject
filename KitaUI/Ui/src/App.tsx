@@ -10,6 +10,7 @@ import RegisterPage from './page/RegisterPage'
 // import ChatDemo from './pages/ChatDemo'
 // import VoiceRoom from './pages/VoiceRoom'
 import KitaChatPage from './page/Communicate/KitaChatPage'
+import JoinPage from './page/Communicate/JoinPage'
 import Navigator from './components/navigator'
 import { AuthProvider } from './context/AuthContext'
 import { PlayProvider } from './context/PlayContext'
@@ -40,6 +41,7 @@ function AppContent() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/chat" element={<KitaChatPage />} />
+          <Route path="/join/:code" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
           {/* <Route path="/voice" element={<VoiceRoom ... />} /> */}
           <Route path="/music" element={
             <ProtectedRoute>

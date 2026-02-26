@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Kita.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(KitaDbContext))]
-    partial class KitaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260226070545_AddMessageReplyFields")]
+    partial class AddMessageReplyFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -490,43 +493,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Kita.Domain.Entities.Server.MessageReaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Emoji")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("MessageId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("MessageId1")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MessageId1");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("MessageId", "UserId", "Emoji")
-                        .IsUnique();
-
-                    b.ToTable("MessageReactions");
-                });
-
             modelBuilder.Entity("Kita.Domain.Entities.Server.PlaybackSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -724,7 +690,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2026, 2, 26, 7, 54, 23, 227, DateTimeKind.Utc).AddTicks(8784),
+                            CreatedAt = new DateTime(2026, 2, 26, 7, 5, 45, 512, DateTimeKind.Utc).AddTicks(762),
                             Email = "admin@kita.com",
                             IsActive = true,
                             IsPremium = false,
@@ -732,7 +698,7 @@ namespace Infrastructure.Migrations
                             PasswordHash = "$2a$11$5glWJIvKFoXWFwYIKJVB5ONySehuC4cMyghaPfEdybGcBazIDZsmy",
                             Role = "Admin",
                             Subscription = 0,
-                            UpdatedAt = new DateTime(2026, 2, 26, 7, 54, 23, 227, DateTimeKind.Utc).AddTicks(8785),
+                            UpdatedAt = new DateTime(2026, 2, 26, 7, 5, 45, 512, DateTimeKind.Utc).AddTicks(764),
                             UserName = "Admin"
                         });
                 });
@@ -956,29 +922,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("Kita.Domain.Entities.Server.MessageReaction", b =>
-                {
-                    b.HasOne("Kita.Domain.Entities.Server.Message", "Message")
-                        .WithMany()
-                        .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Kita.Domain.Entities.Server.Message", null)
-                        .WithMany("MessageReactions")
-                        .HasForeignKey("MessageId1");
-
-                    b.HasOne("Kita.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Kita.Domain.Entities.Server.PlaybackSession", b =>
                 {
                     b.HasOne("Kita.Domain.Entities.Server.Channel", "Channel")
@@ -1077,11 +1020,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Messages");
 
                     b.Navigation("PlaybackSession");
-                });
-
-            modelBuilder.Entity("Kita.Domain.Entities.Server.Message", b =>
-                {
-                    b.Navigation("MessageReactions");
                 });
 
             modelBuilder.Entity("Kita.Domain.Entities.Server.Server", b =>

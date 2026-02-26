@@ -13,12 +13,14 @@ using Kita.Hubs;
 using DotNetEnv;
 using Microsoft.AspNetCore.Http;
 
-Env.Load();
+// Load root .env first (lower priority), then local .env overrides it
 var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", ".env");
 if (File.Exists(envPath))
 {
     Env.Load(envPath);
+    Console.WriteLine($"Loaded root .env from: {envPath}");
 }
+Env.Load(); // Load local .env (higher priority, overrides root)
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -197,10 +199,13 @@ var basePath = app.Configuration["FileStorage:BasePath"] ?? Path.Combine(app.Env
 
 var assetDirectories = new[]
 {
-    new { Path = "Images", RequestPath = "/assets/images" },
-    new { Path = "Music", RequestPath = "/assets/music" },
+    new { Path = "Images", RequestPath = "/Assets/images" },
+    new { Path = "Music", RequestPath = "/Assets/music" },
     new { Path = "artists", RequestPath = "/Assets/artists" },
-    new { Path = "avatars", RequestPath = "/Assets/avatars" }
+    new { Path = "avatars", RequestPath = "/Assets/avatars" },
+    new { Path = "messages", RequestPath = "/Assets/messages" },
+    new { Path = "albums", RequestPath = "/Assets/albums" },
+    new { Path = "servers", RequestPath = "/Assets/servers" },
 };
 
 foreach (var dir in assetDirectories)

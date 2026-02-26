@@ -28,6 +28,7 @@ namespace Kita.Infrastructure.Data
         public DbSet<Message> Messages { get; set; }
         public DbSet<PlaybackSession> PlaybackSessions { get; set; }
         public DbSet<ServerInvite> ServerInvites { get; set; }
+        public DbSet<MessageReaction> MessageReactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -81,6 +82,25 @@ namespace Kita.Infrastructure.Data
                 .WithMany(c => c.Messages)
                 .HasForeignKey(m => m.ChannelId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // MessageReaction -> Message
+            modelBuilder.Entity<MessageReaction>()
+                .HasOne(mr => mr.Message)
+                .WithMany()
+                .HasForeignKey(mr => mr.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // MessageReaction -> User
+            modelBuilder.Entity<MessageReaction>()
+                .HasOne(mr => mr.User)
+                .WithMany()
+                .HasForeignKey(mr => mr.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique index for MessageReaction
+            modelBuilder.Entity<MessageReaction>()
+                .HasIndex(mr => new { mr.MessageId, mr.UserId, mr.Emoji })
+                .IsUnique();
 
              // PlaybackSession -> Channel (One-to-One or One-to-Zero)
              modelBuilder.Entity<Channel>()

@@ -54,6 +54,11 @@ namespace Kita.Infrastructure.Repositories
             }
         }
 
+        public void Delete(T entity)
+        {
+            _dbSet.Remove(entity);
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
