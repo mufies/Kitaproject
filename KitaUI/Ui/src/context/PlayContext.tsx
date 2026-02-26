@@ -8,6 +8,9 @@ import { deviceService } from '../services/deviceService';
 import { userStatusService } from '../services/userStatusService';
 import type { DeviceConnection } from '../services/musicControlService';
 
+// Feature flag to disable music control service
+const ENABLE_MUSIC_CONTROL = false;
+
 const safePlay = (audio: HTMLAudioElement): Promise<void> => {
     return audio.play().catch((error) => {
         if (error.name !== 'AbortError') {
@@ -211,8 +214,12 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // Always fetch server playback state first so we don't auto-play
                 // when the user just opened the page and nothing was playing.
                 try {
-                    const state = await musicControlService.getPlaybackState();
-                    const shouldPlay = state?.isPlaying === true;
+                    let shouldPlay = false;
+                    let state: Awaited<ReturnType<typeof musicControlService.getPlaybackState>> = null;
+                    if (ENABLE_MUSIC_CONTROL) {
+                        state = await musicControlService.getPlaybackState();
+                        shouldPlay = state?.isPlaying === true;
+                    }
 
                     if (song && audio) {
                         console.log('[PlayContext] Became active device, shouldPlay:', shouldPlay, 'song:', song.title);
@@ -446,25 +453,29 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         };
 
-        musicControlService.onPlay(handleRemotePlay);
-        musicControlService.onPause(handleRemotePause);
-        musicControlService.onNext(handleRemoteNext);
-        musicControlService.onPrevious(handleRemotePrevious);
-        musicControlService.onSetVolume(handleRemoteVolume);
-        musicControlService.onSeek(handleRemoteSeek);
-        musicControlService.onPlaySong(handleRemotePlaySong);
-        musicControlService.onPlaybackStateUpdated(handlePlaybackStateUpdated);
+        if (ENABLE_MUSIC_CONTROL) {
+            musicControlService.onPlay(handleRemotePlay);
+            musicControlService.onPause(handleRemotePause);
+            musicControlService.onNext(handleRemoteNext);
+            musicControlService.onPrevious(handleRemotePrevious);
+            musicControlService.onSetVolume(handleRemoteVolume);
+            musicControlService.onSeek(handleRemoteSeek);
+            musicControlService.onPlaySong(handleRemotePlaySong);
+            musicControlService.onPlaybackStateUpdated(handlePlaybackStateUpdated);
+        }
 
         return () => {
             isSubscribed = false;
-            musicControlService.offPlay(handleRemotePlay);
-            musicControlService.offPause(handleRemotePause);
-            musicControlService.offNext(handleRemoteNext);
-            musicControlService.offPrevious(handleRemotePrevious);
-            musicControlService.offSetVolume(handleRemoteVolume);
-            musicControlService.offSeek(handleRemoteSeek);
-            musicControlService.offPlaySong(handleRemotePlaySong);
-            musicControlService.offPlaybackStateUpdated(handlePlaybackStateUpdated);
+            if (ENABLE_MUSIC_CONTROL) {
+                musicControlService.offPlay(handleRemotePlay);
+                musicControlService.offPause(handleRemotePause);
+                musicControlService.offNext(handleRemoteNext);
+                musicControlService.offPrevious(handleRemotePrevious);
+                musicControlService.offSetVolume(handleRemoteVolume);
+                musicControlService.offSeek(handleRemoteSeek);
+                musicControlService.offPlaySong(handleRemotePlaySong);
+                musicControlService.offPlaybackStateUpdated(handlePlaybackStateUpdated);
+            }
         };
     }, []);
 
@@ -509,7 +520,7 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Sync playback state to all devices
-        if (!isSyncingRef.current) {
+        if (ENABLE_MUSIC_CONTROL && !isSyncingRef.current) {
             const playbackState = {
                 currentSongId: song.id,
                 isPlaying: true,
@@ -537,7 +548,7 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Send command to other devices
-        if (!isSyncingRef.current) {
+        if (ENABLE_MUSIC_CONTROL && !isSyncingRef.current) {
             if (isPlaying) {
                 musicControlService.pause().catch(console.error);
             } else {
@@ -591,15 +602,17 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Sync playback state
-        const playbackState = {
-            currentSongId: song.id,
-            isPlaying: true,
-            currentTime: 0,
-            volume: Math.round(volume * 100),
-            queue: playlist.map(s => s.id),
-            lastUpdated: new Date().toISOString()
-        };
-        musicControlService.syncPlaybackState(playbackState).catch(console.error);
+        if (ENABLE_MUSIC_CONTROL) {
+            const playbackState = {
+                currentSongId: song.id,
+                isPlaying: true,
+                currentTime: 0,
+                volume: Math.round(volume * 100),
+                queue: playlist.map(s => s.id),
+                lastUpdated: new Date().toISOString()
+            };
+            musicControlService.syncPlaybackState(playbackState).catch(console.error);
+        }
     }, [playlist, currentIndex, volume]);
 
     // Previous song
@@ -636,15 +649,17 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Sync playback state
-        const playbackState = {
-            currentSongId: song.id,
-            isPlaying: true,
-            currentTime: 0,
-            volume: Math.round(volume * 100),
-            queue: playlist.map(s => s.id),
-            lastUpdated: new Date().toISOString()
-        };
-        musicControlService.syncPlaybackState(playbackState).catch(console.error);
+        if (ENABLE_MUSIC_CONTROL) {
+            const playbackState = {
+                currentSongId: song.id,
+                isPlaying: true,
+                currentTime: 0,
+                volume: Math.round(volume * 100),
+                queue: playlist.map(s => s.id),
+                lastUpdated: new Date().toISOString()
+            };
+            musicControlService.syncPlaybackState(playbackState).catch(console.error);
+        }
     }, [playlist, currentIndex, volume]);
 
     // Seek to time
@@ -655,7 +670,7 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
             audio.currentTime = time;
         } else {
             // Controller — send seek command to active device via hub
-            if (!isSyncingRef.current) {
+            if (ENABLE_MUSIC_CONTROL && !isSyncingRef.current) {
                 musicControlService.seek(time).catch(console.error);
             }
         }
@@ -667,7 +682,7 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setVolumeState(vol);
         setIsMuted(false);
         // Send to hub as 0-100 integer (backend scale)
-        if (!isSyncingRef.current) {
+        if (ENABLE_MUSIC_CONTROL && !isSyncingRef.current) {
             musicControlService.setVolume(Math.round(vol * 100)).catch(console.error);
         }
     }, []);

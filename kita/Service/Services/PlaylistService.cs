@@ -637,6 +637,9 @@ namespace Kita.Service.Services
                 response.PlaylistName = playlist.Name;
                 response.TotalTracks = tracks.Count;
 
+                // Track songs added in this session to avoid duplicates
+                var addedSongsInSession = new HashSet<Guid>();
+
                 int orderIndex = 0;
                 foreach (var (title, artist) in tracks)
                 {
@@ -648,12 +651,6 @@ namespace Kita.Service.Services
 
                     try
                     {
-                        // For Spotify imports, create artist if it doesn't exist
-                        if (isSpotify)
-                        {
-                            await GetOrCreateArtistAsync(artist);
-                        }
-
                         // Check if song exists in DB using fuzzy matching
                         // First check if artist name contains the search artist (handles "Artist - Topic" channels)
                         // Then check if title contains the search title
@@ -661,19 +658,45 @@ namespace Kita.Service.Services
 
                         if (existingSong != null)
                         {
-                            // Song exists, just add to playlist
-                            importedSong.AlreadyExisted = true;
-                            importedSong.WasDownloaded = false;
-
-                            var playlistSong = new PlaylistSong
+                            // Check if song already added in this session
+                            if (addedSongsInSession.Contains(existingSong.Id))
                             {
-                                PlaylistId = playlist.Id,
-                                SongId = existingSong.Id,
-                                OrderIndex = orderIndex++
-                            };
+                                importedSong.AlreadyExisted = true;
+                                importedSong.WasDownloaded = false;
+                                importedSong.ErrorMessage = "Duplicate song in import list";
+                                response.Skipped++;
+                                importedSongs.Add(importedSong);
+                                continue;
+                            }
 
-                            await _playlistSongRepository.AddAsync(playlistSong);
-                            response.Skipped++;
+                            // Check if song already exists in this playlist
+                            var existingPlaylistSong = await _playlistSongRepository.GetByPlaylistAndSongIdAsync(playlist.Id, existingSong.Id);
+                            
+                            if (existingPlaylistSong != null)
+                            {
+                                // Song already in playlist, skip it
+                                importedSong.AlreadyExisted = true;
+                                importedSong.WasDownloaded = false;
+                                importedSong.ErrorMessage = "Song already exists in this playlist";
+                                response.Skipped++;
+                            }
+                            else
+                            {
+                                // Song exists in DB but not in playlist, add it
+                                importedSong.AlreadyExisted = true;
+                                importedSong.WasDownloaded = false;
+
+                                var playlistSong = new PlaylistSong
+                                {
+                                    PlaylistId = playlist.Id,
+                                    SongId = existingSong.Id,
+                                    OrderIndex = orderIndex++
+                                };
+
+                                await _playlistSongRepository.AddAsync(playlistSong);
+                                addedSongsInSession.Add(existingSong.Id);
+                                response.Skipped++;
+                            }
                         }
                         else
                         {
@@ -688,12 +711,24 @@ namespace Kita.Service.Services
                                 continue;
                             }
 
+                            // Add delay between downloads to avoid rate limiting (1-2 seconds)
+                            await Task.Delay(1500);
+                            
                             // Download video as MP3
                             var downloadResult = await _youTubeService.DownloadVideoAsync(videoInfo.VideoUrl);
 
                             if (!downloadResult.Success || downloadResult.Data == null)
                             {
                                 importedSong.ErrorMessage = $"Download failed: {downloadResult.Message}";
+                                response.Failed++;
+                                importedSongs.Add(importedSong);
+                                continue;
+                            }
+
+                            // Verify file exists
+                            if (string.IsNullOrEmpty(downloadResult.Data.FilePath) || !File.Exists(downloadResult.Data.FilePath))
+                            {
+                                importedSong.ErrorMessage = "Downloaded file not found on disk";
                                 response.Failed++;
                                 importedSongs.Add(importedSong);
                                 continue;
@@ -711,16 +746,21 @@ namespace Kita.Service.Services
                                 ? (int)videoInfo.Duration.Value.TotalSeconds 
                                 : 0;
 
-                            // Get or create artist
-                            Guid? artistId = isSpotify 
-                                ? await GetOrCreateArtistAsync(artist) 
-                                : null;
+                            // Business logic:
+                            // - Spotify import: Create artist and link to song
+                            // - YouTube import: Don't create artist (just set uploader)
+                            // - All cases: Set UserId as uploader
+                            Guid? artistId = null;
+                            if (isSpotify)
+                            {
+                                artistId = await GetOrCreateArtistAsync(artist);
+                            }
 
                             var newSong = new Song
                             {
                                 Title = title,
                                 ArtistId = artistId,
-                                UserId = userId, // Set uploader as the user importing the playlist
+                                UserId = userId, // User who imported = uploader
                                 Duration = durationInSeconds,
                                 StreamUrl = streamUrl,
                                 CoverUrl = videoInfo.ThumbnailUrl,
@@ -741,13 +781,12 @@ namespace Kita.Service.Services
                             };
 
                             await _playlistSongRepository.AddAsync(playlistSong);
+                            addedSongsInSession.Add(newSong.Id);
 
                             importedSong.WasDownloaded = true;
                             importedSong.AlreadyExisted = false;
                             response.Downloaded++;
                         }
-
-                        await _playlistSongRepository.SaveChangesAsync();
                     }
                     catch (Exception ex)
                     {
@@ -757,6 +796,9 @@ namespace Kita.Service.Services
 
                     importedSongs.Add(importedSong);
                 }
+
+                // Save all changes once after the loop
+                await _playlistSongRepository.SaveChangesAsync();
 
                 response.ImportedSongs = importedSongs;
                 response.Message = $"Playlist imported successfully. Downloaded: {response.Downloaded}, Skipped: {response.Skipped}, Failed: {response.Failed}";

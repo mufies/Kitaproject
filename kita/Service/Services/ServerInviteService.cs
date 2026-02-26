@@ -118,7 +118,6 @@ namespace Kita.Service.Services
                 MapToDto(invite, server?.Name ?? "Unknown", string.Empty),
                 "Successfully joined the server.");
             
-            // Add metadata to indicate if this was a new member (for SignalR broadcasting)
             response.Data.IsNewMember = isNewMember;
             
             return response;

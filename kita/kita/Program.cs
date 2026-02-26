@@ -236,7 +236,7 @@ app.MapControllers();
 // to honour the CORS policy on preflight /negotiate requests.
 app.MapHub<ChatHub>("/hubs/chat").RequireCors("AllowFrontend");
 app.MapHub<VoiceHub>("/hubs/voice").RequireCors("AllowFrontend");
-app.MapHub<MusicControlHub>("/hubs/music-control").RequireCors("AllowFrontend");
+// app.MapHub<MusicControlHub>("/hubs/music-control").RequireCors("AllowFrontend"); // Temporarily disabled
 app.MapHub<UserStatusHub>("/hubs/userstatus").RequireCors("AllowFrontend");
 
 app.Run();

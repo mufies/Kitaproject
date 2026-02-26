@@ -27,5 +27,11 @@ namespace Kita.Infrastructure.Repositories
                 throw new KeyNotFoundException($"PlaylistSong with PlaylistId {playlistId} and SongId {songId} not found");
             }
         }
+
+        public async Task<PlaylistSong?> GetByPlaylistAndSongIdAsync(Guid playlistId, Guid songId)
+        {
+            return await _dbSet
+                .FirstOrDefaultAsync(x => x.PlaylistId == playlistId && x.SongId == songId);
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace Kita.Infrastructure.Repositories
     public interface IPlaylistSongRepository : IBaseRepository<PlaylistSong>
     {
         Task DeleteByCompositeKeyAsync(Guid playlistId, Guid songId);
+        Task<PlaylistSong?> GetByPlaylistAndSongIdAsync(Guid playlistId, Guid songId);
     }
 }

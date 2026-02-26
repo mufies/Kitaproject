@@ -1,5 +1,8 @@
 import { musicControlService, type DeviceConnection, type DeviceList } from './musicControlService';
 
+// Feature flag to disable device service
+const ENABLE_DEVICE_SERVICE = false;
+
 /**
  * Generates a browser-specific device name using the browser's user agent
  * and a persisted short ID in localStorage for uniqueness across sessions.
@@ -78,6 +81,12 @@ export class DeviceService {
      * Returns cleanup function.
      */
     public async initializeDevice(): Promise<() => void> {
+        // Disable device service
+        if (!ENABLE_DEVICE_SERVICE) {
+            console.log('[DeviceService] Device service is disabled');
+            return () => {}; // Return no-op cleanup function
+        }
+
         // If already initializing or initialized, return the existing promise
         if (this.initPromise) {
             return this.initPromise;
