@@ -99,7 +99,7 @@ export default function UserStatusPopover({ member, status, anchorRect, onClose 
                 <div className="absolute inset-0 bg-gradient-to-br from-[#FF8C00]/10 to-transparent pointer-events-none" />
 
                 <div className="relative z-10 flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => window.open(`/profile/${member.userId}`, '_blank')}>
                         <div className="relative w-16 h-16 rounded-full p-0.5 bg-gradient-to-br from-[#FF8C00] to-purple-600 flex-shrink-0 shadow-lg">
                             <div className="w-full h-full rounded-full bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
                                 {member.avatarUrl ? (
@@ -139,7 +139,7 @@ export default function UserStatusPopover({ member, status, anchorRect, onClose 
                     Activity
                 </h4>
                 {currentSong ? (
-                    <div className="bg-[#1a1a1a]/80 backdrop-blur-md rounded-xl p-4 flex items-center gap-4 border border-white/5 shadow-inner group hover:shadow-[0_0_20px_rgba(255,140,0,0.1)] transition-all">
+                    <div className="bg-[#1a1a1a]/80 backdrop-blur-md rounded-xl p-4 flex items-center gap-4 border border-white/5 shadow-inner group hover:shadow-[0_0_20px_rgba(255,140,0,0.1)] transition-all cursor-pointer" onClick={() => window.open(`music/song/${currentSong.songId}`, '_blank')}>
                         <div className="w-12 h-12 bg-gradient-to-br from-[#FF8C00] to-[#FF4D00] rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-105 transition-transform overflow-hidden">
                             {currentSong.coverUrl ? (
                                 <img src={currentSong.coverUrl} alt={currentSong.songTitle} className="w-full h-full object-cover" />

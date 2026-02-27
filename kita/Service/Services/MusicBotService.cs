@@ -38,11 +38,9 @@ namespace Kita.Service.Services
         {
             try
             {
-                // Increment user count
                 var userCount = _channelUserCounts.AddOrUpdate(channelId, 1, (key, oldValue) => oldValue + 1);
                 _logger.LogInformation($"User {userId} joined channel {channelId}. Current user count: {userCount}");
 
-                // If bot exists, cancel leave timer and update user count
                 if (_bots.TryGetValue(channelId, out var bot))
                 {
                     bot.UserCount = userCount;
@@ -58,7 +56,6 @@ namespace Kita.Service.Services
                 }
                 else
                 {
-                    // First user joined - create and join bot
                     await JoinChannelAsync(channelId);
                 }
             }
@@ -72,29 +69,24 @@ namespace Kita.Service.Services
         {
             try
             {
-                // Decrement user count
                 var userCount = _channelUserCounts.AddOrUpdate(channelId, 0, (key, oldValue) => Math.Max(0, oldValue - 1));
                 _logger.LogInformation($"User {userId} left channel {channelId}. Current user count: {userCount}");
 
-                // If no users remain, schedule bot to leave after delay
                 if (userCount == 0 && _bots.TryGetValue(channelId, out var bot))
                 {
                     bot.UserCount = 0;
                     
-                    // Create cancellation token for the leave timer
                     bot.LeaveCancellationTokenSource = new CancellationTokenSource();
                     bot.ScheduledLeaveTime = DateTime.UtcNow.AddSeconds(LEAVE_DELAY_SECONDS);
                     
                     _logger.LogInformation($"Channel {channelId} is empty. Bot will leave in {LEAVE_DELAY_SECONDS} seconds");
 
-                    // Schedule leave after delay
                     _ = Task.Run(async () =>
                     {
                         try
                         {
                             await Task.Delay(TimeSpan.FromSeconds(LEAVE_DELAY_SECONDS), bot.LeaveCancellationTokenSource.Token);
                             
-                            // Double-check user count after delay
                             if (_channelUserCounts.TryGetValue(channelId, out var finalCount) && finalCount == 0)
                             {
                                 _logger.LogInformation($"Bot leaving channel {channelId} after {LEAVE_DELAY_SECONDS}s delay");
@@ -176,7 +168,8 @@ namespace Kita.Service.Services
                     ChannelId = channelId,
                     UserCount = _channelUserCounts.TryGetValue(channelId, out var userCount) ? userCount : 0,
                     IsPlaying = false,
-                    SongQueue = new Queue<Guid>()
+                    SongQueue = new ConcurrentQueue<Guid>(),
+                    Volume = playbackSession.Volume ?? 50 // Restore volume from session or default to 50
                 };
 
                 // Load songs into queue if provided
@@ -198,7 +191,6 @@ namespace Kita.Service.Services
                 }
                 else
                 {
-                    // Load queue from playback session if exists
                     if (!string.IsNullOrEmpty(playbackSession.QueueJson))
                     {
                         var queueIds = JsonSerializer.Deserialize<List<Guid>>(playbackSession.QueueJson);
@@ -235,7 +227,6 @@ namespace Kita.Service.Services
                     return ApiResponse<object>.Fail("Bot is not in this channel");
                 }
 
-                // Cancel any pending leave timer
                 bot.LeaveCancellationTokenSource?.Cancel();
                 bot.LeaveCancellationTokenSource?.Dispose();
 
@@ -243,8 +234,7 @@ namespace Kita.Service.Services
                 var channelRepository = scope.ServiceProvider.GetRequiredService<IChannelRepository>();
                 var playbackSessionRepository = scope.ServiceProvider.GetRequiredService<IBaseRepository<PlaybackSession>>();
 
-                // Save current queue to playback session
-                var queueJson = JsonSerializer.Serialize(bot.SongQueue.ToList());
+                var queueJson = JsonSerializer.Serialize(bot.SongQueue.ToArray());
                 var channel = await channelRepository.GetChannelWithPlaybackSessionAsync(Guid.Parse(channelId));
                 
                 if (channel?.PlaybackSession != null)
@@ -252,10 +242,10 @@ namespace Kita.Service.Services
                     channel.PlaybackSession.QueueJson = queueJson;
                     channel.PlaybackSession.IsPlaying = false;
                     channel.PlaybackSession.CurrentSongId = bot.CurrentSongId;
+                    channel.PlaybackSession.Volume = bot.Volume;
                     await playbackSessionRepository.UpdateAsync(channel.PlaybackSession);
                 }
 
-                // Remove user count tracking
                 _channelUserCounts.TryRemove(channelId, out _);
 
                 _logger.LogInformation($"Bot left channel {channelId}");
@@ -331,7 +321,6 @@ namespace Kita.Service.Services
                 var channelRepository = scope.ServiceProvider.GetRequiredService<IChannelRepository>();
                 var playbackSessionRepository = scope.ServiceProvider.GetRequiredService<IBaseRepository<PlaybackSession>>();
 
-                // Verify song exists
                 var song = await songRepository.GetByIdAsync(songId);
                 if (song == null)
                 {
@@ -345,7 +334,7 @@ namespace Kita.Service.Services
                 var channel = await channelRepository.GetChannelWithPlaybackSessionAsync(Guid.Parse(channelId));
                 if (channel?.PlaybackSession != null)
                 {
-                    channel.PlaybackSession.QueueJson = JsonSerializer.Serialize(bot.SongQueue.ToList());
+                    channel.PlaybackSession.QueueJson = JsonSerializer.Serialize(bot.SongQueue.ToArray());
                     await playbackSessionRepository.UpdateAsync(channel.PlaybackSession);
                 }
 
@@ -437,15 +426,25 @@ namespace Kita.Service.Services
                     return ApiResponse<object>.Fail("Bot is not in this channel");
                 }
 
-                // Get next song from queue
-                if (bot.SongQueue.Count == 0)
+                // Get next song from queue (thread-safe dequeue)
+                if (!bot.SongQueue.TryDequeue(out var nextSongId))
                 {
                     bot.CurrentSongId = null;
                     bot.IsPlaying = false;
                     return ApiResponse<object>.Fail("Queue is empty");
                 }
 
-                var nextSongId = bot.SongQueue.Dequeue();
+                // Update queue in database
+                using var scope = _serviceScopeFactory.CreateScope();
+                var channelRepository = scope.ServiceProvider.GetRequiredService<IChannelRepository>();
+                var playbackSessionRepository = scope.ServiceProvider.GetRequiredService<IBaseRepository<PlaybackSession>>();
+
+                var channel = await channelRepository.GetChannelWithPlaybackSessionAsync(Guid.Parse(channelId));
+                if (channel?.PlaybackSession != null)
+                {
+                    channel.PlaybackSession.QueueJson = JsonSerializer.Serialize(bot.SongQueue.ToArray());
+                    await playbackSessionRepository.UpdateAsync(channel.PlaybackSession);
+                }
                 
                 // Play next song
                 return await PlaySongAsync(channelId, nextSongId);
@@ -473,6 +472,18 @@ namespace Kita.Service.Services
 
                 bot.Volume = volume;
 
+                // Persist volume to database
+                using var scope = _serviceScopeFactory.CreateScope();
+                var channelRepository = scope.ServiceProvider.GetRequiredService<IChannelRepository>();
+                var playbackSessionRepository = scope.ServiceProvider.GetRequiredService<IBaseRepository<PlaybackSession>>();
+
+                var channel = await channelRepository.GetChannelWithPlaybackSessionAsync(Guid.Parse(channelId));
+                if (channel?.PlaybackSession != null)
+                {
+                    channel.PlaybackSession.Volume = volume;
+                    await playbackSessionRepository.UpdateAsync(channel.PlaybackSession);
+                }
+
                 _logger.LogInformation($"Bot volume set to {volume} in channel {channelId}");
                 
                 return new ApiResponse<object>($"Volume set to {volume}%");
@@ -484,13 +495,13 @@ namespace Kita.Service.Services
             }
         }
 
-        public async Task<ApiResponse<object>> GetBotStatusAsync(string channelId)
+        public Task<ApiResponse<object>> GetBotStatusAsync(string channelId)
         {
             try
             {
                 if (!_bots.TryGetValue(channelId, out var bot))
                 {
-                    return ApiResponse<object>.Fail("Bot is not in this channel");
+                    return Task.FromResult(ApiResponse<object>.Fail("Bot is not in this channel"));
                 }
 
                 var status = new
@@ -507,12 +518,12 @@ namespace Kita.Service.Services
                     CreatedAt = bot.CreatedAt
                 };
 
-                return new ApiResponse<object>(status);
+                return Task.FromResult(new ApiResponse<object>(status));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error getting bot status for channel {channelId}");
-                return ApiResponse<object>.Fail($"Failed to get status: {ex.Message}");
+                return Task.FromResult(ApiResponse<object>.Fail($"Failed to get status: {ex.Message}"));
             }
         }
     }

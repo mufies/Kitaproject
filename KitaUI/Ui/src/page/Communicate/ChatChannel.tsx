@@ -289,9 +289,11 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
             const sorted = msgs.sort((a, b) =>
                 new Date(getMessageDate(a)).getTime() - new Date(getMessageDate(b)).getTime()
             );
-            setMessages(sorted);
-            setSkip(sorted.length);
-            setHasMore(sorted.length >= TAKE);
+            // Ensure no duplicate IDs in the loaded messages
+            const uniqueMessages = Array.from(new Map(sorted.map(m => [m.id, m])).values());
+            setMessages(uniqueMessages);
+            setSkip(uniqueMessages.length);
+            setHasMore(uniqueMessages.length >= TAKE);
             if (isInitial) setInitialLoad(true);
         } catch (error) {
             console.error("Failed to load messages", error);
@@ -312,7 +314,12 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
             if (sorted.length === 0) {
                 setHasMore(false);
             } else {
-                setMessages(prev => [...sorted, ...prev]);
+                setMessages(prev => {
+                    // Filter out any duplicates before prepending
+                    const existingIds = new Set(prev.map(m => m.id));
+                    const newMessages = sorted.filter(m => !existingIds.has(m.id));
+                    return [...newMessages, ...prev];
+                });
                 setSkip(s => s + sorted.length);
                 setHasMore(sorted.length >= TAKE);
                 requestAnimationFrame(() => {

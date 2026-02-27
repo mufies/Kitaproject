@@ -23,8 +23,11 @@ namespace Kita.Service.Interfaces
         Task<ApiResponse<object>> ResumeAsync(string channelId);
         Task<ApiResponse<object>> SkipAsync(string channelId);
         Task<ApiResponse<object>> SetVolumeAsync(string channelId, int volume);
+        Task<ApiResponse<object>> SeekAsync(string channelId, double positionSeconds);
+        Task<ApiResponse<object>> RemoveSongFromQueueAsync(string channelId, int queueIndex);
         
         // Bot status
         Task<ApiResponse<object>> GetBotStatusAsync(string channelId);
+        Task<ApiResponse<List<object>>> GetQueueAsync(string channelId);
     }
 }

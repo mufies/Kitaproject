@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useVoice } from '../../contexts/VoiceContext';
 import { MicOff, PhoneOff, Users, Loader2 } from 'lucide-react';
 import type { ChannelDto } from '../../types/api';
 import { getVoiceToken } from '../../services/livekitService';
+import { voiceHubService } from '../../services/voiceHubService';
 import {
     LiveKitRoom,
     RoomAudioRenderer,
@@ -61,6 +63,25 @@ function ParticipantTile({ name, isSpeaking, isMicrophoneEnabled }: ParticipantT
     );
 }
 
+function ParticipantSync({ channelId }: { channelId: string }) {
+    const participants = useParticipants();
+    const { setChannelParticipants } = useVoice();
+
+    useEffect(() => {
+        setChannelParticipants(channelId, participants.map(p => ({
+            identity: p.identity,
+            name: p.name || p.identity,
+            isSpeaking: p.isSpeaking,
+            isMicrophoneEnabled: p.isMicrophoneEnabled,
+        })));
+        return () => {
+            setChannelParticipants(channelId, []);
+        };
+    }, [channelId, participants, setChannelParticipants]);
+
+    return null;
+}
+
 function VoiceControls({ onLeave }: { onLeave: () => void }) {
     return (
         <div className="h-20 bg-[#120c12] border-t border-[#ffffff0d] flex items-center justify-center gap-4 px-4">
@@ -85,6 +106,23 @@ export default function VoiceChannel({ channel }: VoiceChannelProps) {
     const [serverUrl, setServerUrl] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string>('');
+    const { joinVoice, clearVoiceConnection } = useVoice();
+
+    const getUsernameFromToken = (): string => {
+        try {
+            const authToken = localStorage.getItem('auth_token');
+            if (!authToken) return 'User';
+            
+            const base64Url = authToken.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(atob(base64));
+            
+            // Try to get username from JWT claims
+            return payload.unique_name || payload.name || payload.sub || 'User';
+        } catch {
+            return 'User';
+        }
+    };
 
     const handleJoin = async () => {
         setIsLoading(true);
@@ -92,25 +130,43 @@ export default function VoiceChannel({ channel }: VoiceChannelProps) {
 
         try {
             console.log('Joining voice channel:', channel.id, 'Type:', typeof channel.id);
+            
+            // First connect to voice hub
+            await voiceHubService.connect();
+            
+            // Get LiveKit token
             const response = await getVoiceToken(channel.id);
             setToken(response.token);
             setServerUrl(response.serverUrl);
             setIsJoined(true);
+            
+            // Join voice hub room for SignalR events
+            const username = getUsernameFromToken();
+            await voiceHubService.joinRoom(channel.id, username);
+            joinVoice(channel.id, channel.name, response.token, response.serverUrl, handleLeave);
         } catch (err: any) {
             console.error('Failed to join voice channel:', err);
             console.error('Error response:', err.response?.data);
-            const errorMsg = err.response?.data?.message || 'Failed to join voice channel. Please try again.';
+            const errorMsg = err.response?.data?.message || err.message || 'Failed to join voice channel. Please try again.';
             setError(errorMsg);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleLeave = () => {
+    const handleLeave = async () => {
+        // Leave voice hub room
+        try {
+            await voiceHubService.leaveRoom(channel.id);
+        } catch (err) {
+            console.error('Failed to leave voice hub room:', err);
+        }
+        
         setIsJoined(false);
         setToken('');
         setServerUrl('');
         setError('');
+        clearVoiceConnection();
     };
 
     if (!isJoined) {
@@ -149,6 +205,7 @@ export default function VoiceChannel({ channel }: VoiceChannelProps) {
             className="flex flex-col h-full bg-[#0a070a]"
         >
             <ParticipantList />
+            <ParticipantSync channelId={channel.id} />
             <VoiceControls onLeave={handleLeave} />
             <MusicBotPlayer channelId={channel.id} isConnected={isJoined} />
             <RoomAudioRenderer />

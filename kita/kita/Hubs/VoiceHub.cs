@@ -12,7 +12,6 @@ namespace Kita.Hubs;
 [Authorize]
 public class VoiceHub : Hub
 {
-    // Track users in each room (channelId -> list of connection IDs)
     private static readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _roomParticipants 
         = new ConcurrentDictionary<string, ConcurrentDictionary<string, string>>();
     

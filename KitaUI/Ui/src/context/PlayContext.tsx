@@ -185,6 +185,13 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     cleanupDevice?.();
                     return;
                 }
+                
+                // If device service is disabled, set as active device immediately
+                if (!ENABLE_MUSIC_CONTROL) {
+                    isActiveDeviceRef.current = true;
+                    setIsActiveDevice(true);
+                    console.log('[PlayContext] Device service disabled, set as active device');
+                }
             } catch (error) {
                 console.error('[PlayContext] Failed to initialize device:', error);
             }
@@ -215,7 +222,7 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // when the user just opened the page and nothing was playing.
                 try {
                     let shouldPlay = false;
-                    let state: Awaited<ReturnType<typeof musicControlService.getPlaybackState>> = null;
+                    let state = null;
                     if (ENABLE_MUSIC_CONTROL) {
                         state = await musicControlService.getPlaybackState();
                         shouldPlay = state?.isPlaying === true;
@@ -233,7 +240,7 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 setIsPlaying(true);
                             }).catch(console.error);
                         }
-                    } else if (!song && state?.currentSongId) {
+                    } else if (ENABLE_MUSIC_CONTROL && !song && state?.currentSongId) {
                         // No song loaded locally yet — restore from server state
                         const response = await getSongById(state.currentSongId);
                         const fetchedSong = response?.data;
@@ -649,17 +656,15 @@ export const PlayProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Sync playback state
-        if (ENABLE_MUSIC_CONTROL) {
-            const playbackState = {
-                currentSongId: song.id,
-                isPlaying: true,
-                currentTime: 0,
-                volume: Math.round(volume * 100),
-                queue: playlist.map(s => s.id),
-                lastUpdated: new Date().toISOString()
-            };
-            musicControlService.syncPlaybackState(playbackState).catch(console.error);
-        }
+        const playbackState = {
+            currentSongId: song.id,
+            isPlaying: true,
+            currentTime: 0,
+            volume: Math.round(volume * 100),
+            queue: playlist.map(s => s.id),
+            lastUpdated: new Date().toISOString()
+        };
+        musicControlService.syncPlaybackState(playbackState).catch(console.error);
     }, [playlist, currentIndex, volume]);
 
     // Seek to time

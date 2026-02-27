@@ -12,11 +12,13 @@ import { userStatusService } from '../../services/userStatusService';
 import { serverService } from '../../services/serverService';
 import { chatService } from '../../services/chatService';
 import Navigator from '../../components/navigator';
+import { useVoice } from '../../contexts/VoiceContext';
 
 export default function KitaChatPage() {
     const [currentServer, setCurrentServer] = useState<ServerDto | null>(null);
     const [currentChannel, setCurrentChannel] = useState<ChannelDto | null>(null);
     const connectAttemptedRef = useRef(false);
+    const { voiceParticipantsByChannel } = useVoice();
 
     // Global State for Popover
     const [selectedMember, setSelectedMember] = useState<ServerMemberDto | null>(null);
@@ -40,14 +42,13 @@ export default function KitaChatPage() {
                 const nameIdentifierClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
                 setCurrentUserId(payload[nameIdentifierClaim] || payload.sub || payload.nameid);
 
-                // Connect to ChatHub to receive ServerLeft events (but only once to prevent race conditions)
                 if (!chatService.isConnected()) {
                     connectAttemptedRef.current = true;
                     chatService.connect(token).then(() => {
                         console.log('🟢 ChatHub connected in KitaChatPage');
                     }).catch(err => {
                         console.error('🔴 Failed to connect to ChatHub:', err);
-                        connectAttemptedRef.current = false; // Allow retry on failure
+                        connectAttemptedRef.current = false;
                     });
                 }
             } catch (e) {
@@ -56,7 +57,6 @@ export default function KitaChatPage() {
         }
 
         return () => {
-            // Don't disconnect here as ChatChannel might be using it
         };
     }, []);
 
@@ -273,6 +273,7 @@ export default function KitaChatPage() {
                         currentChannelId={currentChannel?.id || null}
                         onChannelSelect={setCurrentChannel}
                         onServerUpdate={(updated) => setCurrentServer(updated)}
+                        voiceParticipantsByChannel={voiceParticipantsByChannel}
                     />
                 )}
 

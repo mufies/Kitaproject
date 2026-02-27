@@ -5,16 +5,19 @@ import { serverService } from '../../services/serverService';
 import { serverInviteService } from '../../services/serverInviteService';
 import { fetchGetProfile } from '../../utils/fetchAPI';
 import type { ServerDto, ChannelDto, ServerInviteDto } from '../../types/api';
+import { useVoice } from '../../contexts/VoiceContext';
 
 interface ServerSidebarProps {
     server: ServerDto;
     currentChannelId: string | null;
     onChannelSelect: (channel: ChannelDto) => void;
     onServerUpdate?: (server: ServerDto) => void;
+    voiceParticipantsByChannel: Map<string, Array<{ identity: string; name: string; isSpeaking: boolean; isMicrophoneEnabled: boolean }>>;
 }
 
-export default function ServerSidebar({ server, currentChannelId, onChannelSelect, onServerUpdate }: ServerSidebarProps) {
+export default function ServerSidebar({ server, currentChannelId, onChannelSelect, onServerUpdate, voiceParticipantsByChannel }: ServerSidebarProps) {
     const [channels, setChannels] = useState<ChannelDto[]>([]);
+    const { connection, leaveVoice } = useVoice();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newChannelName, setNewChannelName] = useState("");
     const [newChannelType, setNewChannelType] = useState<'text' | 'voice'>('text');
@@ -52,7 +55,6 @@ export default function ServerSidebar({ server, currentChannelId, onChannelSelec
                 }
             } catch (error) {
                 console.error('Failed to load user profile:', error);
-                // Fallback to JWT decode if API fails
                 const token = localStorage.getItem('auth_token');
                 if (token) {
                     try {
@@ -408,10 +410,83 @@ export default function ServerSidebar({ server, currentChannelId, onChannelSelec
                         )}
                     </div>
                     <div className="space-y-0.5">
-                        {voiceChannels.map(channel => renderChannel(channel, true))}
+                        {voiceChannels.map((channel) => {
+                            const participants = voiceParticipantsByChannel.get(channel.id) || [];
+                            return (
+                                <div key={channel.id}>
+                                    <button
+                                        onClick={() => onChannelSelect(channel)}
+                                        className={`flex items-center gap-3 w-full p-2 rounded-lg text-left transition-all group ${
+                                            currentChannelId === channel.id
+                                                ? 'bg-[#FF8C00] text-white shadow-md'
+                                                : 'text-white/70 hover:bg-[#2a2a2a] hover:text-white'
+                                        }`}
+                                    >
+                                        <Volume2 size={18} className={currentChannelId === channel.id ? 'text-white' : 'text-[#FF8C00]'} />
+                                        <span className="flex-1 text-sm font-medium truncate">{channel.name}</span>
+                                        {participants.length > 0 && (
+                                            <span className="text-xs bg-[#FF8C00]/20 text-[#FF8C00] px-2 py-0.5 rounded-full">
+                                                {participants.length}
+                                            </span>
+                                        )}
+                                    </button>
+                                    
+                                    {/* Participants in this channel */}
+                                    {participants.length > 0 && (
+                                        <div className="ml-6 mt-1 mb-2 space-y-1">
+                                            {participants.map((participant) => (
+                                                <div
+                                                    key={participant.identity}
+                                                    className="flex items-center gap-2 p-1.5 text-white/60 text-xs rounded hover:bg-[#2a2a2a]/50 transition-colors"
+                                                >
+                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold ${
+                                                        participant.isMicrophoneEnabled ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                                                    }`}>
+                                                        {participant.name.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <span className="flex-1 truncate">{participant.name}</span>
+                                                    {participant.isSpeaking && (
+                                                        <div className="flex gap-0.5">
+                                                            <div className="w-0.5 h-3 bg-green-400 rounded-full animate-pulse" />
+                                                            <div className="w-0.5 h-3 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '75ms' }} />
+                                                            <div className="w-0.5 h-3 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                                                        </div>
+                                                    )}
+                                                    {!participant.isMicrophoneEnabled && (
+                                                        <MicOff size={12} className="text-red-400" />
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </div>
+
+            {/* Voice Status Bar - when connected */}
+            {connection && (
+                <div className="px-3 py-2 bg-[#1a141a] border-t border-[#ffffff0d]">
+                    <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
+                            <Volume2 size={12} className="text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-semibold text-green-500">Voice Connected</p>
+                            <p className="text-[10px] text-white/50 truncate">{connection.channelName}</p>
+                        </div>
+                        <button
+                            onClick={leaveVoice}
+                            className="p-1.5 rounded bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all text-xs"
+                            title="Disconnect"
+                        >
+                            <X size={12} />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* User Panel */}
             <div className="bg-[#0f0a0f] p-3 flex items-center gap-3 border-t border-[#ffffff0d]">

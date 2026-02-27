@@ -1,6 +1,8 @@
+using Kita.Hubs;
 using Kita.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -15,11 +17,16 @@ namespace Kita.Controllers
     {
         private readonly IMusicBotService _musicBotService;
         private readonly ILogger<MusicBotController> _logger;
+        private readonly IHubContext<VoiceHub> _voiceHubContext;
 
-        public MusicBotController(IMusicBotService musicBotService, ILogger<MusicBotController> logger)
+        public MusicBotController(
+            IMusicBotService musicBotService, 
+            ILogger<MusicBotController> logger,
+            IHubContext<VoiceHub> voiceHubContext)
         {
             _musicBotService = musicBotService;
             _logger = logger;
+            _voiceHubContext = voiceHubContext;
         }
 
         private Guid GetUserId()
@@ -58,6 +65,13 @@ namespace Kita.Controllers
             try
             {
                 var response = await _musicBotService.LeaveChannelAsync(channelId);
+                
+                // Broadcast to all users in the channel
+                if (response.Success)
+                {
+                    await _voiceHubContext.Clients.Group(channelId).SendAsync("BotLeft", new { channelId });
+                }
+                
                 return response.Success ? Ok(response) : BadRequest(response);
             }
             catch (Exception ex)
@@ -103,6 +117,14 @@ namespace Kita.Controllers
             try
             {
                 var response = await _musicBotService.PauseAsync(channelId);
+                
+                // Broadcast to all users in the channel
+                if (response.Success)
+                {
+                    var status = await _musicBotService.GetBotStatusAsync(channelId);
+                    await _voiceHubContext.Clients.Group(channelId).SendAsync("BotStatusChanged", status.Data);
+                }
+                
                 return response.Success ? Ok(response) : BadRequest(response);
             }
             catch (Exception ex)
@@ -118,6 +140,14 @@ namespace Kita.Controllers
             try
             {
                 var response = await _musicBotService.ResumeAsync(channelId);
+                
+                // Broadcast to all users in the channel
+                if (response.Success)
+                {
+                    var status = await _musicBotService.GetBotStatusAsync(channelId);
+                    await _voiceHubContext.Clients.Group(channelId).SendAsync("BotStatusChanged", status.Data);
+                }
+                
                 return response.Success ? Ok(response) : BadRequest(response);
             }
             catch (Exception ex)
@@ -133,6 +163,14 @@ namespace Kita.Controllers
             try
             {
                 var response = await _musicBotService.SkipAsync(channelId);
+                
+                // Broadcast to all users in the channel
+                if (response.Success)
+                {
+                    var status = await _musicBotService.GetBotStatusAsync(channelId);
+                    await _voiceHubContext.Clients.Group(channelId).SendAsync("BotStatusChanged", status.Data);
+                }
+                
                 return response.Success ? Ok(response) : BadRequest(response);
             }
             catch (Exception ex)

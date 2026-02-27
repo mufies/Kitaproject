@@ -14,6 +14,7 @@ import JoinPage from './page/Communicate/JoinPage'
 import Navigator from './components/navigator'
 import { AuthProvider } from './context/AuthContext'
 import { PlayProvider } from './context/PlayContext'
+import { VoiceProvider } from './contexts/VoiceContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AudioControl } from './components/AudioControl'
 import HomePage from './page/Music/Home/HomePage'
@@ -105,7 +106,9 @@ function App() {
   return (
     <AuthProvider>
       <PlayProvider>
-        <AppContent />
+        <VoiceProvider>
+          <AppContent />
+        </VoiceProvider>
       </PlayProvider>
     </AuthProvider>
   )

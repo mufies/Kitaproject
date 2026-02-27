@@ -30,7 +30,7 @@ class ChatService {
         // Mark as connecting and create new connection promise
         this.connecting = true;
         this.connectionPromise = this._connect(token);
-        
+
         try {
             await this.connectionPromise;
         } finally {
@@ -176,7 +176,6 @@ class ChatService {
         this.memberJoinedCallbacks = [];
     }
 
-    // Clear only channel-specific callbacks (messages, typing) but keep server-level callbacks
     clearChannelCallbacks() {
         this.messageCallbacks = [];
         this.messageEditCallbacks = [];
@@ -184,7 +183,6 @@ class ChatService {
         this.typingCallbacks = [];
         this.stoppedTypingCallbacks = [];
         this.reactionChangedCallbacks = [];
-        // Keep serverLeftCallbacks intact!
     }
 
     async fetchChannelMessages(channelId: string, take: number = 30, skip: number = 0): Promise<MessageDto[]> {

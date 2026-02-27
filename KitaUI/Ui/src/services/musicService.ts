@@ -112,7 +112,6 @@ export const getRecentlyPlayedSongs = async (limit: number = 20): Promise<Song[]
     }
 };
 
-// ========== Playlist APIs ==========
 
 // Get all playlists
 export const getAllPlaylists = async (): Promise<Playlist[]> => {

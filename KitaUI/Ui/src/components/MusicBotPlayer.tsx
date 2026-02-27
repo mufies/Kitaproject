@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Play, Pause, SkipForward, Volume2, Music, List, Plus, X, UserX } from 'lucide-react';
 import * as musicBotService from '../services/musicBotService';
+import { voiceHubService } from '../services/voiceHubService';
 import { searchSongs, getSongById } from '../services/musicService';
 import type { Song } from '../services/musicService';
 
@@ -19,6 +20,46 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
     const [isSearching, setIsSearching] = useState(false);
     const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
 
+    // Listen for SignalR events for real-time sync
+    useEffect(() => {
+        if (!isConnected) return;
+
+        const handleBotStatusChanged = (data: any) => {
+            console.log('Bot status changed via SignalR:', data);
+            if (data.channelId === channelId) {
+                setBotStatus({
+                    channelId: data.channelId,
+                    userCount: data.userCount,
+                    currentSongId: data.currentSongId,
+                    currentSongStreamUrl: data.currentSongStreamUrl,
+                    playbackStartedAt: data.playbackStartedAt,
+                    isPlaying: data.isPlaying,
+                    queueLength: data.queueLength,
+                    volume: data.volume,
+                    scheduledLeaveTime: data.scheduledLeaveTime,
+                    createdAt: data.createdAt
+                });
+                setVolume(data.volume);
+            }
+        };
+
+        const handleBotLeft = (data: any) => {
+            console.log('Bot left via SignalR:', data);
+            if (data.channelId === channelId) {
+                setBotStatus(null);
+                setCurrentSong(null);
+            }
+        };
+
+        voiceHubService.on('BotStatusChanged', handleBotStatusChanged);
+        voiceHubService.on('BotLeft', handleBotLeft);
+
+        return () => {
+            voiceHubService.off('BotStatusChanged', handleBotStatusChanged);
+            voiceHubService.off('BotLeft', handleBotLeft);
+        };
+    }, [channelId, isConnected]);
+
     // Fetch bot status periodically
     useEffect(() => {
         if (!isConnected) return;
@@ -36,7 +77,6 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
         return () => clearInterval(interval);
     }, [channelId, isConnected]);
 
-    // Fetch current song details when currentSongId changes
     useEffect(() => {
         const fetchCurrentSong = async () => {
             if (botStatus?.currentSongId) {
@@ -70,7 +110,7 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
             }
         }
 
-        // Sync play/pause state
+        // Sync play/pause state - MUST check isPlaying to control audio
         if (botStatus.isPlaying && audioElement.paused) {
             audioElement.play().catch(err => console.error('Error playing audio:', err));
         } else if (!botStatus.isPlaying && !audioElement.paused) {
@@ -79,9 +119,8 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
 
         // Sync volume (convert 0-100 to 0-1)
         audioElement.volume = botStatus.volume / 100;
-    }, [audioElement, botStatus, botStatus?.currentSongStreamUrl, botStatus?.isPlaying, botStatus?.volume]);
+    }, [audioElement, botStatus?.currentSongStreamUrl, botStatus?.isPlaying, botStatus?.volume, botStatus?.playbackStartedAt]);
 
-    // Search songs
     useEffect(() => {
         if (searchQuery.length < 2) {
             setSearchResults([]);
@@ -105,6 +144,11 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
             } else {
                 await musicBotService.resumeBot(channelId);
             }
+            const status = await musicBotService.getBotStatus(channelId);
+            if (status) {
+                setBotStatus(status);
+                setVolume(status.volume);
+            }
         } catch (error) {
             console.error('Error toggling playback:', error);
         }
@@ -113,6 +157,11 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
     const handleSkip = async () => {
         try {
             await musicBotService.skipBot(channelId);
+            const status = await musicBotService.getBotStatus(channelId);
+            if (status) {
+                setBotStatus(status);
+                setVolume(status.volume);
+            }
         } catch (error) {
             console.error('Error skipping song:', error);
         }
@@ -129,12 +178,10 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
 
     const handleAddToQueue = async (songId: string) => {
         try {
-            // Check if queue is empty and no song is playing
             const shouldAutoPlay = botStatus && !botStatus.currentSongId && botStatus.queueLength === 0;
 
             await musicBotService.addSongToQueue(channelId, songId);
 
-            // Auto-play if this is the first song
             if (shouldAutoPlay) {
                 setTimeout(async () => {
                     try {
@@ -142,7 +189,7 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
                     } catch (error) {
                         console.error('Error auto-playing first song:', error);
                     }
-                }, 500); // Small delay to ensure the song is added to queue
+                }, 500); 
             }
 
             setShowAddSong(false);
@@ -170,9 +217,9 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
     const handleKickBot = async () => {
         try {
             await musicBotService.leaveBot(channelId);
-            // Reset local state
             setBotStatus(null);
             setCurrentSong(null);
+            setVolume(50);
         } catch (error) {
             console.error('Error kicking bot:', error);
         }
@@ -194,11 +241,9 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
 
     return (
         <>
-            {/* Hidden audio element for playback */}
             <audio ref={setAudioElement} />
 
             <div className="bg-[#1a141a] border-t border-[#ffffff0d] p-4 space-y-3">
-                {/* Current Song Display */}
                 <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-gradient-to-br from-[#ff7a3c] to-[#ff4d4d] rounded-xl flex items-center justify-center shadow-lg">
                         <Music size={24} className="text-white" />
@@ -217,9 +262,7 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
                     </div>
                 </div>
 
-                {/* Controls */}
                 <div className="flex items-center justify-between gap-4">
-                    {/* Playback Controls */}
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handlePlayPause}
@@ -240,7 +283,6 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
                         </button>
                     </div>
 
-                    {/* Volume Control */}
                     <div className="flex items-center gap-3 flex-1 max-w-xs">
                         <Volume2 size={18} className="text-[#ffffff70]" />
                         <input
@@ -254,7 +296,6 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
                         <span className="text-[#ffffff70] text-sm w-8">{volume}</span>
                     </div>
 
-                    {/* Add Song & Kick Bot Buttons */}
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setShowAddSong(true)}
@@ -274,11 +315,9 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
                     </div>
                 </div>
 
-                {/* Add Song Modal */}
                 {showAddSong && (
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                         <div className="bg-[#1a141a] rounded-2xl border border-[#ffffff0d] w-full max-w-2xl max-h-[80vh] flex flex-col">
-                            {/* Header */}
                             <div className="p-6 border-b border-[#ffffff0d] flex items-center justify-between">
                                 <h3 className="text-xl font-bold text-white">Add to Queue</h3>
                                 <button
@@ -293,7 +332,6 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
                                 </button>
                             </div>
 
-                            {/* Search */}
                             <div className="p-6 border-b border-[#ffffff0d]">
                                 <input
                                     type="text"
@@ -305,7 +343,6 @@ export default function MusicBotPlayer({ channelId, isConnected }: MusicBotPlaye
                                 />
                             </div>
 
-                            {/* Results */}
                             <div className="flex-1 overflow-y-auto p-6">
                                 {isSearching ? (
                                     <div className="text-center text-[#ffffff50] py-8">Searching...</div>
