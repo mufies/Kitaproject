@@ -76,18 +76,9 @@ builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
     var redisConnectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
-    Console.WriteLine($"Attempting to connect to Redis at: {redisConnectionString}");
-    try 
-    {
         var multiplexer = StackExchange.Redis.ConnectionMultiplexer.Connect(redisConnectionString);
-        Console.WriteLine($"Successfully connected to Redis at: {redisConnectionString}. Status: {multiplexer.IsConnected}");
         return multiplexer;
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Failed to connect to Redis at: {redisConnectionString}. Error: {ex.Message}");
-        throw;
-    }
+
 });
 
 builder.Services.AddSingleton<IRedisService, RedisService>();
