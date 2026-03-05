@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Music } from 'lucide-react';
 
 export default function RegisterPage() {
     const [username, setUsername] = useState('');

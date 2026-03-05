@@ -194,11 +194,11 @@ export default function Home() {
 
                             {/* Center Label (Album Art) */}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] bg-white rounded-full border-4 border-[#111] overflow-hidden flex items-center justify-center">
-                                <img
+                                {/* <img
                                     src="src/assets/3ba24ff35f84be33f4458bb4599935b6.jpg"
                                     alt="Album Art"
                                     className="w-full h-full object-cover opacity-60 grayscale"
-                                />
+                                /> */}
                                 <div className="absolute inset-0 flex items-center justify-center">
                                     <span className="font-black text-black text-2xl tracking-[0.2em] mix-blend-difference bg-white/50 px-3 py-1 -mt-1 backdrop-blur-sm">キタ</span>
                                 </div>

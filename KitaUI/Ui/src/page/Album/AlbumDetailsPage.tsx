@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, Plus, Trash2, Music, X, Search, MoreHorizontal, Clock, Heart, Play, Pause } from 'lucide-react';
+import { ArrowLeft, Upload, Plus, Trash2, Music, X, Search, Clock, Heart, Play, Pause } from 'lucide-react';
 import { albumService, type AlbumDetail } from '../../services/albumService';
 import { artistService } from '../../services/artistService';
 import { getMySongs } from '../../utils/musicAPI';
