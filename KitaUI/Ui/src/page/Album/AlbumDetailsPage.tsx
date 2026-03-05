@@ -149,208 +149,225 @@ const AlbumDetailsPage: React.FC = () => {
     };
 
     if (isLoading) {
-        return <div className="p-8 text-center text-white">Loading...</div>;
+        return (
+            <div className="min-h-screen bg-white text-black flex items-center justify-center p-6 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
+                </div>
+                <div className="text-center relative z-10">
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-black font-black uppercase tracking-[0.2em] text-xs">Accessing Data...</p>
+                </div>
+            </div>
+        );
     }
 
     if (!album) return null;
 
     return (
-        <div className="h-full overflow-y-auto custom-scrollbar">
+        <div className="h-full overflow-y-auto custom-scrollbar bg-white text-black font-sans selection:bg-black selection:text-white relative">
+            <div className="fixed inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference z-0"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                }}>
+            </div>
+
             {/* Hero Section */}
-            <div className="relative w-full h-[40vh] min-h-[340px] max-h-[500px]">
-                {/* Dynamic Background */}
-                <div className="absolute inset-0 z-0">
-                    {album.imageUrl ? (
-                        <>
-                            <div
-                                className="absolute inset-0 bg-cover bg-center"
-                                style={{ backgroundImage: `url(${album.imageUrl})` }}
-                            ></div>
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-[#121212]/60 to-[#121212]"></div>
-                        </>
-                    ) : (
-                        <div className="w-full h-full bg-gradient-to-b from-[#ff7a3c]/50 to-[#121212]"></div>
-                    )}
-                </div>
+            <div className="relative w-full border-b-4 border-black bg-gray-50 z-10 p-8 pt-20 flex flex-col md:flex-row items-end gap-8 mb-8 overflow-hidden">
+                <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-20">ALBUM_RECORD</div>
+                <div className="absolute -right-20 -top-20 w-64 h-64 bg-black opacity-5 rotate-45 pointer-events-none"></div>
 
                 {/* Back Button */}
-                <div className="absolute top-8 left-8 z-20">
+                <div className="absolute top-6 left-8 z-20">
                     <button
                         onClick={() => navigate(-1)}
-                        className="flex items-center gap-2 text-white/80 hover:text-white transition-colors bg-black/20 hover:bg-black/40 backdrop-blur-md px-4 py-2 rounded-full"
+                        className="flex items-center gap-2 text-black hover:bg-black hover:text-white transition-colors bg-white border-2 border-black px-4 py-2 uppercase tracking-widest text-xs font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
                     >
-                        <ArrowLeft size={20} />
-                        <span className="font-bold text-sm">Back</span>
+                        <ArrowLeft size={16} strokeWidth={3} />
+                        <span>RETURN</span>
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="absolute bottom-0 left-0 w-full p-8 z-10 flex items-end gap-8">
-                    {/* Album Art */}
-                    <div className="relative group shrink-0">
-                        <div className="w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] rounded-lg overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
-                            <img
-                                src={album.imageUrl || "/assets/images/default-album.svg"}
-                                alt={album.name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                    e.currentTarget.onerror = null;
-                                    e.currentTarget.src = "/assets/images/default-album.svg";
-                                }}
-                            />
-                        </div>
-                        {isManager && (
-                            <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 rounded-lg cursor-pointer transition-all duration-300 backdrop-blur-sm">
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                    disabled={isUploading}
-                                />
-                                <Upload size={32} className="text-white mb-2" />
-                                <span className="text-white font-bold text-sm">Change Cover</span>
-                            </label>
-                        )}
+                {/* Album Art */}
+                <div className="relative group shrink-0 z-10 w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] cursor-pointer">
+                    <div className="w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] rounded-none overflow-hidden bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                        <img
+                            src={album.imageUrl || "/assets/images/default-album.svg"}
+                            alt={album.name}
+                            className={`w-full h-full object-cover transition-all duration-500 ${!isManager ? 'grayscale hover:grayscale-0' : 'group-hover:grayscale'}`}
+                            onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "/assets/images/default-album.svg";
+                            }}
+                        />
                     </div>
+                    {isManager && (
+                        <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 opacity-0 group-hover:opacity-100 rounded-none border-4 border-black border-dashed m-1 cursor-pointer transition-all duration-300">
+                            <input
+                                type="file"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                disabled={isUploading}
+                            />
+                            <Upload size={32} className="text-white mb-2" strokeWidth={2} />
+                            <span className="text-white font-black text-xs uppercase tracking-widest">UPDATE_COVER</span>
+                        </label>
+                    )}
+                </div>
 
-                    <div className="flex-1 min-w-0 mb-4">
-                        <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
-                            <span className="bg-white/10 px-2 py-0.5 rounded">Album</span>
+                {/* Album Info */}
+                <div className="flex-1 min-w-0 z-10 w-full mb-2">
+                    <p className="text-black text-[10px] font-black uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                        <span className="bg-black text-white px-3 py-1 border-2 border-black">ALBUM_REF</span>
+                        <span>[ {album.id.substring(0, 8)} ]</span>
+                    </p>
+
+                    <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-black mb-6 uppercase tracking-tighter leading-none line-clamp-2">
+                        {album.name}
+                    </h1>
+
+                    <div className="flex flex-col gap-4">
+                        <p className="text-gray-700 text-sm sm:text-base font-bold uppercase tracking-wide line-clamp-2 max-w-3xl border-l-4 border-black pl-4">
+                            {album.description || "NO DATA"}
                         </p>
 
-                        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white mb-6 drop-shadow-2xl tracking-tight leading-none line-clamp-2">
-                            {album.name}
-                        </h1>
-
-                        <div className="flex flex-col gap-4">
-                            <p className="text-white/80 text-lg sm:text-xl font-medium drop-shadow-md line-clamp-2 max-w-3xl">
-                                {album.description || "No description provided."}
-                            </p>
-
-                            <div className="flex items-center gap-2 text-white text-sm font-medium flex-wrap">
-                                {/* Artist Avatar Tiny (Optional, using text for now) */}
-                                <div className="flex items-center gap-2 hover:underline cursor-pointer" onClick={() => navigate(`/artist/${album.artistId}`)}>
-                                    {/* Ideally show artist avatar here if available in album details, but using text is safe */}
-                                    <span className="font-bold text-white text-base">{album.artistName}</span>
-                                </div>
-                                <span className="w-1 h-1 bg-white/60 rounded-full mx-1"></span>
-                                <span className="text-white/90">
-                                    {/* Year placeholder if needed */}
-                                    2025
-                                </span>
-                                <span className="w-1 h-1 bg-white/60 rounded-full mx-1"></span>
-                                <span className="text-white/90">
-                                    <span className="font-bold">{album.songs.length}</span> songs,
-                                </span>
-                                <span className="text-white/70 ml-1">
-                                    {/* Calculate total duration roughly */}
-                                    {Math.floor(album.songs.reduce((acc, s) => acc + s.duration, 0) / 60)} min {album.songs.reduce((acc, s) => acc + s.duration, 0) % 60} sec
-                                </span>
-                            </div>
+                        <div className="flex items-center gap-3 text-black text-[10px] font-black uppercase tracking-widest flex-wrap mt-2">
+                            <span className="bg-gray-200 px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer hover:bg-black hover:text-white" onClick={() => navigate(`/artist/${album.artistId}`)}>
+                                ARTIST: {album.artistName}
+                            </span>
+                            <span className="w-1.5 h-1.5 bg-black rounded-none mx-1"></span>
+                            <span className="bg-white px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                YEAR: 2025
+                            </span>
+                            <span className="w-1.5 h-1.5 bg-black rounded-none mx-1"></span>
+                            <span className="bg-white px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                ITEMS: {album.songs.length}
+                            </span>
+                            <span className="w-1.5 h-1.5 bg-black rounded-none mx-1"></span>
+                            <span className="bg-white px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                RUNTIME: {Math.floor(album.songs.reduce((acc, s) => acc + s.duration, 0) / 60)}M {album.songs.reduce((acc, s) => acc + s.duration, 0) % 60}S
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Main Content Background */}
-            <div className="bg-gradient-to-b from-[#121212] via-[#121212] to-black min-h-[500px]">
-                <div className="p-8 pb-32 max-w-[1920px] mx-auto">
+            <div className="min-h-[500px] relative z-10">
+                <div className="p-4 sm:p-8 pb-32 max-w-[1400px] mx-auto">
 
                     {/* Action Bar */}
-                    <div className="flex items-center gap-6 mb-8">
-                        <button
-                            onClick={handlePlayAlbum}
-                            disabled={!album || album.songs.length === 0}
-                            className="w-14 h-14 bg-[#ff7a3c] rounded-full flex items-center justify-center hover:scale-105 hover:bg-[#ff8c52] transition-all duration-200 shadow-xl text-black disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isAlbumPlaying() ? (
-                                <Pause className="w-6 h-6 fill-current" />
-                            ) : (
-                                <Play className="w-6 h-6 fill-current ml-1" />
-                            )}
-                        </button>
+                    <div className="flex flex-col sm:flex-row items-center gap-6 mb-8 mt-4 bg-gray-50 p-4 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative w-full">
+                        <div className="absolute top-0 right-0 bg-black text-white text-[10px] uppercase font-black px-2 py-0.5 tracking-widest">CONTROLS</div>
+
+                        <div className="flex w-full sm:w-auto justify-between items-center sm:gap-6">
+                            <button
+                                onClick={handlePlayAlbum}
+                                disabled={!album || album.songs.length === 0}
+                                className="w-16 h-16 bg-black text-white border-2 border-transparent hover:border-black flex items-center justify-center transition-all hover:bg-white hover:text-black shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50 disabled:cursor-not-allowed group"
+                            >
+                                {isAlbumPlaying() ? (
+                                    <Pause size={32} fill="currentColor" />
+                                ) : (
+                                    <Play size={32} fill="currentColor" className="ml-1" />
+                                )}
+                            </button>
+                        </div>
 
                         {/* Like Button */}
-                        <button
-                            onClick={async () => {
-                                if (!id || isLikeLoading) return;
-                                setIsLikeLoading(true);
-                                try {
-                                    if (isLiked) {
-                                        await albumService.unlikeAlbum(id);
-                                        setIsLiked(false);
-                                    } else {
-                                        await albumService.likeAlbum(id);
-                                        setIsLiked(true);
+                        <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
+                            <button
+                                onClick={async () => {
+                                    if (!id || isLikeLoading) return;
+                                    setIsLikeLoading(true);
+                                    try {
+                                        if (isLiked) {
+                                            await albumService.unlikeAlbum(id);
+                                            setIsLiked(false);
+                                        } else {
+                                            await albumService.likeAlbum(id);
+                                            setIsLiked(true);
+                                        }
+                                    } catch (error) {
+                                        console.error('Failed to toggle like:', error);
+                                    } finally {
+                                        setIsLikeLoading(false);
                                     }
-                                } catch (error) {
-                                    console.error('Failed to toggle like:', error);
-                                } finally {
-                                    setIsLikeLoading(false);
-                                }
-                            }}
-                            disabled={isLikeLoading}
-                            className={`p-2 rounded-full transition-all duration-200 hover:scale-110 ${isLiked ? 'text-[#ff7a3c]' : 'text-[#b3b3b3] hover:text-white'}`}
-                            title={isLiked ? 'Remove from Your Library' : 'Save to Your Library'}
-                        >
-                            <Heart size={32} className={isLiked ? 'fill-current' : ''} />
-                        </button>
+                                }}
+                                disabled={isLikeLoading}
+                                className={`flex items-center gap-2 px-4 py-3 border-2 border-black transition-all ${isLiked
+                                    ? 'bg-black text-white shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] translate-x-1 translate-y-1'
+                                    : 'bg-white text-black hover:bg-black hover:text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(150,150,150,1)]'
+                                    }`}
+                                title={isLiked ? 'Remove from Your Library' : 'Save to Your Library'}
+                            >
+                                <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} strokeWidth={isLiked ? 2 : 3} />
+                                <span className="font-black text-xs uppercase tracking-wider">{isLiked ? 'BOOKMARKED' : 'BOOKMARK'}</span>
+                            </button>
 
-                        {isManager && (
-                            <div className="flex items-center gap-4">
-                                <button
-                                    onClick={() => setIsAddSongsModalOpen(true)}
-                                    className="text-[#b3b3b3] hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
-                                    title="Add existing song"
-                                >
-                                    <Plus size={32} />
-                                </button>
-                                <button
-                                    onClick={() => setIsUploadModalOpen(true)}
-                                    className="text-[#b3b3b3] hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
-                                    title="Upload and add song"
-                                >
-                                    <Upload size={24} />
-                                </button>
-                                <button className="text-[#b3b3b3] hover:text-white transition-colors p-2 rounded-full hover:bg-white/10">
-                                    <MoreHorizontal size={32} />
-                                </button>
-                            </div>
-                        )}
+                            {isManager && (
+                                <>
+                                    <button
+                                        onClick={() => setIsAddSongsModalOpen(true)}
+                                        className="flex items-center gap-2 px-4 py-3 bg-white text-black border-2 border-black hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(150,150,150,1)]"
+                                        title="Add existing song"
+                                    >
+                                        <Plus size={20} strokeWidth={3} />
+                                        <span className="font-black text-xs uppercase tracking-wider hidden sm:inline">ADD_SONG</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setIsUploadModalOpen(true)}
+                                        className="flex items-center gap-2 px-4 py-3 bg-white text-black border-2 border-black hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(150,150,150,1)]"
+                                        title="Upload and add song"
+                                    >
+                                        <Upload size={20} strokeWidth={3} />
+                                        <span className="font-black text-xs uppercase tracking-wider hidden sm:inline">UPLOAD_SONG</span>
+                                    </button>
+                                </>
+                            )}
+                        </div>
 
                         {isManager && (
                             <button
                                 onClick={handleDeleteAlbum}
-                                className="ml-auto flex items-center gap-2 text-[#b3b3b3] hover:text-red-500 font-bold text-sm tracking-widest uppercase py-2 px-4 rounded-full transition-colors hover:bg-white/5"
+                                className="ml-auto flex items-center gap-2 bg-red-600 text-white border-2 border-transparent hover:border-red-600 hover:bg-red-50 hover:text-red-600 font-black text-xs tracking-widest uppercase py-3 px-4 transition-all shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]"
                             >
-                                Delete Album
+                                <Trash2 size={16} strokeWidth={3} />
+                                <span className="hidden sm:inline">DELETE ALBUM</span>
                             </button>
                         )}
+                        <div className="ml-auto text-black font-black uppercase text-[10px] tracking-widest mr-4 hidden xl:block">
+                            INITIALIZE SEQUENCE //
+                        </div>
                     </div>
 
                     {/* Songs List */}
-                    <div className="w-full">
+                    <div className="w-full bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative">
+                        <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-10">TRACK_LOG</div>
+
                         {album.songs.length === 0 ? (
-                            <div className="bg-gradient-to-r from-[#1e1e1e] to-[#252525] rounded-xl p-12 text-center border border-white/5 shadow-2xl mt-4">
-                                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <Music size={40} className="text-white/20" />
+                            <div className="p-16 text-center bg-gray-50 border-b-4 border-black relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-gray-200 rotate-45 translate-x-16 -translate-y-16 opacity-50"></div>
+                                <div className="w-20 h-20 bg-white border-4 border-black flex items-center justify-center mx-auto mb-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                                    <Music size={40} className="text-black" strokeWidth={2} />
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-2">It's a bit quiet here</h3>
-                                <p className="text-[#a7a7a7] mb-8 max-w-md mx-auto">This album has no songs yet. Add some tracks to bring it to life.</p>
+                                <h3 className="text-2xl font-black text-black mb-2 uppercase tracking-tight">ARCHIVE EMPTY</h3>
+                                <p className="text-gray-500 font-bold uppercase tracking-wider text-xs mb-8 max-w-md mx-auto">This album has no tracks logged. Input required to initialize playback.</p>
                                 {isManager && (
-                                    <div className="flex items-center justify-center gap-4">
+                                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
                                         <button
                                             onClick={() => setIsAddSongsModalOpen(true)}
-                                            className="bg-white text-black font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform shadow-lg shadow-white/10"
+                                            className="bg-black text-white font-black uppercase tracking-widest text-sm py-3 px-8 border-2 border-black hover:bg-white hover:text-black transition-colors shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                                         >
-                                            Add Existing Songs
+                                            LOCATE DATA
                                         </button>
                                         <button
                                             onClick={() => setIsUploadModalOpen(true)}
-                                            className="bg-[#333] text-white font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform shadow-lg border border-white/10"
+                                            className="bg-white text-black font-black uppercase tracking-widest text-sm py-3 px-8 border-2 border-black hover:bg-black hover:text-white transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(150,150,150,1)]"
                                         >
-                                            Upload New
+                                            UPLOAD DATA
                                         </button>
                                     </div>
                                 )}
@@ -358,54 +375,51 @@ const AlbumDetailsPage: React.FC = () => {
                         ) : (
                             <div className="w-full">
                                 {/* Header Row */}
-                                <div className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-4 py-3 border-b border-white/10 text-[#a7a7a7] text-sm font-medium uppercase tracking-wider sticky top-0 bg-[#121212] z-10">
+                                <div className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-6 py-4 border-b-4 border-black text-black text-xs font-black uppercase tracking-widest bg-gray-100 z-10 sticky top-0">
                                     <div className="text-center">#</div>
-                                    <div>Title</div>
-                                    <div className="hidden md:block text-left">Date Added</div>
-                                    <div className="text-right hidden sm:block"><Clock size={16} className="ml-auto" /></div>
+                                    <div>TITLE</div>
+                                    <div className="hidden md:block text-left">TIMESTAMP</div>
+                                    <div className="text-right hidden sm:block"><Clock size={16} className="ml-auto" strokeWidth={3} /></div>
                                     <div></div>
                                 </div>
 
                                 {/* Song Rows */}
-                                <div className="mt-2">
+                                <div className="divide-y-2 divide-gray-100">
                                     {album.songs.map((song, index) => (
                                         <div
                                             key={song.id}
-                                            className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-4 py-3 hover:bg-[#ffffff10] rounded-md group transition-colors items-center cursor-pointer"
+                                            className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px] gap-4 px-6 py-4 hover:bg-gray-100 group transition-colors items-center cursor-pointer border-l-4 border-transparent hover:border-black"
                                             onClick={() => navigate(`/music/song/${song.id}`)}
                                         >
-                                            <div className="relative text-center text-[#a7a7a7] font-medium w-4 flex justify-center">
+                                            <div className="relative text-center text-gray-500 font-bold w-4 flex justify-center uppercase">
                                                 {currentSong?.id === song.id && isPlaying ? (
-                                                    <button onClick={(e) => { e.stopPropagation(); handlePlaySong(index); }} className="text-[#ff7a3c]">
-                                                        <Pause className="w-4 h-4 fill-current" />
+                                                    <button onClick={(e) => { e.stopPropagation(); handlePlaySong(index); }} className="text-black">
+                                                        <Pause size={16} fill="currentColor" />
                                                     </button>
                                                 ) : (
                                                     <>
-                                                        <span className="group-hover:hidden">{currentSong?.id === song.id ? <Play className="w-4 h-4 fill-current text-[#ff7a3c]" /> : index + 1}</span>
-                                                        <button onClick={(e) => { e.stopPropagation(); handlePlaySong(index); }} className="hidden group-hover:block text-white">
-                                                            <Play className="w-4 h-4 fill-current" />
+                                                        <span className="group-hover:hidden">{currentSong?.id === song.id ? <Play size={16} fill="currentColor" className="text-black" /> : String(index + 1).padStart(2, '0')}</span>
+                                                        <button onClick={(e) => { e.stopPropagation(); handlePlaySong(index); }} className="hidden group-hover:block text-black">
+                                                            <Play size={16} fill="currentColor" />
                                                         </button>
                                                     </>
                                                 )}
                                             </div>
 
                                             <div className="flex items-center gap-4 min-w-0">
-                                                {/* Optional: Show song cover in list if we want, typically album view doesn't repeating album cover, but if songs have unique art... usually not for album tracks. Skipping to keep it clean like Spotify album view. */}
-
                                                 <div className="flex flex-col min-w-0">
-                                                    <span className="text-white font-medium text-base truncate pr-2 group-hover:text-green-400 transition-colors">{song.title}</span>
-                                                    <span className="text-[#a7a7a7] text-sm truncate group-hover:text-white transition-colors cursor-pointer hover:underline" onClick={(e) => { e.stopPropagation(); navigate(`/artist/${album.artistId}`); }}>
+                                                    <span className="text-black font-black text-sm uppercase truncate pr-2 group-hover:underline transition-all">{song.title}</span>
+                                                    <span className="text-gray-500 text-[10px] font-bold uppercase truncate group-hover:text-black transition-colors hover:underline" onClick={(e) => { e.stopPropagation(); navigate(`/artist/${album.artistId}`); }}>
                                                         {album.artistName}
                                                     </span>
                                                 </div>
                                             </div>
 
-                                            <div className="hidden md:block text-[#a7a7a7] text-sm font-medium">
-                                                {/* Placeholder for Date Added */}
-                                                Dec 19, 2025
+                                            <div className="hidden md:block text-gray-500 text-[10px] font-bold uppercase tracking-widest">
+                                                [2025_DATA_ENTRY]
                                             </div>
 
-                                            <div className="text-right text-[#a7a7a7] font-mono text-sm hidden sm:block">
+                                            <div className="text-right text-black font-black text-xs hidden sm:block">
                                                 {formatDuration(song.duration)}
                                             </div>
 
@@ -413,10 +427,10 @@ const AlbumDetailsPage: React.FC = () => {
                                                 {isManager && (
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); handleRemoveSong(song.id); }}
-                                                        className="text-[#a7a7a7] hover:text-white hover:scale-110 transition-all p-2"
+                                                        className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 border-2 border-transparent hover:border-red-600 transition-all font-black uppercase text-[10px] flex items-center justify-center gap-1"
                                                         title="Remove from album"
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Trash2 size={16} strokeWidth={3} />
                                                     </button>
                                                 )}
                                             </div>
@@ -524,36 +538,37 @@ const AddSongsToAlbumModal: React.FC<AddSongsModalProps> = ({ albumId, artistId,
     };
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
-            <div className="bg-[#1e1e1e] rounded-xl w-full max-w-2xl max-h-[80vh] border border-[#333] shadow-2xl flex flex-col animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
-                <div className="flex items-center justify-between p-5 border-b border-[#333]">
-                    <h2 className="text-xl font-bold text-white">Thêm bài hát vào Album</h2>
-                    <button onClick={onClose} className="text-[#a7a7a7] hover:text-white transition-colors">
-                        <X size={20} />
+        <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
+            <div className="bg-white rounded-none w-full max-w-2xl max-h-[80vh] border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col animate-in fade-in zoom-in duration-200 relative" onClick={e => e.stopPropagation()}>
+                <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-10">SEARCH_LOG</div>
+                <div className="flex items-center justify-between p-6 border-b-4 border-black bg-gray-50">
+                    <h2 className="text-2xl font-black text-black uppercase tracking-tight">ADD TRACK TO ALBUM</h2>
+                    <button onClick={onClose} className="text-black hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black p-1">
+                        <X size={24} strokeWidth={3} />
                     </button>
                 </div>
 
                 {/* Search */}
-                <div className="p-4 border-b border-[#333]">
+                <div className="p-4 border-b-4 border-black bg-white">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a7a7a7]" size={18} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-black" size={20} strokeWidth={3} />
                         <input
                             type="text"
-                            placeholder="Tìm kiếm bài hát..."
+                            placeholder="SEARCH DATABASE..."
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full bg-[#2a2a2a] border border-[#333] rounded-full px-10 py-2 text-white placeholder-[#a7a7a7] focus:outline-none focus:border-green-500 transition-colors"
+                            className="w-full bg-gray-50 border-2 border-black rounded-none px-12 py-3 text-black placeholder-gray-400 font-bold uppercase tracking-wider focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow text-sm"
                         />
                     </div>
                 </div>
 
                 {/* Song List */}
-                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-white">
                     {isLoading ? (
-                        <div className="text-center text-[#a7a7a7] py-8">Đang tải...</div>
+                        <div className="text-center text-gray-400 font-black uppercase tracking-widest py-12 text-sm">LOADING DATA...</div>
                     ) : filteredSongs.length === 0 ? (
-                        <div className="text-center text-[#a7a7a7] py-8">
-                            {searchQuery ? 'Không tìm thấy bài hát.' : 'Không có bài hát nào để thêm.'}
+                        <div className="text-center text-gray-400 font-black uppercase tracking-widest py-12 text-sm">
+                            {searchQuery ? 'NO MATCHES FOUND.' : 'NO TRACKS AVAILABLE.'}
                         </div>
                     ) : (
                         <div className="space-y-2">
@@ -561,33 +576,33 @@ const AddSongsToAlbumModal: React.FC<AddSongsModalProps> = ({ albumId, artistId,
                                 <div
                                     key={song.id}
                                     onClick={() => toggleSelect(song.id)}
-                                    className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${selectedIds.includes(song.id)
-                                        ? 'bg-green-500/20 border border-green-500/50'
-                                        : 'hover:bg-[#333] border border-transparent'
+                                    className={`flex items-center gap-4 p-3 border-2 cursor-pointer transition-all group ${selectedIds.includes(song.id)
+                                        ? 'bg-black text-white border-black shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] translate-x-1 translate-y-1'
+                                        : 'bg-white text-black border-transparent hover:border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
                                         }`}
                                 >
-                                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${selectedIds.includes(song.id)
-                                        ? 'bg-green-500 border-green-500'
-                                        : 'border-[#666]'
+                                    <div className={`w-6 h-6 border-2 flex items-center justify-center shrink-0 ${selectedIds.includes(song.id)
+                                        ? 'border-white bg-white'
+                                        : 'border-black group-hover:bg-gray-200'
                                         }`}>
                                         {selectedIds.includes(song.id) && (
-                                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                                            <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                             </svg>
                                         )}
                                     </div>
-                                    <div className="w-10 h-10 bg-[#333] rounded overflow-hidden flex-shrink-0">
+                                    <div className="w-12 h-12 bg-gray-200 border-2 border-black shrink-0 relative overflow-hidden">
                                         <img
                                             src={song.coverUrl || "/assets/images/default-album.svg"}
                                             alt={song.title}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-white font-medium truncate">{song.title}</div>
-                                        <div className="text-[#a7a7a7] text-sm truncate">{song.artist || 'Unknown'}</div>
+                                        <div className={`font-black truncate uppercase text-sm ${selectedIds.includes(song.id) ? 'text-white' : 'text-black'}`}>{song.title}</div>
+                                        <div className={`text-[10px] font-bold uppercase truncate tracking-widest ${selectedIds.includes(song.id) ? 'text-gray-300' : 'text-gray-500'}`}>{song.artist || 'Unknown'}</div>
                                     </div>
-                                    <div className="text-[#a7a7a7] text-sm font-mono">
+                                    <div className={`text-xs font-black ${selectedIds.includes(song.id) ? 'text-gray-300' : 'text-gray-500'}`}>
                                         {formatDuration(song.duration || 0)}
                                     </div>
                                 </div>
@@ -597,23 +612,23 @@ const AddSongsToAlbumModal: React.FC<AddSongsModalProps> = ({ albumId, artistId,
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 border-t border-[#333] flex items-center justify-between">
-                    <span className="text-[#a7a7a7] text-sm">
-                        {selectedIds.length > 0 ? `Đã chọn ${selectedIds.length} bài hát` : 'Chọn bài hát để thêm'}
+                <div className="p-6 border-t-4 border-black bg-gray-50 flex items-center justify-between">
+                    <span className="text-black font-black uppercase tracking-widest text-xs">
+                        {selectedIds.length > 0 ? `SELECTED: ${selectedIds.length}` : 'AWAITING SELECTION'}
                     </span>
-                    <div className="flex gap-3">
+                    <div className="flex gap-4">
                         <button
                             onClick={onClose}
-                            className="px-5 py-2 text-white border border-[#555] rounded-full hover:border-white transition-colors"
+                            className="px-6 py-3 bg-white text-black font-black uppercase tracking-widest text-xs border-2 border-black hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(150,150,150,1)]"
                         >
-                            Hủy
+                            ABORT
                         </button>
                         <button
                             onClick={handleAddSongs}
                             disabled={selectedIds.length === 0 || isAdding}
-                            className="px-5 py-2 bg-green-500 text-black font-bold rounded-full hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-3 bg-black text-white font-black uppercase tracking-widest text-xs border-2 border-black hover:bg-white hover:text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                         >
-                            {isAdding ? 'Đang thêm...' : `Thêm ${selectedIds.length > 0 ? `(${selectedIds.length})` : ''}`}
+                            {isAdding ? 'EXECUTING...' : `AUTHORIZE (${selectedIds.length})`}
                         </button>
                     </div>
                 </div>
@@ -704,37 +719,38 @@ const UploadSongToAlbumModal: React.FC<UploadModalProps> = ({ albumId, onClose, 
     };
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
-            <div className="bg-[#1e1e1e] rounded-xl w-full max-w-lg border border-[#333] shadow-2xl animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
-                <div className="flex items-center justify-between p-5 border-b border-[#333]">
-                    <h2 className="text-xl font-bold text-white">Upload bài hát mới</h2>
-                    <button onClick={onClose} className="text-[#a7a7a7] hover:text-white transition-colors">
-                        <X size={20} />
+        <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
+            <div className="bg-white rounded-none w-full max-w-lg border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] animate-in fade-in zoom-in duration-200 relative" onClick={e => e.stopPropagation()}>
+                <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-10">UPLOAD_INTERFACE</div>
+                <div className="flex items-center justify-between p-6 border-b-4 border-black bg-gray-50">
+                    <h2 className="text-2xl font-black text-black uppercase tracking-tight">TRANSMIT NEW TRACK</h2>
+                    <button onClick={onClose} className="text-black hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black p-1">
+                        <X size={24} strokeWidth={3} />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-5 space-y-5">
+                <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     {error && (
-                        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-                            {error}
+                        <div className="p-4 bg-red-50 border-4 border-red-600 text-red-600 text-xs font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]">
+                            ERR: {error}
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-bold text-white mb-2">Tên bài hát *</label>
+                        <label className="block text-xs font-black text-black mb-2 uppercase tracking-widest">DESIGNATION *</label>
                         <input
                             type="text"
                             value={title}
                             onChange={e => setTitle(e.target.value)}
-                            placeholder="Nhập tên bài hát"
+                            placeholder="INPUT TRACK TITLE"
                             disabled={isUploading}
-                            className="w-full bg-[#2a2a2a] border border-[#333] rounded-lg px-4 py-3 text-white placeholder-[#666] focus:outline-none focus:border-green-500 transition-colors disabled:opacity-50"
+                            className="w-full bg-gray-50 border-2 border-black px-4 py-3 text-black placeholder-gray-400 font-bold uppercase text-sm focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow disabled:opacity-50"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-white mb-2">File nhạc *</label>
-                        <div className="relative border-2 border-dashed border-[#444] rounded-lg p-6 hover:border-green-500 transition-colors cursor-pointer bg-[#2a2a2a]/50">
+                        <label className="block text-xs font-black text-black mb-2 uppercase tracking-widest">AUDIO DATA *</label>
+                        <div className="relative border-4 border-dashed border-gray-300 bg-gray-50 p-6 hover:border-black hover:bg-gray-100 transition-colors cursor-pointer group">
                             <input
                                 type="file"
                                 accept="audio/*"
@@ -742,20 +758,20 @@ const UploadSongToAlbumModal: React.FC<UploadModalProps> = ({ albumId, onClose, 
                                 disabled={isUploading}
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             />
-                            <div className="text-center">
-                                <Music className="mx-auto text-green-500 mb-2" size={32} />
+                            <div className="text-center flex flex-col items-center">
+                                <Music className="text-gray-400 group-hover:text-black mb-2 transition-colors" size={32} strokeWidth={2} />
                                 {songFile ? (
-                                    <p className="text-white font-medium">{songFile.name}</p>
+                                    <p className="text-black font-black uppercase text-xs truncate max-w-full">{songFile.name}</p>
                                 ) : (
-                                    <p className="text-[#a7a7a7]">Kéo thả hoặc click để chọn file</p>
+                                    <p className="text-gray-500 font-bold uppercase text-xs tracking-widest">AWAITING FILE INPUT...</p>
                                 )}
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-white mb-2">Ảnh bìa (tùy chọn)</label>
-                        <div className="relative border-2 border-dashed border-[#444] rounded-lg p-6 hover:border-green-500 transition-colors cursor-pointer bg-[#2a2a2a]/50">
+                        <label className="block text-xs font-black text-black mb-2 uppercase tracking-widest">COVER ART (OPTIONAL)</label>
+                        <div className="relative border-4 border-dashed border-gray-300 bg-gray-50 p-6 hover:border-black hover:bg-gray-100 transition-colors cursor-pointer group">
                             <input
                                 type="file"
                                 accept="image/*"
@@ -763,34 +779,34 @@ const UploadSongToAlbumModal: React.FC<UploadModalProps> = ({ albumId, onClose, 
                                 disabled={isUploading}
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             />
-                            <div className="text-center">
+                            <div className="text-center flex flex-col items-center">
                                 {coverFile ? (
                                     <div>
-                                        <img src={URL.createObjectURL(coverFile)} alt="Cover" className="w-20 h-20 mx-auto rounded-lg object-cover mb-2" />
-                                        <p className="text-white text-sm">{coverFile.name}</p>
+                                        <img src={URL.createObjectURL(coverFile)} alt="Cover" className="w-20 h-20 mx-auto object-cover mb-2 border-2 border-black grayscale group-hover:grayscale-0 transition-all" />
+                                        <p className="text-black font-black uppercase text-xs truncate max-w-[150px]">{coverFile.name}</p>
                                     </div>
                                 ) : (
-                                    <p className="text-[#a7a7a7]">Kéo thả hoặc click để chọn ảnh</p>
+                                    <p className="text-gray-500 font-bold uppercase text-xs tracking-widest">AWAITING IMAGE INPUT...</p>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex gap-3 pt-2">
+                    <div className="flex gap-4 pt-4 border-t-4 border-black border-dashed mt-8">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={isUploading}
-                            className="flex-1 py-3 text-white border border-[#555] rounded-full hover:border-white transition-colors disabled:opacity-50"
+                            className="flex-1 py-3 bg-white text-black font-black uppercase tracking-widest text-xs border-2 border-black hover:bg-black hover:text-white transition-all disabled:opacity-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(150,150,150,1)]"
                         >
-                            Hủy
+                            ABORT
                         </button>
                         <button
                             type="submit"
                             disabled={isUploading}
-                            className="flex-1 py-3 bg-green-500 text-black font-bold rounded-full hover:bg-green-600 transition-colors disabled:opacity-50"
+                            className="flex-1 py-3 bg-black text-white font-black uppercase tracking-widest text-xs border-2 border-black hover:bg-white hover:text-black transition-all disabled:opacity-50 shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                         >
-                            {isUploading ? 'Đang upload...' : 'Upload'}
+                            {isUploading ? 'TRANSMITTING...' : 'AUTHORIZE UPLOAD'}
                         </button>
                     </div>
                 </form>

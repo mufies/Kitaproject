@@ -506,15 +506,15 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
 
     return (
         <div
-            className="flex flex-col h-full bg-[#0a0a0a] relative"
+            className="flex flex-col h-full bg-white relative"
             onClick={() => { setContextMenuId(null); setReactionPickerId(null); }}
         >
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0d0d0d] to-[#0a0a0a] pointer-events-none" />
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference z-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
 
             {/* Channel header */}
-            <div className="h-14 px-6 flex items-center border-b border-white/5 bg-[#0a0a0a]/50 backdrop-blur-sm z-10 sticky top-0">
-                <span className="text-2xl text-[#FF8C00] mr-2 opacity-80">#</span>
-                <h3 className="text-white font-bold font-['Lexend'] tracking-wide">{channel.name}</h3>
+            <div className="h-14 px-6 flex items-center border-b-4 border-black bg-gray-50 z-10 sticky top-0 uppercase tracking-tighter">
+                <span className="text-2xl text-black mr-2 font-black">#</span>
+                <h3 className="text-black font-black text-xl">{channel.name}</h3>
             </div>
 
             {/* Message list */}
@@ -539,12 +539,12 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
                         <div className="w-10 h-10 rounded-full border-2 border-[#FF8C00] border-t-transparent animate-spin ring-4 ring-[#FF8C00]/10" />
                     </div>
                 ) : messages.length === 0 ? (
-                    <div className="mt-10 mb-6 text-center">
-                        <div className="w-20 h-20 bg-[#ffffff05] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-                            <span className="text-5xl text-white/20">#</span>
+                    <div className="mt-10 mb-6 text-center z-10 relative">
+                        <div className="w-20 h-20 bg-gray-100 border-4 border-black flex items-center justify-center mx-auto mb-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                            <span className="text-5xl text-black font-black">#</span>
                         </div>
-                        <h1 className="text-white text-3xl font-bold mb-2 font-['Lexend']">Welcome to #{channel.name}</h1>
-                        <p className="text-[#a0a0a0]">This is the start of the #{channel.name} channel.</p>
+                        <h1 className="text-black text-3xl font-black mb-2 uppercase tracking-tighter">Welcome to #{channel.name}</h1>
+                        <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">This is the start of the #{channel.name} channel.</p>
                     </div>
                 ) : (
                     <div className="flex flex-col pb-2">
@@ -577,18 +577,18 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
                                     {showHeader ? (
                                         <button
                                             onClick={(e) => onMemberClick?.(e, msg.senderId, getSenderName(msg), msg.senderAvatarUrl)}
-                                            className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center bg-[#1a1a1a] border border-white/10 shadow-lg overflow-hidden hover:ring-2 hover:ring-[#FF8C00] transition-all mt-0.5"
+                                            className="w-10 h-10 rounded-none flex-shrink-0 flex items-center justify-center bg-gray-100 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] overflow-hidden transition-all mt-0.5"
                                         >
                                             {msg.senderAvatarUrl ? (
-                                                <img src={msg.senderAvatarUrl} alt="" className="w-full h-full object-cover" />
+                                                <img src={msg.senderAvatarUrl} alt="" className="w-full h-full object-cover transition-all" />
                                             ) : (
-                                                <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] flex items-center justify-center text-[#FF8C00] font-bold text-sm">
-                                                    {getSenderName(msg).substring(0, 1).toUpperCase()}
+                                                <div className="w-full h-full bg-white flex items-center justify-center text-black font-black text-[10px] uppercase">
+                                                    {getSenderName(msg).substring(0, 2)}
                                                 </div>
                                             )}
                                         </button>
                                     ) : (
-                                        <div className="w-9 flex-shrink-0" />
+                                        <div className="w-10 flex-shrink-0" />
                                     )}
 
                                     {/* Content */}
@@ -597,11 +597,11 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
                                             <div className="flex items-baseline gap-2 mb-0.5">
                                                 <button
                                                     onClick={(e) => onMemberClick?.(e, msg.senderId, getSenderName(msg), msg.senderAvatarUrl)}
-                                                    className="text-white font-bold text-sm hover:underline cursor-pointer"
+                                                    className="text-black font-black text-sm hover:underline cursor-pointer uppercase tracking-tight"
                                                 >
                                                     {getSenderName(msg)}
                                                 </button>
-                                                <span className="text-[10px] text-[#a0a0a0] font-medium">
+                                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                                     {new Date(msgDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
@@ -658,10 +658,10 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
                                                     />
                                                 )}
                                                 {msg.content && (
-                                                    <div className="text-[14px] leading-relaxed text-white/90 whitespace-pre-wrap break-words break-all pr-1">
+                                                    <div className="text-[14px] leading-relaxed text-black font-medium whitespace-pre-wrap break-words break-all pr-1">
                                                         {renderMessageContentFragment(msg.content, setViewingImage, (code) => navigate(`/join/${code}`))}
                                                         {msg.isEdited && (
-                                                            <span className="text-[10px] opacity-60 ml-1 italic">(edited)</span>
+                                                            <span className="text-[10px] text-gray-500 ml-1 italic font-bold uppercase">(edited)</span>
                                                         )}
                                                     </div>
                                                 )}
@@ -673,13 +673,13 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
                                                             <button
                                                                 key={emoji}
                                                                 onClick={(e) => { e.stopPropagation(); toggleReaction(msg.id, emoji); }}
-                                                                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border transition-all duration-300 hover:scale-110 active:scale-95 animate-in fade-in zoom-in-50 duration-200 ${currentUserId && users.has(currentUserId)
-                                                                    ? 'bg-[#FF8C00]/20 border-[#FF8C00]/50 text-[#FF8C00]'
-                                                                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                                                                className={`flex items-center gap-1 px-2 py-0.5 rounded-none text-xs border-2 transition-all duration-300 hover:scale-110 active:scale-95 animate-in fade-in zoom-in-50 duration-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] ${currentUserId && users.has(currentUserId)
+                                                                    ? 'bg-black border-black text-white'
+                                                                    : 'bg-white border-black text-black hover:bg-gray-100'
                                                                     }`}
                                                             >
                                                                 <span>{emoji}</span>
-                                                                <span className="font-medium">{users.size}</span>
+                                                                <span className="font-bold">{users.size}</span>
                                                             </button>
                                                         ))}
                                                     </div>
@@ -694,10 +694,10 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
                                             {/* Reply button */}
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); startReply(msg); }}
-                                                className="p-1.5 bg-[#1a1a1a] border border-white/10 rounded-full text-[#a0a0a0] hover:text-[#FF8C00] hover:border-[#FF8C00] shadow-sm transition-colors"
+                                                className="p-1.5 bg-white border-2 border-black rounded-none text-black hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                                                 title="Reply"
                                             >
-                                                <CornerUpLeft size={13} />
+                                                <CornerUpLeft size={13} strokeWidth={3} />
                                             </button>
 
                                             {/* Reaction picker */}
@@ -708,15 +708,15 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
                                                         setReactionPickerId(reactionPickerId === msg.id ? null : msg.id);
                                                         setContextMenuId(null);
                                                     }}
-                                                    className="p-1.5 bg-[#1a1a1a] border border-white/10 rounded-full text-[#a0a0a0] hover:text-[#FF8C00] hover:border-[#FF8C00] shadow-sm transition-colors"
+                                                    className="p-1.5 bg-white border-2 border-black rounded-none text-black hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                                                     title="React"
                                                 >
-                                                    <Smile size={13} />
+                                                    <Smile size={13} strokeWidth={3} />
                                                 </button>
 
                                                 {reactionPickerId === msg.id && (
                                                     <div
-                                                        className="absolute bottom-full mb-2 right-0 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 flex gap-1.5 shadow-2xl z-50"
+                                                        className="absolute bottom-full mb-2 right-0 bg-white border-4 border-black p-2 flex gap-1.5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] z-50 rounded-none"
                                                         onClick={(e) => e.stopPropagation()}
                                                     >
                                                         {REACTION_EMOJIS.map(emoji => (
@@ -741,9 +741,9 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
                                                             setContextMenuId(contextMenuId === msg.id ? null : msg.id);
                                                             setReactionPickerId(null);
                                                         }}
-                                                        className="p-1.5 bg-[#1a1a1a] border border-white/10 rounded-full text-[#a0a0a0] hover:text-[#FF8C00] hover:border-[#FF8C00] shadow-sm transition-colors"
+                                                        className="p-1.5 bg-white border-2 border-black rounded-none text-black hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                                                     >
-                                                        <MoreHorizontal size={13} />
+                                                        <MoreHorizontal size={13} strokeWidth={3} />
                                                     </button>
 
                                                     {contextMenuId === msg.id && (
@@ -849,23 +849,23 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
                 )}
 
                 <div className="w-full max-w-4xl mx-auto">
-                    <div className="bg-[#1a1a1a]/80 backdrop-blur-xl rounded-full p-1.5 pl-4 flex items-center gap-3 border border-white/5 shadow-lg transition-all duration-300 focus-within:shadow-[0_0_20px_rgba(255,140,0,0.2)] focus-within:border-[#FF8C00]/50 hover:border-white/10">
+                    <div className="bg-white rounded-none p-2 pl-4 flex items-center gap-3 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all focus-within:translate-x-1 focus-within:translate-y-1 focus-within:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative z-10">
                         <input type="file" ref={fileInputRef} onChange={handleImageSelect} accept="image/*" multiple className="hidden" />
-                        <button onClick={() => fileInputRef.current?.click()} className="text-[#a0a0a0] hover:text-[#FF8C00] transition-colors p-2 rounded-full hover:bg-white/5" title="Upload Image">
-                            <Image size={20} />
+                        <button onClick={() => fileInputRef.current?.click()} className="text-black hover:bg-black hover:text-white transition-colors p-2 rounded-none border-2 border-transparent hover:border-black" title="Upload Image">
+                            <Image size={20} strokeWidth={3} />
                         </button>
 
-                        <div className="w-px h-5 bg-white/10" />
+                        <div className="w-1 h-6 bg-black" />
 
                         <input
                             ref={inputRef}
                             type="text"
                             placeholder={
                                 replyingTo
-                                    ? `Reply to ${getSenderName(replyingTo)}…`
+                                    ? `REPLY TO ${getSenderName(replyingTo)}…`
                                     : selectedImages.length > 0
-                                        ? 'Add a caption to the first image…'
-                                        : `Message #${channel.name}`
+                                        ? 'CAPTION IMAGE…'
+                                        : `TRANSMIT TO #${channel.name}`
                             }
                             value={newMessage}
                             onChange={handleInputChange}
@@ -878,29 +878,29 @@ export default function ChatChannel({ channel, onMemberClick }: ChatChannelProps
                                     setReplyingTo(null);
                                 }
                             }}
-                            className="flex-1 bg-transparent text-white placeholder-[#a0a0a0] outline-none text-[15px]"
+                            className="flex-1 bg-transparent text-black font-bold uppercase tracking-widest placeholder:text-gray-400 outline-none text-[15px] placeholder:normal-case placeholder:font-normal placeholder:tracking-normal"
                         />
 
                         <div className="flex items-center gap-1 pr-1">
-                            <button className="text-[#a0a0a0] hover:text-[#FF8C00] transition-colors p-2 rounded-full hover:bg-white/5">
-                                <Gift size={20} />
+                            <button className="text-black hover:bg-black hover:text-white transition-colors p-2 rounded-none border-2 border-transparent hover:border-black">
+                                <Gift size={20} strokeWidth={3} />
                             </button>
-                            <button className="text-[#a0a0a0] hover:text-[#FF8C00] transition-colors p-2 rounded-full hover:bg-white/5">
-                                <Sticker size={20} />
+                            <button className="text-black hover:bg-black hover:text-white transition-colors p-2 rounded-none border-2 border-transparent hover:border-black">
+                                <Sticker size={20} strokeWidth={3} />
                             </button>
 
                             <button
                                 onClick={selectedImages.length > 0 ? sendImageMessage : sendMessage}
                                 disabled={(!newMessage.trim() && selectedImages.length === 0) || isUploading}
-                                className={`ml-2 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${(newMessage.trim() || selectedImages.length > 0) && !isUploading
-                                    ? 'bg-gradient-to-br from-[#FF8C00] to-[#FF4D00] text-white shadow-[0_0_10px_rgba(255,140,0,0.4)] hover:shadow-[0_0_20px_rgba(255,140,0,0.6)] hover:scale-105'
-                                    : 'bg-[#2a2a2a] text-[#ffffff20] cursor-not-allowed hidden'
+                                className={`ml-2 w-10 h-10 rounded-none flex items-center justify-center transition-all duration-300 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${(newMessage.trim() || selectedImages.length > 0) && !isUploading
+                                    ? 'bg-black text-white hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none'
+                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed hidden'
                                     }`}
                             >
                                 {isUploading ? (
-                                    <div className="w-5 h-5 border-2 border-white/50 border-t-transparent rounded-full animate-spin" />
+                                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
                                 ) : (
-                                    <Send size={18} className="translate-x-0.5 translate-y-0.5" />
+                                    <Send size={18} strokeWidth={3} className="translate-x-0.5 translate-y-0.5" />
                                 )}
                             </button>
                         </div>

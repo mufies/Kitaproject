@@ -188,10 +188,13 @@ export default function SongPage() {
 
     if (isLoading || !song) {
         return (
-            <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center p-6">
-                <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-[#1a141a] border-t-[#ff7a3c] rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-white/50 text-sm">Loading song...</p>
+            <div className="min-h-screen bg-white text-black flex items-center justify-center p-6 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
+                </div>
+                <div className="text-center relative z-10">
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-black font-black uppercase tracking-[0.2em] text-xs">Accessing Data...</p>
                 </div>
             </div>
         );
@@ -200,248 +203,271 @@ export default function SongPage() {
     const isCurrentSong = currentSong?.id === song.id;
 
     return (
-        <div className="h-full overflow-y-auto custom-scrollbar bg-[#0f0f0f] text-white">
+        <div className="h-full overflow-y-auto custom-scrollbar bg-white text-black font-sans selection:bg-black selection:text-white relative">
+            <div className="fixed inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference z-0"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                }}>
+            </div>
+
             {/* Hero Section */}
-            <div className="relative w-full h-[50vh] min-h-[400px] max-h-[600px]">
-                {/* Background */}
-                <div className="absolute inset-0 z-0">
-                    {song.coverUrl ? (
-                        <>
-                            <div
-                                className="absolute inset-0 bg-cover bg-center blur-3xl opacity-40"
-                                style={{ backgroundImage: `url(${song.coverUrl})` }}
-                            ></div>
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-[#121212]/80 to-[#121212]"></div>
-                        </>
-                    ) : (
-                        <div className="w-full h-full bg-gradient-to-b from-[#ff7a3c]/50 to-[#121212]"></div>
-                    )}
-                </div>
+            <div className="relative w-full border-b-4 border-black bg-gray-50 z-10 p-8 pt-20 flex flex-col md:flex-row items-end gap-8 mb-8 overflow-hidden">
+                <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-20">AUDIO_RECORD</div>
+                <div className="absolute -right-20 -top-20 w-64 h-64 bg-black opacity-5 rotate-45 pointer-events-none"></div>
 
                 {/* Back Button */}
-                <div className="absolute top-8 left-8 z-20">
+                <div className="absolute top-6 left-8 z-20">
                     <button
                         onClick={() => navigate(-1)}
-                        className="flex items-center gap-2 text-white/80 hover:text-white transition-colors bg-black/20 hover:bg-black/40 backdrop-blur-md px-4 py-2 rounded-full"
+                        className="flex items-center gap-2 text-black hover:bg-black hover:text-white transition-colors bg-white border-2 border-black px-4 py-2 uppercase tracking-widest text-xs font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
                     >
-                        <ArrowLeft size={20} />
-                        <span className="font-bold text-sm">Back</span>
+                        <ArrowLeft size={16} strokeWidth={3} />
+                        <span>RETURN</span>
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="absolute bottom-0 left-0 w-full p-8 z-10 flex items-end gap-8">
-                    {/* Song Cover */}
-                    <div className="relative shrink-0">
-                        <div className="w-[200px] h-[200px] sm:w-[250px] sm:h-[250px] rounded-lg overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
-                            {song.coverUrl ? (
-                                <img
-                                    src={song.coverUrl}
-                                    alt={song.title}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-[#ff7a3c] to-[#ff4d6d] flex items-center justify-center">
-                                    <Music size={80} className="text-white/50" />
-                                </div>
-                            )}
-                        </div>
+                {/* Song Cover */}
+                <div className="relative shrink-0 z-10">
+                    <div className="w-[180px] h-[180px] sm:w-[250px] sm:h-[250px] rounded-none overflow-hidden bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                        {song.coverUrl ? (
+                            <img
+                                src={song.coverUrl}
+                                alt={song.title}
+                                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center border-4 border-transparent">
+                                <Music size={80} className="text-black opacity-20" />
+                            </div>
+                        )}
                     </div>
+                </div>
 
-                    {/* Song Info */}
-                    <div className="flex-1 min-w-0 mb-4">
-                        <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-2">Song</p>
-                        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl tracking-tight leading-none line-clamp-2">
-                            {song.title}
-                        </h1>
-                        <div className="flex items-center gap-3 text-white text-lg font-medium flex-wrap">
-                            <span className="font-bold">{song.artist || song.uploader || 'Unknown Artist'}</span>
-                            {song.album && (
-                                <>
-                                    <span className="w-1 h-1 bg-white/60 rounded-full"></span>
-                                    <span className="text-white/80">{song.album}</span>
-                                </>
-                            )}
-                            {song.duration && (
-                                <>
-                                    <span className="w-1 h-1 bg-white/60 rounded-full"></span>
-                                    <span className="text-white/70">{formatDuration(song.duration)}</span>
-                                </>
-                            )}
-                        </div>
+                {/* Song Info */}
+                <div className="flex-1 min-w-0 z-10 w-full mb-2">
+                    <p className="text-black text-[10px] font-black uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                        <span className="bg-black text-white px-3 py-1 border-2 border-black">TRACK_REF</span>
+                        <span>[ {song.id.substring(0, 8)} ]</span>
+                    </p>
+
+                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-black mb-6 uppercase tracking-tighter leading-none line-clamp-2">
+                        {song.title}
+                    </h1>
+
+                    <div className="flex items-center gap-3 text-black text-[10px] font-black uppercase tracking-widest flex-wrap mt-2">
+                        <span className="bg-gray-200 px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                            ARTIST: {song.artist || song.uploader || 'UNKNOWN'}
+                        </span>
+                        {song.album && (
+                            <>
+                                <span className="w-1.5 h-1.5 bg-black rounded-none mx-1"></span>
+                                <span className="bg-white px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] truncate max-w-[200px]">
+                                    ALBUM: {song.album}
+                                </span>
+                            </>
+                        )}
+                        {song.duration && (
+                            <>
+                                <span className="w-1.5 h-1.5 bg-black rounded-none mx-1"></span>
+                                <span className="bg-white px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    RUNTIME: {formatDuration(song.duration)}
+                                </span>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className="bg-gradient-to-b from-[#121212] to-black min-h-[500px]">
-                <div className="p-8 pb-32 max-w-[1400px] mx-auto">
+            <div className="min-h-[500px] relative z-10">
+                <div className="p-4 sm:p-8 pb-32 max-w-[1400px] mx-auto">
                     {/* Action Bar */}
-                    <div className="flex items-center gap-6 mb-8">
-                        {/* Play Button */}
-                        <button
-                            className="w-14 h-14 bg-[#ff7a3c] rounded-full flex items-center justify-center hover:scale-105 hover:bg-[#ff8c52] transition-all duration-200 shadow-xl text-black"
-                            onClick={() => {
-                                if (isCurrentSong && isPlaying) {
-                                    togglePlayPause();
-                                } else if (isCurrentSong && !isPlaying) {
-                                    togglePlayPause();
-                                } else {
-                                    playSong(song, [song]);
-                                }
-                            }}
-                        >
-                            {isCurrentSong && isPlaying ? (
-                                <Pause size={28} fill="currentColor" />
-                            ) : (
-                                <Play size={28} fill="currentColor" className="ml-1" />
-                            )}
-                        </button>
+                    <div className="flex flex-col sm:flex-row items-center gap-6 mb-8 mt-4 bg-gray-50 p-4 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative w-full">
+                        <div className="absolute top-0 right-0 bg-black text-white text-[10px] uppercase font-black px-2 py-0.5 tracking-widest">CONTROLS</div>
+
+                        <div className="flex w-full sm:w-auto justify-between items-center sm:gap-6">
+                            {/* Play Button */}
+                            <button
+                                className="w-16 h-16 bg-black text-white border-2 border-transparent hover:border-black flex items-center justify-center transition-all hover:bg-white hover:text-black shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group"
+                                onClick={() => {
+                                    if (isCurrentSong && isPlaying) {
+                                        togglePlayPause();
+                                    } else if (isCurrentSong && !isPlaying) {
+                                        togglePlayPause();
+                                    } else {
+                                        playSong(song, [song]);
+                                    }
+                                }}
+                            >
+                                {isCurrentSong && isPlaying ? (
+                                    <Pause size={32} fill="currentColor" />
+                                ) : (
+                                    <Play size={32} fill="currentColor" className="ml-1" />
+                                )}
+                            </button>
+                        </div>
 
                         {/* Like/Dislike/Favorite Buttons */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
                             <button
                                 onClick={handleLike}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${hasLiked
-                                    ? 'bg-[#ff7a3c] text-white'
-                                    : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                                className={`flex items-center gap-2 px-4 py-3 border-2 border-black transition-all ${hasLiked
+                                    ? 'bg-black text-white shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] translate-x-1 translate-y-1'
+                                    : 'bg-white text-black hover:bg-black hover:text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(150,150,150,1)]'
                                     }`}
                             >
-                                <ThumbsUp size={20} fill={hasLiked ? 'currentColor' : 'none'} />
-                                <span className="font-medium">{statistics?.likeCount || 0}</span>
+                                <ThumbsUp size={18} fill={hasLiked ? 'currentColor' : 'none'} strokeWidth={hasLiked ? 2 : 3} />
+                                <span className="font-black text-xs">{statistics?.likeCount || 0}</span>
                             </button>
 
                             <button
                                 onClick={handleDislike}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${hasDisliked
-                                    ? 'bg-red-600 text-white'
-                                    : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                                className={`flex items-center gap-2 px-4 py-3 border-2 border-black transition-all ${hasDisliked
+                                    ? 'bg-red-600 text-white shadow-[4px_4px_0px_0px_rgba(220,38,38,1)] translate-x-1 translate-y-1 border-red-600'
+                                    : 'bg-white text-black hover:bg-red-50 hover:text-red-600 hover:border-red-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]'
                                     }`}
                             >
-                                <ThumbsDown size={20} fill={hasDisliked ? 'currentColor' : 'none'} />
-                                <span className="font-medium">{statistics?.dislikeCount || 0}</span>
+                                <ThumbsDown size={18} fill={hasDisliked ? 'currentColor' : 'none'} strokeWidth={hasDisliked ? 2 : 3} />
+                                <span className="font-black text-xs">{statistics?.dislikeCount || 0}</span>
                             </button>
 
                             <button
                                 onClick={handleFavorite}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${hasFavorited
-                                    ? 'bg-pink-600 text-white'
-                                    : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                                className={`flex items-center gap-2 px-4 py-3 border-2 border-black transition-all ${hasFavorited
+                                    ? 'bg-black text-white shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] translate-x-1 translate-y-1'
+                                    : 'bg-white text-black hover:bg-black hover:text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(150,150,150,1)]'
                                     }`}
                             >
-                                <Heart size={20} fill={hasFavorited ? 'currentColor' : 'none'} />
-                                <span className="font-medium">{statistics?.favoriteCount || 0}</span>
+                                <Heart size={18} fill={hasFavorited ? 'currentColor' : 'none'} strokeWidth={hasFavorited ? 2 : 3} />
+                                <span className="font-black text-xs">{statistics?.favoriteCount || 0}</span>
                             </button>
+                        </div>
+
+                        <div className="ml-auto text-black font-black uppercase text-[10px] tracking-widest mr-4 hidden sm:block">
+                            INITIALIZE SEQUENCE //
                         </div>
                     </div>
 
                     {/* Statistics */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-12">
-                        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                            <p className="text-white/50 text-xs uppercase tracking-wider mb-1">Plays</p>
-                            <p className="text-2xl font-bold text-white">{statistics?.playCount || 0}</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 flex-wrap">
+                        <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                            <div className="absolute -right-4 -bottom-4 bg-gray-100 w-16 h-16 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-2 relative z-10">BROADCASTS</p>
+                            <p className="text-3xl font-black text-black relative z-10">{statistics?.playCount || 0}</p>
                         </div>
-                        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                            <p className="text-white/50 text-xs uppercase tracking-wider mb-1">Likes</p>
-                            <p className="text-2xl font-bold text-white">{statistics?.likeCount || 0}</p>
+                        <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                            <div className="absolute -right-4 -bottom-4 bg-gray-100 w-16 h-16 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-2 relative z-10">APPROVALS</p>
+                            <p className="text-3xl font-black text-black relative z-10">{statistics?.likeCount || 0}</p>
                         </div>
-                        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                            <p className="text-white/50 text-xs uppercase tracking-wider mb-1">Favorites</p>
-                            <p className="text-2xl font-bold text-white">{statistics?.favoriteCount || 0}</p>
+                        <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                            <div className="absolute -right-4 -bottom-4 bg-gray-100 w-16 h-16 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-2 relative z-10">BOOKMARKS</p>
+                            <p className="text-3xl font-black text-black relative z-10">{statistics?.favoriteCount || 0}</p>
                         </div>
-                        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                            <p className="text-white/50 text-xs uppercase tracking-wider mb-1">Comments</p>
-                            <p className="text-2xl font-bold text-white">{comments.length}</p>
+                        <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                            <div className="absolute -right-4 -bottom-4 bg-gray-100 w-16 h-16 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-2 relative z-10">COMMUNICATIONS</p>
+                            <p className="text-3xl font-black text-black relative z-10">{comments.length}</p>
                         </div>
                     </div>
 
                     {/* Comments Section */}
-                    <div className="max-w-4xl">
-                        <div className="flex items-center gap-3 mb-6">
-                            <MessageCircle size={24} className="text-[#ff7a3c]" />
-                            <h2 className="text-2xl font-bold">Comments</h2>
-                        </div>
+                    <div className="max-w-4xl bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative">
+                        <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-10">LOG_ENTRIES</div>
 
-                        {/* Comment Input */}
-                        <div className="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
-                            <textarea
-                                value={commentText}
-                                onChange={(e) => setCommentText(e.target.value)}
-                                placeholder="Add a comment..."
-                                className="w-full bg-transparent text-white placeholder-white/40 resize-none focus:outline-none mb-3"
-                                rows={3}
-                            />
-                            <div className="flex justify-end">
-                                <button
-                                    onClick={handleCreateComment}
-                                    disabled={!commentText.trim() || isSubmittingComment}
-                                    className="flex items-center gap-2 px-5 py-2 bg-[#ff7a3c] hover:bg-[#ff8c52] text-white rounded-full font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <Send size={16} />
-                                    {isSubmittingComment ? 'Posting...' : 'Comment'}
-                                </button>
+                        <div className="p-6 border-b-4 border-black bg-gray-50">
+                            <div className="flex items-center gap-3">
+                                <MessageCircle size={24} className="text-black" strokeWidth={3} />
+                                <h2 className="text-2xl font-black uppercase tracking-tight text-black">COMMUNICATIONS</h2>
                             </div>
                         </div>
 
-                        {/* Comments List */}
-                        <div className="space-y-4">
-                            {comments.length === 0 ? (
-                                <div className="text-center py-12 text-white/40">
-                                    <MessageCircle size={48} className="mx-auto mb-4 opacity-30" />
-                                    <p>No comments yet. Be the first to comment!</p>
-                                </div>
-                            ) : (
-                                comments.map((comment) => (
-                                    <div
-                                        key={comment.id}
-                                        className="bg-white/5 rounded-xl p-4 border border-white/10 hover:bg-white/[0.07] transition-colors"
+                        <div className="p-6 bg-white">
+                            {/* Comment Input */}
+                            <div className="bg-gray-50 border-2 border-black p-4 mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] focus-within:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                                <textarea
+                                    value={commentText}
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                    placeholder="INPUT DATA STREAM..."
+                                    className="w-full bg-transparent text-black placeholder-gray-400 font-bold resize-none focus:outline-none mb-4 uppercase text-sm"
+                                    rows={3}
+                                />
+                                <div className="flex justify-end border-t-2 border-dashed border-gray-300 pt-4">
+                                    <button
+                                        onClick={handleCreateComment}
+                                        disabled={!commentText.trim() || isSubmittingComment}
+                                        className="flex items-center gap-2 px-6 py-2 bg-black hover:bg-white text-white hover:text-black border-2 border-black font-black uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                                     >
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div className="flex items-start gap-3 flex-1 min-w-0">
-                                                {/* User Avatar */}
-                                                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-white/10">
-                                                    {comment.userAvatar ? (
-                                                        <img
-                                                            src={comment.userAvatar}
-                                                            alt={comment.userName || 'User'}
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#ff7a3c] to-[#ff4d6d] text-white font-bold text-sm">
-                                                            {(comment.userName || 'U').charAt(0).toUpperCase()}
+                                        <Send size={16} strokeWidth={3} />
+                                        {isSubmittingComment ? 'TRANSMITTING...' : 'TRANSMIT'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Comments List */}
+                            <div className="space-y-0">
+                                {comments.length === 0 ? (
+                                    <div className="text-center py-16 border-2 border-dashed border-gray-300 bg-gray-50">
+                                        <MessageCircle size={48} className="mx-auto mb-4 text-gray-300" strokeWidth={2} />
+                                        <p className="text-gray-500 font-black uppercase tracking-widest text-xs">NO COMMUNICATIONS DETECTED IN LOG.</p>
+                                    </div>
+                                ) : (
+                                    comments.map((comment, i) => (
+                                        <div
+                                            key={comment.id}
+                                            className={`p-4 hover:bg-gray-50 transition-colors border-2 border-transparent hover:border-black group ${i !== comments.length - 1 ? 'border-b-gray-200' : ''}`}
+                                        >
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="flex items-start gap-3 flex-1 min-w-0">
+                                                    {/* User Avatar */}
+                                                    <div className="w-10 h-10 rounded-none border-2 border-black overflow-hidden flex-shrink-0 bg-gray-200">
+                                                        {comment.userAvatar ? (
+                                                            <img
+                                                                src={comment.userAvatar}
+                                                                alt={comment.userName || 'User'}
+                                                                className="w-full h-full object-cover grayscale"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center bg-gray-300 text-black font-black text-sm">
+                                                                {(comment.userName || 'U').charAt(0).toUpperCase()}
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Comment Content */}
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span
+                                                                className="font-black text-black hover:bg-black hover:text-white px-1 -ml-1 cursor-pointer transition-colors uppercase text-xs"
+                                                                onClick={() => navigate(`/user/${comment.userId}`)}
+                                                            >
+                                                                {comment.userName || 'UNKNOWN_USER'}
+                                                            </span>
+                                                            <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+                                                                [{formatDate(comment.createdAt)}]
+                                                            </span>
                                                         </div>
+                                                        <p className="text-black font-medium whitespace-pre-wrap break-words text-sm">{comment.content}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {currentUserId === comment.userId && (
+                                                        <button
+                                                            onClick={() => handleDeleteComment(comment.id)}
+                                                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors p-2 border-2 border-transparent hover:border-red-600"
+                                                            title="Purge record"
+                                                        >
+                                                            <Trash2 size={16} strokeWidth={3} />
+                                                        </button>
                                                     )}
                                                 </div>
-
-                                                {/* Comment Content */}
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <span
-                                                            className="font-bold text-white hover:text-[#ff7a3c] cursor-pointer transition-colors hover:underline"
-                                                            onClick={() => navigate(`/user/${comment.userId}`)}
-                                                        >
-                                                            {comment.userName || 'User'}
-                                                        </span>
-                                                        <span className="text-white/40 text-sm">{formatDate(comment.createdAt)}</span>
-                                                    </div>
-                                                    <p className="text-white/90 whitespace-pre-wrap break-words">{comment.content}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                {currentUserId === comment.userId && (
-                                                    <button
-                                                        onClick={() => handleDeleteComment(comment.id)}
-                                                        className="text-white/40 hover:text-red-500 transition-colors p-2"
-                                                        title="Delete comment"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                )}
                                             </div>
                                         </div>
-                                    </div>
-                                ))
-                            )}
+                                    ))
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

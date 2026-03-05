@@ -192,3 +192,14 @@ button:focus-visible {
     transform: rotate(360deg);
   }
 }
+
+/* Dark Mode Support via Simple Invert Filter */
+html.dark {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+html.dark img,
+html.dark video,
+html.dark .dark-exclude {
+  filter: invert(1) hue-rotate(180deg);
+}

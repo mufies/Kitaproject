@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, ChevronLeft, ChevronRight, Users, Server } from 'lucide-react';
 import ServerList from './ServerList';
 import ServerSidebar from './ServerSidebar';
 import ChatChannel from './ChatChannel';
@@ -19,6 +19,10 @@ export default function KitaChatPage() {
     const [currentChannel, setCurrentChannel] = useState<ChannelDto | null>(null);
     const connectAttemptedRef = useRef(false);
     const { voiceParticipantsByChannel } = useVoice();
+
+    // Mobile sidebar visibility state
+    const [showServerPanel, setShowServerPanel] = useState(false);
+    const [showMembersPanel, setShowMembersPanel] = useState(false);
 
     // Global State for Popover
     const [selectedMember, setSelectedMember] = useState<ServerMemberDto | null>(null);
@@ -93,11 +97,11 @@ export default function KitaChatPage() {
     useEffect(() => {
         const handleServerLeft = (serverId: string, userId: string) => {
             console.log('🔴 ServerLeft event:', { serverId, userId, currentUserId, currentServerId: currentServer?.id });
-            
+
             // Normalize IDs for comparison
             const normalizedUserId = userId.toLowerCase();
             const normalizedCurrentUserId = currentUserId?.toLowerCase();
-            
+
             // If I was kicked/left
             if (normalizedCurrentUserId && normalizedUserId === normalizedCurrentUserId) {
                 if (currentServer?.id === serverId) {
@@ -106,7 +110,7 @@ export default function KitaChatPage() {
                     setCurrentChannel(null);
                     setMembers([]);
                 }
-            } 
+            }
             // If someone else left/was kicked from my current server
             else if (currentServer?.id === serverId) {
                 console.log('🔴 Removing member from list:', userId);
@@ -135,7 +139,7 @@ export default function KitaChatPage() {
     useEffect(() => {
         const handleMemberJoined = (serverId: string, userId: string) => {
             console.log('🟢 MemberJoined event:', { serverId, userId, currentServerId: currentServer?.id });
-            
+
             // If someone joined my current server, reload members
             if (currentServer?.id === serverId) {
                 console.log('🟢 Reloading members after new member joined');
@@ -160,12 +164,12 @@ export default function KitaChatPage() {
         if (members.length > 0) {
             console.log('🟢 Fetching statuses for', members.length, 'members');
             const userIds = members.map(m => m.userId);
-            
+
             // Retry logic to ensure UserStatusHub is connected
             const fetchStatuses = async () => {
                 let attempts = 0;
                 const maxAttempts = 3;
-                
+
                 while (attempts < maxAttempts) {
                     try {
                         const statuses = await userStatusService.getUsersStatus(userIds);
@@ -194,7 +198,7 @@ export default function KitaChatPage() {
                     }
                 }
             };
-            
+
             fetchStatuses();
         } else {
             // Clear statuses when no members
@@ -258,57 +262,150 @@ export default function KitaChatPage() {
     return (
         <>
             <Navigator />
-            <div className="flex h-screen pt-20 bg-[#0a0a0a] overflow-hidden">
-                <ServerList
-                    currentServerId={currentServer?.id || null}
-                    onServerSelect={(server) => {
-                        setCurrentServer(server);
-                        setCurrentChannel(null);
-                    }}
-                />
+            <div className="flex h-screen pt-20 bg-white overflow-hidden font-sans selection:bg-black selection:text-white relative">
+                <div className="fixed inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference z-0"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
+                </div>
+
+                {/* === DESKTOP: Always-visible left sidebars === */}
+                <div className="hidden md:flex flex-shrink-0">
+                    <ServerList
+                        currentServerId={currentServer?.id || null}
+                        onServerSelect={(server) => {
+                            setCurrentServer(server);
+                            setCurrentChannel(null);
+                        }}
+                    />
+                </div>
 
                 {currentServer && (
-                    <ServerSidebar
-                        server={currentServer}
-                        currentChannelId={currentChannel?.id || null}
-                        onChannelSelect={setCurrentChannel}
-                        onServerUpdate={(updated) => setCurrentServer(updated)}
-                        voiceParticipantsByChannel={voiceParticipantsByChannel}
-                    />
+                    <div className="hidden md:flex flex-shrink-0">
+                        <ServerSidebar
+                            server={currentServer}
+                            currentChannelId={currentChannel?.id || null}
+                            onChannelSelect={setCurrentChannel}
+                            onServerUpdate={(updated) => setCurrentServer(updated)}
+                            voiceParticipantsByChannel={voiceParticipantsByChannel}
+                        />
+                    </div>
                 )}
 
-                <div className="flex-1 flex flex-col min-w-0 bg-[#0a0a0a] relative rounded-l-[24px] overflow-hidden ml-1 border-l border-white/5 shadow-2xl">
+                {/* === MOBILE: Left overlay (server list + sidebar) === */}
+                {showServerPanel && (
+                    <div className="md:hidden fixed inset-0 z-40 flex">
+                        <div className="flex flex-row h-full shadow-2xl overflow-y-auto">
+                            <ServerList
+                                currentServerId={currentServer?.id || null}
+                                onServerSelect={(server) => {
+                                    setCurrentServer(server);
+                                    setCurrentChannel(null);
+                                    setShowServerPanel(false);
+                                }}
+                            />
+                            {currentServer && (
+                                <ServerSidebar
+                                    server={currentServer}
+                                    currentChannelId={currentChannel?.id || null}
+                                    onChannelSelect={(ch) => {
+                                        setCurrentChannel(ch);
+                                        setShowServerPanel(false);
+                                    }}
+                                    onServerUpdate={(updated) => setCurrentServer(updated)}
+                                    voiceParticipantsByChannel={voiceParticipantsByChannel}
+                                />
+                            )}
+                        </div>
+                        {/* Tap-outside to close */}
+                        <div className="flex-1 bg-black/50" onClick={() => setShowServerPanel(false)} />
+                    </div>
+                )}
+
+                {/* === MOBILE: Right overlay (members list) === */}
+                {showMembersPanel && currentServer && currentChannel && (
+                    <div className="md:hidden fixed inset-0 z-40 flex justify-end">
+                        {/* Tap-outside to close */}
+                        <div className="flex-1 bg-black/50" onClick={() => setShowMembersPanel(false)} />
+                        <div className="h-full shadow-2xl overflow-y-auto">
+                            <MembersList
+                                members={members}
+                                userStatuses={userStatuses}
+                                onMemberClick={(e, member) => {
+                                    handleMemberClick(e.target, member);
+                                    setShowMembersPanel(false);
+                                }}
+                                currentUserRole={currentUserRole}
+                                serverId={currentServer.id}
+                                onKickMember={handleKickMember}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* === Main content area === */}
+                <div className="flex-1 flex flex-col min-w-0 bg-white relative rounded-none overflow-hidden border-x-4 border-black shadow-[16px_0_0_0_rgba(0,0,0,1)] z-10 m-2 md:m-4 mb-4 md:mb-8">
+
+                    {/* Mobile toolbar: toggle sidebars */}
+                    <div className="md:hidden flex items-center justify-between px-3 py-2 border-b-2 border-black bg-white flex-shrink-0">
+                        <button
+                            onClick={() => { setShowServerPanel(v => !v); setShowMembersPanel(false); }}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-black uppercase tracking-widest border-2 border-black bg-white hover:bg-black hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none"
+                        >
+                            <Server size={14} strokeWidth={3} />
+                            <span className="max-w-[120px] truncate">{currentServer ? currentServer.name : 'Servers'}</span>
+                            <ChevronRight size={14} strokeWidth={3} />
+                        </button>
+
+                        {currentServer && currentChannel && (
+                            <button
+                                onClick={() => { setShowMembersPanel(v => !v); setShowServerPanel(false); }}
+                                className="flex items-center gap-2 px-3 py-1.5 text-xs font-black uppercase tracking-widest border-2 border-black bg-white hover:bg-black hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none"
+                            >
+                                <ChevronLeft size={14} strokeWidth={3} />
+                                <Users size={14} strokeWidth={3} />
+                                <span>{members.length}</span>
+                            </button>
+                        )}
+                    </div>
+
                     {!currentServer ? (
-                        <div className="flex items-center justify-center h-full flex-col gap-6 p-8 relative overflow-hidden">
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#FF8C00]/5 rounded-full blur-[100px] pointer-events-none" />
+                        <div className="flex items-center justify-center h-full flex-col gap-6 p-8 relative overflow-hidden bg-white">
+                            <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-20">NO_CONNECTION</div>
+                            <div className="absolute -left-20 -top-20 w-64 h-64 bg-gray-200 rotate-45 pointer-events-none opacity-50"></div>
+
                             <div className="relative z-10">
-                                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#FF8C00]/20 to-[#FF4D00]/10 flex items-center justify-center animate-pulse shadow-[0_0_30px_rgba(255,140,0,0.2)]">
-                                    <MessageCircle size={40} className="text-[#FF8C00]" />
+                                <div className="w-24 h-24 rounded-none bg-white border-4 border-black flex items-center justify-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                                    <MessageCircle size={40} className="text-black" strokeWidth={2} />
                                 </div>
                             </div>
-                            <div className="text-center z-10">
-                                <h2 className="text-white text-3xl font-bold mb-2 font-['Lexend'] tracking-tight">Welcome to Kita Chat!</h2>
-                                <p className="text-[#a0a0a0] text-sm max-w-md leading-relaxed">
-                                    Connect with friends, share music, and discuss your favorite tracks.
-                                    Select a server from the left or create a new one to get started.
+                            <div className="text-center z-10 mt-4 border-l-4 border-black pl-4">
+                                <h2 className="text-black text-3xl sm:text-5xl font-black mb-2 uppercase tracking-tighter leading-none">AWAITING CONNECTION</h2>
+                                <p className="text-gray-600 font-bold uppercase tracking-wider text-xs max-w-md leading-relaxed">
+                                    ESTABLISH LINK WITH A SERVER FROM THE LEFT PANEL OR INITIALIZE A NEW CREATION TO BEGIN COMMUNICATION.
                                 </p>
                             </div>
-                            <div className="flex items-center gap-3 mt-4 z-10">
+                            <div className="flex flex-col sm:flex-row items-center gap-3 mt-8 z-10">
+                                <button
+                                    onClick={() => setShowServerPanel(true)}
+                                    className="md:hidden px-8 py-3 bg-black text-white font-black text-xs uppercase tracking-widest border-2 border-black hover:bg-white hover:text-black shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+                                >
+                                    OPEN SERVERS
+                                </button>
                                 <Link
                                     to="/music"
-                                    className="px-6 py-3 bg-[#1a1a1a]/80 backdrop-blur-md text-white/90 rounded-full text-sm font-medium hover:bg-[#FF8C00] hover:text-white transition-all border border-white/10 hover:border-[#FF8C00] shadow-lg hover:shadow-[0_0_15px_rgba(255,140,0,0.4)]"
+                                    className="px-8 py-3 bg-black text-white font-black text-xs uppercase tracking-widest border-2 border-black hover:bg-white hover:text-black shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
                                 >
-                                    Go to Music
+                                    ACCESS DATABASE
                                 </Link>
                             </div>
                         </div>
                     ) : !currentChannel ? (
-                        <div className="flex items-center justify-center h-full text-center flex-col gap-4 p-8 bg-[#0a0a0a]">
-                            <div className="w-20 h-20 rounded-full bg-[#1a1a1a] border border-white/5 flex items-center justify-center shadow-inner">
-                                <span className="text-4xl opacity-50 grayscale">💬</span>
+                        <div className="flex items-center justify-center h-full text-center flex-col gap-4 p-8 bg-gray-50 relative">
+                            <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-20">IDLE_STATE</div>
+                            <div className="w-20 h-20 rounded-none bg-white border-4 border-black flex items-center justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                                <span className="text-4xl grayscale">💬</span>
                             </div>
-                            <h3 className="text-white text-xl font-semibold font-['Lexend']">No channel selected</h3>
-                            <p className="text-[#a0a0a0] text-sm">Pick a text or voice channel from the sidebar</p>
+                            <h3 className="text-black text-2xl font-black uppercase tracking-tight mt-4">NO FREQUENCY SELECTED</h3>
+                            <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] border-b-2 border-black pb-1">TUNE INTO A CHANNEL TO PROCEED</p>
                         </div>
                     ) : (
                         currentChannel.type === 'text' ? (
@@ -324,16 +421,18 @@ export default function KitaChatPage() {
                     )}
                 </div>
 
-                {/* Members List - Right sidebar */}
+                {/* Members List - Desktop right sidebar */}
                 {currentServer && currentChannel && (
-                    <MembersList
-                        members={members}
-                        userStatuses={userStatuses}
-                        onMemberClick={(e, member) => handleMemberClick(e.target, member)}
-                        currentUserRole={currentUserRole}
-                        serverId={currentServer.id}
-                        onKickMember={handleKickMember}
-                    />
+                    <div className="hidden md:block flex-shrink-0">
+                        <MembersList
+                            members={members}
+                            userStatuses={userStatuses}
+                            onMemberClick={(e, member) => handleMemberClick(e.target, member)}
+                            currentUserRole={currentUserRole}
+                            serverId={currentServer.id}
+                            onKickMember={handleKickMember}
+                        />
+                    </div>
                 )}
             </div>
 

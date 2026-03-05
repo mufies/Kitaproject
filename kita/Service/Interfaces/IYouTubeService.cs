@@ -11,7 +11,7 @@ namespace Kita.Service.Interfaces
     {
         Task<ApiResponse<YoutubePlaylistVideoDto>> GetPlaylistVideosAsync(string playlistId);
         Task<ApiResponse<VideoInfoDto>> GetVideoInfoAsync(string videoUrl);
-        Task<ApiResponse<VideoDownloadResponseDto>> DownloadVideoAsync(string videoUrl);
+        Task<ApiResponse<string>> GetStreamUrlAsync(string videoUrl);
         Task<YouTubeVideoDto?> GetVideoUrlsBaseOnNameAndArtist(string name, string artist);
     }
 }

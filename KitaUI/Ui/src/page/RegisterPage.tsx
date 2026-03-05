@@ -67,108 +67,121 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#120c12] flex items-center justify-center p-4">
-            <div className="w-full max-w-md">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#ff7a3c]/10 rounded-full mb-4 ring-1 ring-[#ff7a3c]/30">
-                        <Music className="w-8 h-8 text-[#ff7a3c]" />
+        <div className="min-h-screen bg-white flex items-center justify-center p-4 selection:bg-black selection:text-white relative overflow-hidden">
+            {/* Decorative Background */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                }}>
+            </div>
+            <div className="absolute -right-20 bottom-1/4 w-[120vw] h-40 bg-black opacity-[0.02] rotate-12 pointer-events-none"></div>
+
+            <div className="w-full max-w-md relative z-10">
+                <div className="text-center mb-8 flex flex-col items-center">
+                    <div className="inline-flex items-center gap-3 px-6 py-2 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-6">
+                        <span className="w-2 h-2 bg-black animate-pulse"></span>
+                        <span className="text-black text-xs font-black tracking-[0.3em] uppercase">New Arrival</span>
                     </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                        Create Account
+                    <h1 className="text-4xl font-black text-black mb-2 uppercase tracking-tighter">
+                        USER REGISTRY
                     </h1>
-                    <p className="text-white/50">Join KitaMusic today</p>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">Create credentials to access archive</p>
                 </div>
 
-                <div className="bg-[#1a141a] border border-white/5 rounded-2xl p-8 shadow-xl">
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="bg-white border-4 border-black p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,0.1)] relative">
+                    {/* Corner accents */}
+                    <div className="absolute -top-1 -left-1 w-4 h-4 bg-black"></div>
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-black"></div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
-                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm">
-                                {error}
+                            <div className="p-4 bg-gray-100 border-l-4 border-black text-black font-bold uppercase text-xs tracking-wider">
+                                [ERROR]: {error}
                             </div>
                         )}
 
                         <div>
-                            <label htmlFor="username" className="block text-xs font-medium text-white/70 mb-2">
-                                Username
+                            <label htmlFor="username" className="block text-xs font-black text-black mb-2 uppercase tracking-[0.2em]">
+                                Callsign
                             </label>
                             <input
                                 id="username"
                                 type="text"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                placeholder="Choose a username"
+                                placeholder="DESIGNATE CALLSIGN..."
                                 disabled={isLoading}
-                                className="w-full px-4 py-3 bg-[#0d080f] border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#ff7a3c] focus:ring-1 focus:ring-[#ff7a3c] transition-all disabled:opacity-50 text-sm"
+                                className="w-full px-4 py-3 bg-white border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:ring-0 rounded-none transition-all disabled:opacity-50 font-bold uppercase"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="email" className="block text-xs font-medium text-white/70 mb-2">
-                                Email
+                            <label htmlFor="email" className="block text-xs font-black text-black mb-2 uppercase tracking-[0.2em]">
+                                Contact ID (Email)
                             </label>
                             <input
                                 id="email"
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Enter your email"
+                                placeholder="ENTER CONTACT ID..."
                                 disabled={isLoading}
-                                className="w-full px-4 py-3 bg-[#0d080f] border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#ff7a3c] focus:ring-1 focus:ring-[#ff7a3c] transition-all disabled:opacity-50 text-sm"
+                                className="w-full px-4 py-3 bg-white border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:ring-0 rounded-none transition-all disabled:opacity-50 font-bold uppercase"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-xs font-medium text-white/70 mb-2">
-                                Password
+                            <label htmlFor="password" className="block text-xs font-black text-black mb-2 uppercase tracking-[0.2em]">
+                                Security Key (Password)
                             </label>
                             <input
                                 id="password"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Create a password"
+                                placeholder="SET SECURITY KEY..."
                                 disabled={isLoading}
-                                className="w-full px-4 py-3 bg-[#0d080f] border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#ff7a3c] focus:ring-1 focus:ring-[#ff7a3c] transition-all disabled:opacity-50 text-sm"
+                                className="w-full px-4 py-3 bg-white border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:ring-0 rounded-none transition-all disabled:opacity-50 font-bold uppercase tracking-widest"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="confirmPassword" className="block text-xs font-medium text-white/70 mb-2">
-                                Confirm Password
+                            <label htmlFor="confirmPassword" className="block text-xs font-black text-black mb-2 uppercase tracking-[0.2em]">
+                                Verify Security Key
                             </label>
                             <input
                                 id="confirmPassword"
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                placeholder="Confirm your password"
+                                placeholder="VERIFY SECURITY KEY..."
                                 disabled={isLoading}
-                                className="w-full px-4 py-3 bg-[#0d080f] border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#ff7a3c] focus:ring-1 focus:ring-[#ff7a3c] transition-all disabled:opacity-50 text-sm"
+                                className="w-full px-4 py-3 bg-white border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:ring-0 rounded-none transition-all disabled:opacity-50 font-bold uppercase tracking-widest"
                             />
                         </div>
 
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full py-3 bg-[#ff7a3c] hover:bg-[#ff8c52] text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-[#ff7a3c]/20 hover:shadow-[#ff7a3c]/40 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+                            className="w-full py-4 bg-black text-white font-black rounded-none shadow-[6px_6px_0px_0px_rgba(156,163,175,1)] hover:shadow-[2px_2px_0px_0px_rgba(156,163,175,1)] hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-3 uppercase tracking-[0.2em] border border-black mt-4"
                         >
                             {isLoading ? (
                                 <>
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                    <span>Creating Account...</span>
+                                    <div className="w-5 h-5 border-2 border-gray-400 border-t-white rounded-full animate-spin"></div>
+                                    <span>Initializing...</span>
                                 </>
                             ) : (
-                                'Sign Up'
+                                'Execute Registration'
                             )}
                         </button>
                     </form>
                 </div>
 
-                <div className="text-center mt-6">
-                    <p className="text-white/50 text-sm">
-                        Already have an account?{' '}
-                        <Link to="/login" className="text-[#ff7a3c] hover:text-[#ff8c52] font-medium transition-colors">
-                            Sign In
+                <div className="text-center mt-8">
+                    <p className="text-gray-500 font-bold text-xs uppercase tracking-widest">
+                        CREDENTIALS EXIST?{' '}
+                        <Link to="/login" className="text-black hover:text-gray-600 font-black border-b-2 border-black hover:border-transparent transition-colors ml-2 pb-1">
+                            ACCESS LOGIN
                         </Link>
                     </p>
                 </div>

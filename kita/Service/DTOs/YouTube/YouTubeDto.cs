@@ -41,13 +41,4 @@ namespace Kita.Service.DTOs.YouTube
         public string FileSizeFormatted { get; set; } = string.Empty;
         public string VideoUrl { get; set; } = string.Empty;
     }
-
-    public class VideoDownloadResponseDto
-    {
-        public string FileName { get; set; } = string.Empty;
-        public string FilePath { get; set; } = string.Empty;
-        public string ContentType { get; set; } = string.Empty;
-        public byte[] FileBytes { get; set; } = Array.Empty<byte>();
-        public long FileSize { get; set; }
-    }
 }

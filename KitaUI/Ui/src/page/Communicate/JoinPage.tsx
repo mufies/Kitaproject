@@ -41,26 +41,29 @@ export default function JoinPage() {
 
     if (isLoading) {
         return (
-            <div className="h-screen w-screen bg-[#0a0a0a] flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-[#FF8C00] border-t-transparent rounded-full animate-spin"></div>
+            <div className="h-screen w-screen bg-gray-50 flex items-center justify-center relative">
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference z-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
+                <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-none animate-spin shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative z-10 bg-white"></div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="h-screen w-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-                <div className="bg-[#1a141a] p-8 rounded-2xl border border-white/10 max-w-md w-full text-center shadow-xl">
-                    <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-red-500 text-2xl">!</span>
+            <div className="h-screen w-screen bg-gray-50 flex items-center justify-center p-4 relative">
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference z-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
+                <div className="bg-white p-8 border-4 border-black max-w-md w-full text-center shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] relative z-10">
+                    <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-10">ERROR_PROTOCOL</div>
+                    <div className="w-16 h-16 bg-gray-100 border-4 border-black flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        <span className="text-black text-3xl font-black">!</span>
                     </div>
-                    <h2 className="text-xl font-bold text-white mb-2">Invite Invalid</h2>
-                    <p className="text-[#a0a0a0] mb-6">{error}</p>
+                    <h2 className="text-2xl font-black text-black mb-2 uppercase tracking-tighter">Invite Invalid</h2>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-xs mb-8">{error}</p>
                     <button
                         onClick={() => navigate('/chat')}
-                        className="px-6 py-2.5 bg-[#FF8C00] text-white font-medium rounded-lg hover:bg-[#FF4D00] transition-colors"
+                        className="w-full px-6 py-3 border-2 border-black bg-black text-white font-black text-sm uppercase tracking-widest hover:bg-white hover:text-black shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center"
                     >
-                        Back to Chat
+                        ABORT SEQUENCE
                     </button>
                 </div>
             </div>
@@ -68,36 +71,43 @@ export default function JoinPage() {
     }
 
     return (
-        <div className="h-screen w-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-            <div className="bg-[#1a141a] p-8 rounded-3xl border border-white/10 max-w-sm w-full text-center shadow-2xl">
-                {/* <div className="w-24 h-24 bg-gradient-to-br from-[#FF8C00] to-[#FF4D00] rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-lg rotate-3 shadow-[#FF8C00]/20">
-                    <span className="text-white font-bold text-4xl">K</span>
-                </div> */}
+        <div className="h-screen w-screen bg-gray-50 flex items-center justify-center p-4 relative">
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference z-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
 
-                <h1 className="text-white/60 mb-2 font-medium">You have been invited to join</h1>
-                <h2 className="text-3xl font-bold text-white mb-6 font-['Lexend']">{invite?.serverName || 'a server'}</h2>
+            <div className="bg-white p-10 border-4 border-black max-w-sm w-full text-center shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] relative z-10 overflow-hidden">
+                <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-10">INVITE_PROTOCOL</div>
+                <div className="absolute -left-16 -top-16 w-32 h-32 bg-gray-200 rotate-45 pointer-events-none opacity-50 border-b-4 border-black"></div>
+
+                <div className="w-20 h-20 bg-gray-100 border-4 border-black flex items-center justify-center mx-auto mb-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative z-10">
+                    <span className="text-black text-4xl font-black">#</span>
+                </div>
+
+                <h1 className="text-gray-500 mb-2 font-bold text-xs uppercase tracking-widest relative z-10">INCOMING TRANSMISSION</h1>
+                <h2 className="text-3xl font-black text-black mb-8 uppercase tracking-tighter relative z-10 truncate px-2">{invite?.serverName || 'UNKNOWN_HOST'}</h2>
 
                 {invite?.maxUses && invite.uses !== undefined && (
-                    <div className="flex items-center justify-center gap-2 text-white/40 text-sm mb-8 bg-white/5 py-1.5 px-3 rounded-full w-max mx-auto">
-                        <Users size={14} />
-                        <span>{invite.maxUses - invite.uses} uses left</span>
+                    <div className="flex items-center justify-center gap-2 text-black text-xs font-black uppercase tracking-widest mb-8 bg-white border-2 border-black py-2 px-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-max mx-auto relative z-10">
+                        <Users size={16} strokeWidth={3} />
+                        <span>[{invite.maxUses - invite.uses} SLOTS REMAINING]</span>
                     </div>
                 )}
 
-                <button
-                    onClick={handleJoin}
-                    disabled={isJoining}
-                    className="w-full py-3.5 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:transform-none"
-                >
-                    {isJoining ? 'Joining...' : 'Accept Invite'}
-                </button>
+                <div className="space-y-4 relative z-10">
+                    <button
+                        onClick={handleJoin}
+                        disabled={isJoining}
+                        className="w-full py-4 border-4 border-black bg-black text-white font-black text-sm uppercase tracking-widest hover:bg-white hover:text-black shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:bg-black disabled:hover:text-white flex justify-center items-center"
+                    >
+                        {isJoining ? 'ESTABLISHING LINK...' : 'ACCEPT INVITE'}
+                    </button>
 
-                <button
-                    onClick={() => navigate('/chat')}
-                    className="mt-4 text-[#a0a0a0] text-sm hover:text-white transition-colors"
-                >
-                    No thanks
-                </button>
+                    <button
+                        onClick={() => navigate('/chat')}
+                        className="w-full py-3 border-4 border-transparent text-gray-400 font-bold text-xs uppercase tracking-widest hover:border-black hover:text-black transition-all bg-gray-50"
+                    >
+                        REJECT
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Kita.Service.Common;
 using Kita.Service.DTOs.Music;
@@ -12,27 +11,32 @@ using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
 using YoutubeExplode.Playlists;
 using YoutubeExplode.Search;
+using YoutubeDLSharp;
+using YoutubeDLSharp.Metadata;
 
 namespace Kita.Service.Services
 {
     public class YouTubeService : IYouTubeService
     {
         private readonly YoutubeClient _youtubeClient;
-        private readonly string _assetsBasePath;
+        private readonly YoutubeDL _ytdl;
 
         public YouTubeService(IConfiguration configuration)
         {
-            // YoutubeExplode 6.5.7+ uses ANDROID_VR client internally to bypass 403 errors
             _youtubeClient = new YoutubeClient();
-            _assetsBasePath = configuration["FileStorage:BasePath"] 
-                ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "Assets");
+
+            _ytdl = new YoutubeDL
+            {
+                YoutubeDLPath = configuration["YoutubeDL:Path"] ?? "yt-dlp",
+                FFmpegPath   = configuration["YoutubeDL:FFmpegPath"] ?? "ffmpeg"
+            };
         }
 
         public async Task<ApiResponse<YoutubePlaylistVideoDto>> GetPlaylistVideosAsync(string playlistId)
         {
             if (string.IsNullOrWhiteSpace(playlistId))
             {
-                return ApiResponse<YoutubePlaylistVideoDto>.Fail("Playlist ID is required.", code: 400);
+                    return ApiResponse<YoutubePlaylistVideoDto>.Fail("Playlist ID is required.", code: 400);
             }
 
             try
@@ -118,110 +122,50 @@ namespace Kita.Service.Services
             }
         }
 
-        public async Task<ApiResponse<VideoDownloadResponseDto>> DownloadVideoAsync(string videoUrl)
+        /// <summary>
+        /// Resolves a live, time-limited audio stream URL for the given YouTube video URL
+        /// using yt-dlp. No file is written to disk.
+        /// </summary>
+        public async Task<ApiResponse<string>> GetStreamUrlAsync(string videoUrl)
         {
             if (string.IsNullOrWhiteSpace(videoUrl))
+                return ApiResponse<string>.Fail("Video URL is required.", code: 400);
+
+            try
             {
-                return ApiResponse<VideoDownloadResponseDto>.Fail("Video URL is required.", code: 400);
+                Console.WriteLine($"[YouTubeService] Fetching live stream URL for: {videoUrl}");
+
+                var result = await _ytdl.RunVideoDataFetch(videoUrl);
+
+                if (!result.Success)
+                {
+                    var errors = string.Join("; ", result.ErrorOutput);
+                    Console.WriteLine($"[YouTubeService] yt-dlp fetch failed: {errors}");
+                    return ApiResponse<string>.Fail($"Failed to fetch stream data: {errors}", code: 502);
+                }
+
+                // Pick the best audio-only format (highest bitrate, no video track).
+                var audioFormat = result.Data.Formats?
+                    .Where(f =>
+                        (f.VideoCodec == null || f.VideoCodec == "none") &&
+                        f.AudioCodec != null && f.AudioCodec != "none")
+                    .OrderByDescending(f => f.AudioBitrate ?? 0)
+                    .FirstOrDefault();
+
+                if (audioFormat?.Url == null)
+                    return ApiResponse<string>.Fail("No audio stream found for this video.", code: 404);
+
+                Console.WriteLine($"[YouTubeService] Resolved stream URL (codec={audioFormat.AudioCodec}, bitrate={audioFormat.AudioBitrate})");
+                return new ApiResponse<string>(audioFormat.Url, "Stream URL resolved successfully.");
             }
-
-            const int maxRetries = 3;
-            const int delayMilliseconds = 2000;
-
-            for (int attempt = 1; attempt <= maxRetries; attempt++)
+            catch (ArgumentException ex)
             {
-                try
-                {
-                    Console.WriteLine($"[YouTubeService] Download attempt {attempt}/{maxRetries} for: {videoUrl}");
-                    
-                    var video = await _youtubeClient.Videos.GetAsync(videoUrl);
-                    var streamManifest = await _youtubeClient.Videos.Streams.GetManifestAsync(videoUrl);
-                    
-                    // Get the highest quality audio-only stream
-                    var audioStreamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-                    
-                    if (audioStreamInfo == null)
-                    {
-                        return ApiResponse<VideoDownloadResponseDto>.Fail("No suitable audio stream found.", code: 404);
-                    }
-
-                    var sanitizedTitle = string.Join("_", video.Title.Split(System.IO.Path.GetInvalidFileNameChars()));
-                    var fileName = $"{sanitizedTitle}.mp3";
-                    
-                    var assetsPath = System.IO.Path.Combine(_assetsBasePath, "Music");
-                    
-                    if (!System.IO.Directory.Exists(assetsPath))
-                    {
-                        System.IO.Directory.CreateDirectory(assetsPath);
-                    }
-                    
-                    var filePath = System.IO.Path.Combine(assetsPath, fileName);
-                    Console.WriteLine($"[YouTubeService] Saving audio to: {filePath}");
-                    
-                    // Add delay before download to avoid rate limiting
-                    if (attempt > 1)
-                    {
-                        await Task.Delay(delayMilliseconds * attempt);
-                    }
-                    
-                    await using (var fileStream = System.IO.File.Create(filePath))
-                    {
-                        await _youtubeClient.Videos.Streams.CopyToAsync(audioStreamInfo, fileStream);
-                    }
-
-                    var fileInfo = new System.IO.FileInfo(filePath);
-                    
-                    // Verify file was actually written
-                    if (!fileInfo.Exists || fileInfo.Length == 0)
-                    {
-                        throw new InvalidOperationException("Downloaded file is empty or does not exist");
-                    }
-                    
-                    var response = new VideoDownloadResponseDto
-                    {
-                        FileName = fileName,
-                        FilePath = filePath,
-                        ContentType = "audio/mpeg",
-                        FileBytes = Array.Empty<byte>(),
-                        FileSize = fileInfo.Length
-                    };
-
-                    Console.WriteLine($"[YouTubeService] Successfully downloaded {fileInfo.Length} bytes");
-                    return new ApiResponse<VideoDownloadResponseDto>(response, $"Successfully downloaded audio to: {filePath}");
-                }
-                catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                {
-                    Console.WriteLine($"[YouTubeService] 403 Forbidden on attempt {attempt}: {ex.Message}");
-                    
-                    if (attempt == maxRetries)
-                    {
-                        return ApiResponse<VideoDownloadResponseDto>.Fail(
-                            $"YouTube blocked the request after {maxRetries} attempts. This may be due to rate limiting or regional restrictions. Error: {ex.Message}", 
-                            code: 403);
-                    }
-                    
-                    // Wait longer before retrying
-                    await Task.Delay(delayMilliseconds * attempt * 2);
-                    continue;
-                }
-                catch (ArgumentException ex)
-                {
-                    return ApiResponse<VideoDownloadResponseDto>.Fail($"Invalid video URL: {ex.Message}", code: 400);
-                }
-                catch (Exception ex) when (attempt < maxRetries)
-                {
-                    Console.WriteLine($"[YouTubeService] Error on attempt {attempt}: {ex.Message}");
-                    await Task.Delay(delayMilliseconds * attempt);
-                    continue;
-                }
-                catch (Exception ex)
-                {
-                    return ApiResponse<VideoDownloadResponseDto>.Fail($"An error occurred: {ex.Message}", code: 500);
-                }
+                return ApiResponse<string>.Fail($"Invalid video URL: {ex.Message}", code: 400);
             }
-            
-            // If we get here, all retries failed
-            return ApiResponse<VideoDownloadResponseDto>.Fail("Failed to download video after multiple attempts.", code: 500);
+            catch (Exception ex)
+            {
+                return ApiResponse<string>.Fail($"An error occurred: {ex.Message}", code: 500);
+            }
         }
 
         private static string FormatFileSize(long bytes)

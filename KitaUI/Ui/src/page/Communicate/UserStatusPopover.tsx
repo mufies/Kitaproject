@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { User, Music, X, Crown, Shield } from 'lucide-react';
+import { User, Music, X, Crown, Shield, ExternalLink } from 'lucide-react';
 import type { ServerMemberDto, UserStatus } from '../../types/api';
 
 interface UserStatusPopoverProps {
@@ -15,29 +15,23 @@ export default function UserStatusPopover({ member, status, anchorRect, onClose 
 
     useEffect(() => {
         if (anchorRect) {
-            const width = 320; // w-80
-            const height = 400; // approx max height
+            const width = 288;
+            const height = 360;
             const padding = 16;
 
             let top = anchorRect.top;
-            let left = anchorRect.right + padding; // Default: to the right
+            let left = anchorRect.right + padding;
 
-            // If anchor is on the right half of screen, show on left
             if (anchorRect.left > window.innerWidth / 2) {
                 left = anchorRect.left - width - padding;
             }
 
-            // Adjust vertical position to not go off-screen
             if (top + height > window.innerHeight) {
                 top = window.innerHeight - height - padding;
                 if (top < padding) top = padding;
             }
 
-            setStyle({
-                top: `${top}px`,
-                left: `${left}px`,
-                maxHeight: `calc(100vh - 32px)`,
-            });
+            setStyle({ top: `${top}px`, left: `${left}px`, maxHeight: `calc(100vh - 32px)` });
         }
     }, [anchorRect]);
 
@@ -47,40 +41,21 @@ export default function UserStatusPopover({ member, status, anchorRect, onClose 
                 onClose();
             }
         };
-
-        const handleScroll = () => {
-            onClose();
-        };
+        const handleScroll = () => onClose();
 
         document.addEventListener('mousedown', handleClickOutside);
-        document.addEventListener('scroll', handleScroll, true); // true = capture phase
-
+        document.addEventListener('scroll', handleScroll, true);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('scroll', handleScroll, true);
         };
     }, [onClose]);
 
-
     const getRoleIcon = (role: string) => {
         switch (role) {
-            case 'Owner':
-                return <Crown size={12} className="text-[#FFD700] drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]" />;
-            case 'Admin':
-                return <Shield size={12} className="text-[#FF8C00] drop-shadow-[0_0_5px_rgba(255,140,0,0.5)]" />;
-            default:
-                return null;
-        }
-    };
-
-    const getRoleColor = (role: string) => {
-        switch (role) {
-            case 'Owner':
-                return 'text-[#FFD700]';
-            case 'Admin':
-                return 'text-[#FF8C00]';
-            default:
-                return 'text-white/80';
+            case 'Owner': return <Crown size={12} className="text-black" />;
+            case 'Admin': return <Shield size={12} className="text-black" />;
+            default: return null;
         }
     };
 
@@ -90,76 +65,80 @@ export default function UserStatusPopover({ member, status, anchorRect, onClose 
     return (
         <div
             ref={popoverRef}
-            className="fixed z-50 w-80 bg-[#0a0a0a]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-200"
+            className="fixed z-[10000] w-72 bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] animate-fadeIn"
             style={style}
         >
-            {/* Header with member info */}
-            <div className="relative p-5 border-b border-white/5 overflow-hidden">
-                {/* Header bg gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#FF8C00]/10 to-transparent pointer-events-none" />
+            {/* Badge */}
+            <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-0.5 tracking-widest z-10">USER_DATA</div>
 
-                <div className="relative z-10 flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => window.open(`/profile/${member.userId}`, '_blank')}>
-                        <div className="relative w-16 h-16 rounded-full p-0.5 bg-gradient-to-br from-[#FF8C00] to-purple-600 flex-shrink-0 shadow-lg">
-                            <div className="w-full h-full rounded-full bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
-                                {member.avatarUrl ? (
-                                    <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" />
-                                ) : (
-                                    <User size={28} className="text-white/50" />
-                                )}
-                            </div>
-                            <div className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-[#0a0a0a] ${isOnline ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]' : 'bg-gray-500'
-                                }`} />
+            {/* Header */}
+            <div className="p-4 border-b-4 border-black bg-gray-50">
+                <div className="flex items-start justify-between">
+                    <div
+                        className="flex items-center gap-3 cursor-pointer group"
+                        onClick={() => window.open(`/profile/${member.userId}`, '_blank')}
+                    >
+                        <div className="relative w-14 h-14 flex-shrink-0 border-2 border-black bg-gray-100 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-none group-hover:translate-x-1 group-hover:translate-y-1 transition-all">
+                            {member.avatarUrl ? (
+                                <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <User size={24} className="text-black/50" />
+                                </div>
+                            )}
+                            <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 border-2 border-white ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
                         </div>
                         <div>
-                            <div className={`text-lg font-bold flex items-center gap-2 ${getRoleColor(member.role)}`}>
+                            <div className="flex items-center gap-1.5 font-black text-black uppercase tracking-tight text-sm">
                                 {member.nickname || member.username}
                                 {getRoleIcon(member.role)}
+                                <ExternalLink size={10} className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>
-                            <p className="text-[#a0a0a0] text-sm">{member.role}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-0.5">{member.role}</p>
                             <div className="flex items-center gap-1.5 mt-1">
-                                <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-500'}`} />
-                                <p className="text-white/40 text-xs font-medium uppercase tracking-wide">
-                                    {isOnline ? 'Online' : 'Offline'}
-                                </p>
+                                <div className={`w-2 h-2 ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-600">
+                                    {isOnline ? 'ONLINE' : 'OFFLINE'}
+                                </span>
                             </div>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-white/30 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-full"
+                        className="w-7 h-7 border-2 border-transparent hover:border-black text-black hover:bg-black hover:text-white flex items-center justify-center transition-all flex-shrink-0"
                     >
-                        <X size={18} />
+                        <X size={14} strokeWidth={3} />
                     </button>
                 </div>
             </div>
 
-            <div className="p-5">
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#FF8C00] mb-3 font-['Lexend']">
-                    Activity
-                </h4>
+            {/* Activity */}
+            <div className="p-4 bg-white">
+                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 border-l-4 border-black pl-2">ACTIVITY_LOG</h4>
                 {currentSong ? (
-                    <div className="bg-[#1a1a1a]/80 backdrop-blur-md rounded-xl p-4 flex items-center gap-4 border border-white/5 shadow-inner group hover:shadow-[0_0_20px_rgba(255,140,0,0.1)] transition-all cursor-pointer" onClick={() => window.open(`music/song/${currentSong.songId}`, '_blank')}>
-                        <div className="w-12 h-12 bg-gradient-to-br from-[#FF8C00] to-[#FF4D00] rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-105 transition-transform overflow-hidden">
+                    <div
+                        className="border-2 border-black p-3 flex items-center gap-3 hover:bg-gray-50 cursor-pointer group transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
+                        onClick={() => window.open(`music/song/${currentSong.songId}`, '_blank')}
+                    >
+                        <div className="w-10 h-10 border-2 border-black flex-shrink-0 bg-gray-100 overflow-hidden">
                             {currentSong.coverUrl ? (
                                 <img src={currentSong.coverUrl} alt={currentSong.songTitle} className="w-full h-full object-cover" />
                             ) : (
-                                <Music size={20} className="text-white" />
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <Music size={16} className="text-black" />
+                                </div>
                             )}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-white font-bold truncate">
-                                {currentSong.songTitle}
-                            </p>
-                            <p className="text-[#a0a0a0] text-sm truncate">
-                                by {currentSong.artistName}
-                            </p>
+                            <p className="text-black font-black text-xs uppercase tracking-tight truncate">{currentSong.songTitle}</p>
+                            <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest truncate">by {currentSong.artistName}</p>
                         </div>
+                        <Music size={14} className="text-black animate-pulse flex-shrink-0" strokeWidth={3} />
                     </div>
                 ) : (
-                    <div className="text-center py-8 text-white/20 bg-[#ffffff03] rounded-xl border border-white/5 dashed">
-                        <Music size={24} className="mx-auto mb-2 opacity-30" />
-                        <p className="text-sm">Not listening to anything</p>
+                    <div className="border-2 border-dashed border-gray-300 p-4 text-center bg-gray-50">
+                        <Music size={18} className="mx-auto mb-1.5 text-gray-300" />
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">NO ACTIVE PLAYBACK</p>
                     </div>
                 )}
             </div>

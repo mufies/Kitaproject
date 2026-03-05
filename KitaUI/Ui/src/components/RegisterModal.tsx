@@ -73,125 +73,133 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                className="absolute inset-0 bg-white/90 backdrop-blur-sm"
                 onClick={onClose}
-            ></div>
+            >
+                {/* Noise overlay */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference z-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
+            </div>
 
             {/* Modal */}
-            <div className="relative w-full max-w-md bg-gradient-to-br from-gray-900 to-gray-800 border border-orange-500/30 rounded-2xl shadow-2xl shadow-orange-500/20 p-8 animate-slideUp">
+            <div className="relative w-full max-w-md bg-white border-4 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] p-8 z-10 animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-10 text-center">NEW_REGISTRATION</div>
+                <div className="absolute -left-12 -top-12 w-24 h-24 bg-gray-200 rotate-45 pointer-events-none opacity-50 z-0"></div>
+
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                    className="absolute top-4 right-4 text-black hover:bg-black hover:text-white transition-all p-1 z-20"
                 >
-                    <X size={24} />
+                    <X size={20} strokeWidth={3} />
                 </button>
 
                 {/* Header */}
-                <div className="text-center mb-6">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-orange-600 to-orange-700 rounded-full mb-4">
-                        <Music className="w-8 h-8 text-white" />
+                <div className="text-center mb-6 relative z-10">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-4">
+                        <Music className="w-8 h-8 text-black" strokeWidth={2.5} />
                     </div>
-                    <h2 className="text-3xl font-bold text-white mb-2">
-                        Join Kitaproject
+                    <h2 className="text-3xl font-black text-black mb-2 uppercase tracking-tighter">
+                        USER REGISTRY
                     </h2>
-                    <p className="text-gray-400">Create your account and start listening</p>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Create identifying credentials</p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
                     {error && (
-                        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 text-sm">
-                            {error}
+                        <div className="p-3 bg-gray-50 border-l-4 border-black text-black font-bold uppercase text-xs tracking-wider">
+                            [ERROR]: {error}
                         </div>
                     )}
 
                     <div>
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
-                            Username
+                        <label htmlFor="username" className="block text-[10px] font-black text-black mb-1 uppercase tracking-widest border-l-4 border-black pl-2">
+                            CALLSIGN
                         </label>
                         <input
                             id="username"
                             type="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Choose a username"
+                            placeholder="DESIGNATE CALLSIGN"
                             disabled={isLoading}
-                            className="w-full px-4 py-3 bg-black/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-orange-600 focus:ring-2 focus:ring-orange-600/20 transition-all disabled:opacity-50"
+                            className="w-full px-4 py-2.5 bg-gray-50 border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 font-bold uppercase text-sm"
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="reg-email" className="block text-sm font-medium text-gray-300 mb-2">
-                            Email
+                        <label htmlFor="reg-email" className="block text-[10px] font-black text-black mb-1 uppercase tracking-widest border-l-4 border-black pl-2">
+                            CONTACT ID (EMAIL)
                         </label>
                         <input
                             id="reg-email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Enter your email"
+                            placeholder="INPUT CONTACT ID"
                             disabled={isLoading}
-                            className="w-full px-4 py-3 bg-black/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-orange-600 focus:ring-2 focus:ring-orange-600/20 transition-all disabled:opacity-50"
+                            className="w-full px-4 py-2.5 bg-gray-50 border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 font-bold uppercase text-sm"
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="reg-password" className="block text-sm font-medium text-gray-300 mb-2">
-                            Password
+                        <label htmlFor="reg-password" className="block text-[10px] font-black text-black mb-1 uppercase tracking-widest border-l-4 border-black pl-2">
+                            SECURITY KEY (PASSWORD)
                         </label>
                         <input
                             id="reg-password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Create a password"
+                            placeholder="SET SECURITY KEY"
                             disabled={isLoading}
-                            className="w-full px-4 py-3 bg-black/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-orange-600 focus:ring-2 focus:ring-orange-600/20 transition-all disabled:opacity-50"
+                            className="w-full px-4 py-2.5 bg-gray-50 border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 font-bold uppercase tracking-widest text-sm"
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-300 mb-2">
-                            Confirm Password
+                        <label htmlFor="confirm-password" className="block text-[10px] font-black text-black mb-1 uppercase tracking-widest border-l-4 border-black pl-2">
+                            VERIFY SECURITY KEY
                         </label>
                         <input
                             id="confirm-password"
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Confirm your password"
+                            placeholder="VERIFY SECURITY KEY"
                             disabled={isLoading}
-                            className="w-full px-4 py-3 bg-black/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-orange-600 focus:ring-2 focus:ring-orange-600/20 transition-all disabled:opacity-50"
+                            className="w-full px-4 py-2.5 bg-gray-50 border-2 border-black text-black placeholder-gray-400 focus:outline-none focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 font-bold uppercase tracking-widest text-sm"
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-medium rounded-lg transition-all duration-300 shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        className="w-full py-3.5 bg-black text-white font-black hover:bg-white hover:text-black transition-all shadow-[6px_6px_0px_0px_rgba(150,150,150,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 uppercase tracking-[0.2em] border-2 border-black mt-2"
                     >
                         {isLoading ? (
-                            <span className="flex items-center justify-center gap-2">
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                Creating account...
-                            </span>
+                            <>
+                                <div className="w-4 h-4 border-2 border-gray-400 border-t-white rounded-none animate-spin"></div>
+                                <span>INITIALIZING...</span>
+                            </>
                         ) : (
-                            'Create Account'
+                            'EXECUTE REGISTRATION'
                         )}
                     </button>
                 </form>
 
                 {/* Switch to Login */}
-                <p className="text-center text-gray-400 text-sm mt-6">
-                    Already have an account?{' '}
-                    <button
-                        onClick={onSwitchToLogin}
-                        className="text-orange-400 hover:text-orange-300 font-medium transition-colors"
-                    >
-                        Sign In
-                    </button>
-                </p>
+                <div className="text-center mt-6 relative z-10 pt-4 border-t-2 border-gray-100">
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                        CREDENTIALS EXIST?{' '}
+                        <button
+                            onClick={onSwitchToLogin}
+                            className="text-black hover:text-gray-600 font-black border-b-2 border-black hover:border-transparent transition-colors ml-2 pb-0.5"
+                        >
+                            ACCESSS LOGIN
+                        </button>
+                    </p>
+                </div>
             </div>
         </div>
     );

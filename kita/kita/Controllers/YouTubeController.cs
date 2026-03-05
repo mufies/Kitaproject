@@ -51,15 +51,15 @@ namespace Kita.Controllers
             return Ok(result);
         }
 
-        [HttpGet("video/download")]
-        public async Task<IActionResult> DownloadVideo([FromQuery] string url)
+        [HttpGet("video/stream-url")]
+        public async Task<IActionResult> GetStreamUrl([FromQuery] string url)
         {
             if (string.IsNullOrWhiteSpace(url))
             {
                 return BadRequest(new { message = "Video URL is required." });
             }
 
-            var result = await _youTubeService.DownloadVideoAsync(url);
+            var result = await _youTubeService.GetStreamUrlAsync(url);
 
             if (!result.Success)
             {

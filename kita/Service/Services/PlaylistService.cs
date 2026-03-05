@@ -563,7 +563,6 @@ namespace Kita.Service.Services
                 string? coverUrl = null;
                 List<(string title, string artist)> tracks = new();
 
-                // Fetch playlist data based on source
                 if (isYouTube)
                 {
                     var playlistId = ExtractYouTubePlaylistId(request.PlaylistUrl);
@@ -637,7 +636,7 @@ namespace Kita.Service.Services
                 response.PlaylistName = playlist.Name;
                 response.TotalTracks = tracks.Count;
 
-                // Track songs added in this session to avoid duplicates
+                
                 var addedSongsInSession = new HashSet<Guid>();
 
                 int orderIndex = 0;
@@ -651,9 +650,7 @@ namespace Kita.Service.Services
 
                     try
                     {
-                        // Check if song exists in DB using fuzzy matching
-                        // First check if artist name contains the search artist (handles "Artist - Topic" channels)
-                        // Then check if title contains the search title
+
                         var existingSong = await _songRepository.FindByTitleOrArtistContainsAsync(title, artist);
 
                         if (existingSong != null)
@@ -700,7 +697,7 @@ namespace Kita.Service.Services
                         }
                         else
                         {
-                            // Song doesn't exist, search YouTube and download
+                            // Song doesn't exist — search YouTube for a matching video.
                             var videoInfo = await _youTubeService.GetVideoUrlsBaseOnNameAndArtist(title, artist);
 
                             if (videoInfo == null)
@@ -711,39 +708,14 @@ namespace Kita.Service.Services
                                 continue;
                             }
 
-                            // Add delay between downloads to avoid rate limiting (1-2 seconds)
-                            await Task.Delay(1500);
-                            
-                            // Download video as MP3
-                            var downloadResult = await _youTubeService.DownloadVideoAsync(videoInfo.VideoUrl);
+                            // Store the YouTube video URL directly as the stream source.
+                            // The live, time-limited stream URL will be resolved on demand
+                            // during playback via IYouTubeService.GetStreamUrlAsync().
+                            var streamUrl = videoInfo.VideoUrl;
 
-                            if (!downloadResult.Success || downloadResult.Data == null)
-                            {
-                                importedSong.ErrorMessage = $"Download failed: {downloadResult.Message}";
-                                response.Failed++;
-                                importedSongs.Add(importedSong);
-                                continue;
-                            }
-
-                            // Verify file exists
-                            if (string.IsNullOrEmpty(downloadResult.Data.FilePath) || !File.Exists(downloadResult.Data.FilePath))
-                            {
-                                importedSong.ErrorMessage = "Downloaded file not found on disk";
-                                response.Failed++;
-                                importedSongs.Add(importedSong);
-                                continue;
-                            }
-
-                            // Create Song entity
-                            var storagePath = _configuration["FileStorage:BasePath"];
-                            var baseUrl = _configuration["FileStorage:BaseUrl"];
-                            var musicFolder = Path.Combine(storagePath!, "Music");
-                            var fileName = downloadResult.Data.FileName;
-                            var streamUrl = $"{baseUrl}/Music/{fileName}";
-
-                            // Use duration from YouTube DTO instead of TagLib
-                            int durationInSeconds = videoInfo.Duration.HasValue 
-                                ? (int)videoInfo.Duration.Value.TotalSeconds 
+                            // Use duration from YouTube DTO
+                            int durationInSeconds = videoInfo.Duration.HasValue
+                                ? (int)videoInfo.Duration.Value.TotalSeconds
                                 : 0;
 
                             // Business logic:

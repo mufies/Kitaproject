@@ -187,10 +187,13 @@ export default function PlaylistPage() {
 
     if (isLoading || !playlist) {
         return (
-            <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center p-6">
-                <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-[#1a141a] border-t-[#ff7a3c] rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-white/50 text-sm">Loading playlist...</p>
+            <div className="min-h-screen bg-white text-black flex items-center justify-center p-6 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}>
+                </div>
+                <div className="text-center relative z-10">
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-black font-black uppercase tracking-[0.2em] text-xs">Accessing Data...</p>
                 </div>
             </div>
         );
@@ -199,259 +202,257 @@ export default function PlaylistPage() {
     const totalDuration = songs.reduce((acc, song) => acc + (song.duration || 0), 0);
 
     return (
-        <div className="h-full overflow-y-auto custom-scrollbar bg-[#0f0f0f] text-white">
+        <div className="h-full overflow-y-auto custom-scrollbar bg-white text-black font-sans selection:bg-black selection:text-white relative">
+            <div className="fixed inset-0 opacity-[0.03] pointer-events-none invert mix-blend-difference z-0"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                }}>
+            </div>
+
             {/* Hero Section */}
-            <div className="relative w-full h-[40vh] min-h-[340px] max-h-[500px]">
-                {/* Dynamic Background */}
-                <div className="absolute inset-0 z-0">
-                    {playlist.coverUrl ? (
-                        <>
-                            <div
-                                className="absolute inset-0 bg-cover bg-center"
-                                style={{ backgroundImage: `url(${playlist.coverUrl})` }}
-                            ></div>
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-[#121212]/60 to-[#121212]"></div>
-                        </>
-                    ) : (
-                        <div className="w-full h-full bg-gradient-to-b from-[#ff7a3c]/50 to-[#121212]"></div>
-                    )}
-                </div>
+            <div className="relative w-full border-b-4 border-black bg-gray-50 z-10 p-8 pt-20 flex flex-col md:flex-row items-end gap-8 mb-8 overflow-hidden">
+                <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest z-20">VIEW_COLLECTION</div>
+                <div className="absolute -right-20 -top-20 w-64 h-64 bg-black opacity-5 rotate-45 pointer-events-none"></div>
 
                 {/* Back Button */}
-                <div className="absolute top-8 left-8 z-20">
+                <div className="absolute top-6 left-8 z-20">
                     <button
                         onClick={() => navigate('/music')}
-                        className="flex items-center gap-2 text-white/80 hover:text-white transition-colors bg-black/20 hover:bg-black/40 backdrop-blur-md px-4 py-2 rounded-full"
+                        className="flex items-center gap-2 text-black hover:bg-black hover:text-white transition-colors bg-white border-2 border-black px-4 py-2 uppercase tracking-widest text-xs font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
                     >
-                        <ArrowLeft size={20} />
-                        <span className="font-bold text-sm">Back</span>
+                        <ArrowLeft size={16} strokeWidth={3} />
+                        <span>RETURN</span>
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="absolute bottom-0 left-0 w-full p-8 z-10 flex items-end gap-8">
-                    {/* Playlist Art */}
-                    <div className="relative group shrink-0">
-                        <div className="w-[180px] h-[180px] sm:w-[230px] sm:h-[230px] rounded-lg overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
-                            {playlist.coverUrl ? (
-                                <img
-                                    src={playlist.coverUrl}
-                                    alt={playlist.name}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-[#ff7a3c] to-[#ff4d6d] flex items-center justify-center">
-                                    <span className="text-6xl font-black text-white">{playlist.name.charAt(0).toUpperCase()}</span>
-                                </div>
-                            )}
-                        </div>
+                {/* Playlist Art */}
+                <div className="relative group shrink-0 z-10">
+                    <div className="w-[180px] h-[180px] sm:w-[230px] sm:h-[230px] rounded-none overflow-hidden bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                        {playlist.coverUrl ? (
+                            <img
+                                src={playlist.coverUrl}
+                                alt={playlist.name}
+                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center border-4 border-transparent">
+                                <span className="text-8xl font-black text-black">{playlist.name.charAt(0).toUpperCase()}</span>
+                            </div>
+                        )}
                     </div>
+                </div>
 
-                    <div className="flex-1 min-w-0 mb-4">
-                        <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
-                            <span className="bg-white/10 px-2 py-0.5 rounded">Playlist</span>
+                <div className="flex-1 min-w-0 z-10 w-full mb-2">
+                    <p className="text-black text-[10px] font-black uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                        <span className="bg-black text-white px-3 py-1 border-2 border-black">COLLECTION_REF</span>
+                        <span>[ {playlist.id.substring(0, 8)} ]</span>
+                    </p>
+
+                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-black mb-6 uppercase tracking-tighter leading-none line-clamp-2">
+                        {playlist.name}
+                    </h1>
+
+                    <div className="flex flex-col gap-4">
+                        <p className="text-gray-600 text-sm font-bold uppercase tracking-widest line-clamp-2 max-w-3xl border-l-4 border-black pl-3 py-1">
+                            {playlist.description || "NO PARAMETERS DEFINED"}
                         </p>
 
-                        <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black text-white mb-6 drop-shadow-2xl tracking-tight leading-none line-clamp-2">
-                            {playlist.name}
-                        </h1>
-
-                        <div className="flex flex-col gap-4">
-                            <p className="text-white/80 text-lg sm:text-lg font-medium drop-shadow-md line-clamp-2 max-w-3xl">
-                                {playlist.description || "No description provided."}
-                            </p>
-
-                            <div className="flex items-center gap-2 text-white text-sm font-medium flex-wrap">
-                                <span className="font-bold text-white text-base">You</span>
-                                <span className="w-1 h-1 bg-white/60 rounded-full mx-1"></span>
-                                <span className="text-white/90">
-                                    <span className="font-bold">{songs.length}</span> songs,
-                                </span>
-                                <span className="text-white/70 ml-1">
-                                    {formatDuration(totalDuration)}
-                                </span>
-                                <span className="w-1 h-1 bg-white/60 rounded-full mx-1"></span>
-                                <span className="text-white/90 bg-white/10 px-2 py-0.5 rounded text-xs uppercase tracking-wide">
-                                    {playlist.isPublic ? "Public" : "Private"}
-                                </span>
-                            </div>
+                        <div className="flex items-center gap-3 text-black text-[10px] font-black uppercase tracking-widest flex-wrap mt-2">
+                            <span className="bg-gray-200 px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                OWNER: YOU
+                            </span>
+                            <span className="w-1.5 h-1.5 bg-black rounded-none mx-1"></span>
+                            <span className="bg-white px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                ITEMS: {songs.length}
+                            </span>
+                            <span className="w-1.5 h-1.5 bg-black rounded-none mx-1"></span>
+                            <span className="bg-white px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                RUNTIME: {formatDuration(totalDuration)}
+                            </span>
+                            <span className="w-1.5 h-1.5 bg-black rounded-none mx-1"></span>
+                            <span className="bg-black text-white px-2 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(150,150,150,1)]">
+                                {playlist.isPublic ? "NETWORK: GLOBAL" : "NETWORK: LOCAL"}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Main Content Background */}
-            <div className="bg-gradient-to-b from-[#121212] via-[#121212] to-black min-h-[500px]">
-                <div className="p-8 pb-32 max-w-[1920px] mx-auto">
+            <div className="min-h-[500px] relative z-10 px-4 sm:px-8 pb-32 max-w-[1920px] mx-auto">
 
-                    {/* Action Bar */}
-                    <div className="flex items-center gap-6 mb-8">
-                        <button
-                            className="w-14 h-14 bg-[#ff7a3c] rounded-full flex items-center justify-center hover:scale-105 hover:bg-[#ff8c52] transition-all duration-200 shadow-xl text-black"
-                            onClick={() => {
-                                if (songs.length > 0) {
-                                    // Check if currently playing a song from this playlist
-                                    const isPlayingFromThisPlaylist = currentSong && songs.some(s => s.id === currentSong.id);
-                                    if (isPlayingFromThisPlaylist && isPlaying) {
-                                        togglePlayPause();
-                                    }
-                                    else if (isPlayingFromThisPlaylist && !isPlaying) {
-                                        togglePlayPause();
-                                    }
-                                    else {
-
-                                        playSong(songs[0], songs);
-                                    }
+                {/* Action Bar */}
+                <div className="flex items-center gap-6 mb-8 mt-4 bg-gray-50 p-4 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative">
+                    <div className="absolute top-0 right-0 bg-black text-white text-[10px] uppercase font-black px-2 py-0.5 tracking-widest">CONTROLS</div>
+                    <button
+                        className="w-16 h-16 bg-black text-white border-2 border-transparent hover:border-black flex items-center justify-center transition-all hover:bg-white hover:text-black shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group"
+                        onClick={() => {
+                            if (songs.length > 0) {
+                                // Check if currently playing a song from this playlist
+                                const isPlayingFromThisPlaylist = currentSong && songs.some(s => s.id === currentSong.id);
+                                if (isPlayingFromThisPlaylist && isPlaying) {
+                                    togglePlayPause();
                                 }
-                            }}
-                        >
-                            {currentSong && songs.some(s => s.id === currentSong.id) && isPlaying ? (
-                                <Pause size={28} fill="currentColor" />
-                            ) : (
-                                <Play size={28} fill="currentColor" className="ml-1" />
-                            )}
-                        </button>
+                                else if (isPlayingFromThisPlaylist && !isPlaying) {
+                                    togglePlayPause();
+                                }
+                                else {
+                                    playSong(songs[0], songs);
+                                }
+                            }
+                        }}
+                    >
+                        {currentSong && songs.some(s => s.id === currentSong.id) && isPlaying ? (
+                            <Pause size={32} fill="currentColor" />
+                        ) : (
+                            <Play size={32} fill="currentColor" className="ml-1" />
+                        )}
+                    </button>
 
-                        <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setIsAddSongModalOpen(true)}
+                            className="text-black border-2 border-transparent hover:border-black transition-colors p-3 hover:bg-white hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                            title="Add songs"
+                        >
+                            <Plus size={24} strokeWidth={3} />
+                        </button>
+                        <button
+                            onClick={handleOpenEditModal}
+                            className="text-black border-2 border-transparent hover:border-black transition-colors p-3 hover:bg-white hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                            title="Edit playlist"
+                        >
+                            <Edit2 size={24} strokeWidth={3} />
+                        </button>
+                        <button
+                            onClick={() => setIsDeleteModalOpen(true)}
+                            className="text-black border-2 border-transparent hover:border-red-600 hover:text-red-600 transition-colors p-3 hover:bg-red-50 hover:shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]"
+                            title="Delete playlist"
+                        >
+                            <Trash2 size={24} strokeWidth={3} />
+                        </button>
+                    </div>
+
+                    <div className="ml-auto text-black font-black uppercase text-[10px] tracking-widest mr-4 hidden sm:block">
+                        INITIALIZE SEQUENCE //
+                    </div>
+                </div>
+
+                {/* Songs List */}
+                <div className="w-full bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] mb-12">
+                    {songs.length === 0 ? (
+                        <div className="p-16 text-center border-dashed border-2 border-gray-300 m-8 bg-gray-50">
+                            <div className="w-20 h-20 bg-gray-200 border-2 border-black flex items-center justify-center mx-auto mb-6 transform -rotate-12">
+                                <Music size={40} className="text-black" />
+                            </div>
+                            <h3 className="text-xl font-black uppercase text-black mb-2 tracking-widest">ARCHIVE EMPTY</h3>
+                            <p className="text-gray-500 mb-8 max-w-md mx-auto font-bold uppercase tracking-widest text-xs">NO AUDIO DATA PRESENT IN THIS COLLECTION. INITIATE TRANSFER TO POPULATE RECORD.</p>
                             <button
                                 onClick={() => setIsAddSongModalOpen(true)}
-                                className="text-[#b3b3b3] hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
-                                title="Add songs"
+                                className="bg-black text-white font-black uppercase text-xs tracking-widest py-3 px-8 border-2 border-black hover:bg-white hover:text-black transition-all shadow-[4px_4px_0px_0px_rgba(150,150,150,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
                             >
-                                <Plus size={32} />
+                                LOCATE DATA
                             </button>
-                            <button
-                                onClick={handleOpenEditModal}
-                                className="text-[#b3b3b3] hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
-                                title="Edit playlist"
-                            >
-                                <Edit2 size={24} />
-                            </button>
-                            <button
-                                onClick={() => setIsDeleteModalOpen(true)}
-                                className="text-[#b3b3b3] hover:text-red-500 transition-colors p-2 rounded-full hover:bg-white/10"
-                                title="Delete playlist"
-                            >
-                                <Trash2 size={24} />
-                            </button>
-
                         </div>
-                    </div>
-
-                    {/* Songs List */}
-                    <div className="w-full">
-                        {songs.length === 0 ? (
-                            <div className="bg-gradient-to-r from-[#1e1e1e] to-[#252525] rounded-xl p-12 text-center border border-white/5 shadow-2xl mt-4">
-                                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <Music size={40} className="text-white/20" />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-2">It's a bit quiet here</h3>
-                                <p className="text-[#a7a7a7] mb-8 max-w-md mx-auto">This playlist has no songs yet. Add some tracks to bring it to life.</p>
-                                <button
-                                    onClick={() => setIsAddSongModalOpen(true)}
-                                    className="bg-white text-black font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform shadow-lg shadow-white/10"
-                                >
-                                    Find Songs
-                                </button>
+                    ) : (
+                        <div className="w-full">
+                            {/* Header Row */}
+                            <div className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px_60px] gap-4 px-6 py-4 border-b-4 border-black text-black text-[10px] font-black uppercase tracking-[0.2em] relative bg-gray-50 z-10">
+                                <div className="text-center">#</div>
+                                <div>DESIGNATION</div>
+                                <div className="hidden md:block text-left">TIMESTAMP</div>
+                                <div className="text-right hidden sm:block"><Clock size={14} className="ml-auto" /></div>
+                                <div></div>
+                                <div></div>
                             </div>
-                        ) : (
-                            <div className="w-full">
-                                {/* Header Row */}
-                                <div className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px_60px] gap-4 px-4 py-3 border-b border-white/10 text-[#a7a7a7] text-sm font-medium uppercase tracking-wider sticky top-0 bg-[#121212] z-10">
-                                    <div className="text-center">#</div>
-                                    <div>Title</div>
-                                    <div className="hidden md:block text-left">Date Added</div>
-                                    <div className="text-right hidden sm:block"><Clock size={16} className="ml-auto" /></div>
-                                    <div></div>
-                                    <div></div>
-                                </div>
 
-                                {/* Song Rows */}
-                                <div className="mt-2">
-                                    {songs.map((song, index) => (
-                                        <div
-                                            key={song.id}
-                                            className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px_60px] gap-4 px-4 py-3 hover:bg-[#ffffff10] rounded-md group transition-colors items-center cursor-pointer"
-                                            onClick={() => navigate(`/music/song/${song.id}`)}
-                                        >
-                                            <div className="relative text-center text-[#a7a7a7] font-medium w-4 flex justify-center">
-                                                {currentSong?.id === song.id && isPlaying ? (
-                                                    <button onClick={(e) => { e.stopPropagation(); togglePlayPause(); }} className="text-[#ff7a3c]">
-                                                        <Pause size={14} fill="currentColor" />
-                                                    </button>
-                                                ) : (
-                                                    <>
-                                                        <span className="group-hover:hidden">
-                                                            {currentSong?.id === song.id ? (
-                                                                <span className="text-[#ff7a3c]">▶</span>
-                                                            ) : (
-                                                                index + 1
-                                                            )}
-                                                        </span>
-                                                        <button
-                                                            className="hidden group-hover:block text-white"
-                                                            onClick={(e) => { e.stopPropagation(); playSong(song, songs); }}
-                                                        >
-                                                            <Play size={14} fill="currentColor" />
-                                                        </button>
-                                                    </>
-                                                )}
-                                            </div>
+                            {/* Song Rows */}
+                            <div className="bg-white">
+                                {songs.map((song, index) => (
+                                    <div
+                                        key={song.id}
+                                        className="grid grid-cols-[16px_1fr_120px] sm:grid-cols-[16px_1fr_120px_60px] md:grid-cols-[16px_4fr_3fr_120px_60px_60px] gap-4 px-6 py-3 border-b-2 border-gray-100 last:border-b-0 hover:bg-gray-50 hover:border-black group transition-all items-center cursor-pointer relative hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                        onClick={() => navigate(`/music/song/${song.id}`)}
+                                    >
 
-                                            <div className="flex items-center gap-4 min-w-0">
-                                                <div className="w-10 h-10 rounded overflow-hidden flex-shrink-0">
-                                                    {song.coverUrl ? (
-                                                        <img src={song.coverUrl} alt={song.title} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full bg-[#333] flex items-center justify-center">
-                                                            <Music size={16} className="text-white/50" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-col min-w-0">
-                                                    <span className="text-white font-medium text-base truncate pr-2 group-hover:text-[#ff7a3c] transition-colors">{song.title}</span>
-                                                    <span className="text-[#a7a7a7] text-sm truncate group-hover:text-white transition-colors cursor-pointer hover:underline">
-                                                        {song.artist || song.uploader || 'Unknown'}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <div className="hidden md:block text-[#a7a7a7] text-sm font-medium">
-                                                {song.createdAt ? new Date(song.createdAt).toLocaleDateString() : '-'}
-                                            </div>
-
-                                            <div className="text-right text-[#a7a7a7] font-mono text-sm hidden sm:block">
-                                                {formatSongDuration(song.duration)}
-                                            </div>
-
-                                            <div className="text-right opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
-                                                    onClick={(e) => handleToggleFavorite(song.id, e)}
-                                                    className={`${favoritedSongs.has(song.id) ? 'text-[#ff7a3c]' : 'text-[#a7a7a7]'} hover:text-[#ff7a3c] hover:scale-110 transition-all p-2`}
-                                                    title={favoritedSongs.has(song.id) ? "Remove from favorites" : "Add to favorites"}
-                                                >
-                                                    <Heart size={16} fill={favoritedSongs.has(song.id) ? 'currentColor' : 'none'} />
+                                        <div className="relative text-center text-gray-500 font-black text-xs w-4 flex justify-center">
+                                            {currentSong?.id === song.id && isPlaying ? (
+                                                <button onClick={(e) => { e.stopPropagation(); togglePlayPause(); }} className="text-black">
+                                                    <Pause size={14} fill="currentColor" />
                                                 </button>
-                                            </div>
-
-                                            {/* Delete button - hidden for Favorite playlist */}
-                                            {playlist?.name !== 'Favorite' && (
-                                                <div className="text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                                            ) : (
+                                                <>
+                                                    <span className="group-hover:hidden">
+                                                        {currentSong?.id === song.id ? (
+                                                            <span className="text-black">▶</span>
+                                                        ) : (
+                                                            (index + 1).toString().padStart(2, '0')
+                                                        )}
+                                                    </span>
                                                     <button
-                                                        onClick={(e) => { e.stopPropagation(); handleRemoveSong(song.id); }}
-                                                        className="text-[#a7a7a7] hover:text-white hover:scale-110 transition-all p-2"
-                                                        title="Remove from playlist"
+                                                        className="hidden group-hover:block text-black"
+                                                        onClick={(e) => { e.stopPropagation(); playSong(song, songs); }}
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Play size={14} fill="currentColor" />
                                                     </button>
-                                                </div>
+                                                </>
                                             )}
                                         </div>
-                                    ))}
-                                </div>
+
+                                        <div className="flex items-center gap-4 min-w-0">
+                                            <div className="w-10 h-10 bg-gray-200 border-2 border-black overflow-hidden flex-shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] group-hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-shadow">
+                                                {song.coverUrl ? (
+                                                    <img src={song.coverUrl} alt={song.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                                ) : (
+                                                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                                                        <Music size={16} className="text-gray-400" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-black font-black text-sm uppercase tracking-tight truncate pr-2 group-hover:underline">{song.title}</span>
+                                                <span className="text-gray-500 text-[10px] font-bold uppercase tracking-widest truncate group-hover:text-black transition-colors cursor-pointer">
+                                                    {song.artist || song.uploader || 'UNKNOWN'} // REF
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="hidden md:block text-gray-500 text-[10px] font-bold uppercase tracking-widest">
+                                            LOG: {song.createdAt ? new Date(song.createdAt).toLocaleDateString() : '-'}
+                                        </div>
+
+                                        <div className="text-right text-gray-500 font-black text-[10px] uppercase hidden sm:block">
+                                            {formatSongDuration(song.duration)}
+                                        </div>
+
+                                        <div className="text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={(e) => handleToggleFavorite(song.id, e)}
+                                                className={`${favoritedSongs.has(song.id) ? 'text-black' : 'text-gray-400'} hover:text-black hover:scale-110 transition-all p-2`}
+                                                title={favoritedSongs.has(song.id) ? "Remove from favorites" : "Add to favorites"}
+                                            >
+                                                <Heart size={16} fill={favoritedSongs.has(song.id) ? 'currentColor' : 'none'} />
+                                            </button>
+                                        </div>
+
+                                        {/* Delete button - hidden for Favorite playlist */}
+                                        {playlist?.name !== 'Favorite' && (
+                                            <div className="text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleRemoveSong(song.id); }}
+                                                    className="text-gray-400 hover:text-red-600 hover:scale-110 transition-all p-2"
+                                                    title="Remove from collection"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -466,36 +467,37 @@ export default function PlaylistPage() {
 
             {/* Edit Playlist Modal */}
             {isEditModalOpen && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setIsEditModalOpen(false)}>
-                    <div className="bg-[#1e1e1e] rounded-xl w-full max-w-md overflow-hidden border border-[#333] shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex justify-between items-center p-5 border-b border-[#333]">
-                            <h2 className="text-lg font-bold text-white">Edit Playlist</h2>
-                            <button onClick={() => setIsEditModalOpen(false)} className="text-[#a7a7a7] hover:text-white">
-                                <X size={20} />
+                <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setIsEditModalOpen(false)}>
+                    <div className="bg-white border-4 border-black w-full max-w-md overflow-hidden shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] relative" onClick={(e) => e.stopPropagation()}>
+                        <div className="absolute top-0 right-0 bg-black text-white text-[10px] font-black uppercase px-2 py-1 tracking-widest">FORM_01</div>
+                        <div className="flex justify-between items-center p-6 border-b-4 border-black bg-gray-50">
+                            <h2 className="text-2xl font-black text-black uppercase tracking-tighter">ALTER_COLLECTION</h2>
+                            <button onClick={() => setIsEditModalOpen(false)} className="p-2 border-2 border-transparent hover:border-black transition-colors hover:bg-black hover:text-white">
+                                <X size={24} strokeWidth={3} />
                             </button>
                         </div>
 
-                        <div className="p-5 space-y-4">
+                        <div className="p-6 space-y-6">
                             {/* Cover Image Upload */}
                             <div className="flex justify-center mb-6">
                                 <div className="relative group w-40 h-40">
-                                    <div className="w-full h-full rounded-lg overflow-hidden border-2 border-[#333] bg-[#2a2a2a] flex items-center justify-center shadow-lg">
+                                    <div className="w-full h-full rounded-none overflow-hidden border-4 border-black bg-gray-200 flex items-center justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-shadow">
                                         {previewAvatar ? (
                                             <img
                                                 src={previewAvatar}
                                                 alt="Playlist Cover"
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
                                             />
                                         ) : (
-                                            <div className="flex flex-col items-center justify-center text-[#a7a7a7]">
-                                                <Music size={40} className="mb-2 opacity-50" />
-                                                <span className="text-xs">No Cover</span>
+                                            <div className="flex flex-col items-center justify-center text-gray-400">
+                                                <Music size={40} className="mb-2 opacity-50 text-black" />
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-black">NO MEDIA</span>
                                             </div>
                                         )}
 
                                         {/* Overlay */}
-                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                                            <Camera size={32} className="text-white" />
+                                        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer backdrop-blur-sm">
+                                            <Camera size={32} className="text-white" strokeWidth={2} />
                                         </div>
                                     </div>
 
@@ -504,66 +506,66 @@ export default function PlaylistPage() {
                                         accept="image/*"
                                         onChange={handleCoverChange}
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                        title="Change cover image"
+                                        title="Change visual input"
                                     />
 
                                     {editedCoverFile && (
-                                        <div className="absolute -bottom-2 -right-2 bg-[#ff7a3c] rounded-full p-1.5 shadow-md z-20">
-                                            <Upload size={14} className="text-white" />
+                                        <div className="absolute -bottom-3 -right-3 bg-black border-2 border-white rounded-none p-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] z-20">
+                                            <Upload size={16} className="text-white" strokeWidth={3} />
                                         </div>
                                     )}
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-medium text-white/70 mb-2">Playlist Name</label>
+                                <label className="block text-xs font-black text-black mb-2 uppercase tracking-widest">DESIGNATION</label>
                                 <input
                                     type="text"
                                     value={editedName}
                                     onChange={(e) => setEditedName(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-[#2a2a2a] border border-[#333] rounded-xl text-white focus:outline-none focus:border-[#ff7a3c] transition-colors text-sm"
-                                    placeholder="Enter playlist name"
+                                    className="w-full px-4 py-3 bg-white border-2 border-black text-black font-bold focus:outline-none rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow uppercase"
+                                    placeholder="Enter string value"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-medium text-white/70 mb-2">Description</label>
+                                <label className="block text-xs font-black text-black mb-2 uppercase tracking-widest">PARAMETERS</label>
                                 <textarea
                                     value={editedDescription}
                                     onChange={(e) => setEditedDescription(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-[#2a2a2a] border border-[#333] rounded-xl text-white focus:outline-none focus:border-[#ff7a3c] transition-colors text-sm resize-none"
-                                    placeholder="Enter description"
+                                    className="w-full px-4 py-3 bg-white border-2 border-black text-black font-bold focus:outline-none rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow resize-none uppercase"
+                                    placeholder="Enter details"
                                     rows={3}
                                 />
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 bg-gray-50 border-2 border-black p-4">
                                 <input
                                     type="checkbox"
                                     id="editIsPublic"
                                     checked={editedIsPublic}
                                     onChange={(e) => setEditedIsPublic(e.target.checked)}
-                                    className="w-4 h-4 rounded accent-[#ff7a3c]"
+                                    className="w-5 h-5 rounded-none border-2 border-black text-black focus:ring-black accent-black cursor-pointer"
                                 />
-                                <label htmlFor="editIsPublic" className="text-sm text-white cursor-pointer">
-                                    Make this playlist public
+                                <label htmlFor="editIsPublic" className="text-xs font-black text-black uppercase tracking-widest cursor-pointer">
+                                    Broadcast to Global Network
                                 </label>
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 p-5 border-t border-[#333]">
+                        <div className="flex justify-end gap-4 p-6 border-t-4 border-black bg-gray-50">
                             <button
                                 onClick={() => setIsEditModalOpen(false)}
-                                className="px-5 py-2 text-white border border-[#555] rounded-full hover:border-white transition-colors"
+                                className="px-6 py-3 font-black text-black uppercase tracking-widest text-xs border-2 border-black hover:bg-black hover:text-white transition-colors cursor-pointer"
                             >
-                                Cancel
+                                ABORT
                             </button>
                             <button
                                 onClick={handleUpdatePlaylist}
                                 disabled={!editedName.trim()}
-                                className="px-5 py-2 bg-[#ff7a3c] hover:bg-[#ff8c52] text-white rounded-full font-bold transition-all disabled:opacity-50"
+                                className="px-6 py-3 bg-black text-white font-black uppercase tracking-widest text-xs border-2 border-black hover:bg-gray-800 hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50 shadow-[4px_4px_0px_0px_rgba(156,163,175,1)] hover:shadow-none"
                             >
-                                Save Changes
+                                COMMIT CHANGES
                             </button>
                         </div>
                     </div>
@@ -572,29 +574,30 @@ export default function PlaylistPage() {
 
             {/* Delete Confirmation Modal */}
             {isDeleteModalOpen && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setIsDeleteModalOpen(false)}>
-                    <div className="bg-[#1e1e1e] rounded-xl w-full max-w-md overflow-hidden border border-[#333]" onClick={(e) => e.stopPropagation()}>
-                        <div className="p-6">
-                            <div className="w-12 h-12 bg-[#ff7a3c]/10 rounded-xl flex items-center justify-center mb-4">
-                                <Trash2 size={24} className="text-[#ff7a3c]" />
+                <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setIsDeleteModalOpen(false)}>
+                    <div className="bg-white rounded-none w-full max-w-md overflow-hidden border-4 border-black shadow-[16px_16px_0px_0px_rgba(220,38,38,1)] border-t-8 border-t-red-600 relative" onClick={(e) => e.stopPropagation()}>
+                        <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-black uppercase px-2 py-0.5 tracking-widest">CRITICAL</div>
+                        <div className="p-8">
+                            <div className="w-16 h-16 bg-red-50 border-4 border-red-600 flex items-center justify-center mx-auto mb-6 transform -rotate-12">
+                                <Trash2 size={32} className="text-red-600" strokeWidth={3} />
                             </div>
-                            <h2 className="text-xl font-bold text-white mb-2">Delete Playlist?</h2>
-                            <p className="text-white/60 text-sm mb-6">
-                                Are you sure you want to delete "<span className="font-medium text-white">{playlist?.name}</span>"? This action cannot be undone.
+                            <h2 className="text-2xl font-black text-black mb-2 uppercase tracking-tighter text-center">PURGE COLLECTION?</h2>
+                            <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mb-8 text-center border-y-2 border-dashed border-gray-300 py-4">
+                                Target node "<span className="font-black text-black">{playlist?.name}</span>" will be permanently erased from archive. This sequence cannot be aborted once initiated.
                             </p>
 
-                            <div className="flex gap-3">
+                            <div className="flex gap-4">
                                 <button
                                     onClick={() => setIsDeleteModalOpen(false)}
-                                    className="flex-1 px-5 py-2 text-white border border-[#555] rounded-full hover:border-white transition-colors"
+                                    className="flex-1 px-6 py-3 font-black text-black uppercase tracking-widest text-xs border-2 border-black hover:bg-black hover:text-white transition-colors cursor-pointer"
                                 >
-                                    Cancel
+                                    ABORT
                                 </button>
                                 <button
                                     onClick={handleDeletePlaylist}
-                                    className="flex-1 px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold transition-all"
+                                    className="flex-1 px-6 py-3 bg-red-600 text-white font-black uppercase tracking-widest text-xs border-2 border-black hover:bg-red-700 hover:translate-x-[2px] hover:translate-y-[2px] transition-all shadow-[4px_4px_0px_0px_rgba(150,0,0,1)] hover:shadow-none"
                                 >
-                                    Delete
+                                    AUTHORIZE PURGE
                                 </button>
                             </div>
                         </div>
